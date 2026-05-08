@@ -1,457 +1,739 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta name="theme-color" content="#050c14" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <title>SafeNest</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <!-- Leaflet for real map (no API key needed) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
+    :root {
+      --bg: #070b18;
+      --bg2: #0d1225;
+      --bg3: #111828;
+      --border: #1e2d4a;
+      --border2: #243352;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --pink: #ec4899;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --font: 'Syne', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body, #root { height: 100%; }
-    body { background: #050c14; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
-    input:focus { border-color: #4ade80 !important; box-shadow: 0 0 0 3px rgba(74,222,128,0.15) !important; outline: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes glow { 0%,100% { box-shadow: 0 0 30px #4ade8030; } 50% { box-shadow: 0 0 58px #4ade8060; } }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
-    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { box-shadow: 0 0 0 8px rgba(74,222,128,0); } }
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+    #root { height: 100%; display: flex; flex-direction: column; }
+    button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+    input { font-family: var(--font); outline: none; }
+    input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes ripple { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.4); opacity:0; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    .fade-in { animation: fadeIn 0.3s ease forwards; }
+    .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    /* Map */
+    #map { width:100%; height:100%; }
+    .leaflet-container { background: #0d1225 !important; }
+    .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
+
+    /* Custom marker */
+    .member-marker { position:relative; }
+    .marker-dot { width:16px; height:16px; border-radius:50%; border:2.5px solid white; box-shadow:0 0 12px currentColor; }
+    .marker-pulse { position:absolute; top:-4px; left:-4px; width:24px; height:24px; border-radius:50%; border:2px solid currentColor; animation: ripple 1.8s ease-out infinite; }
+    .marker-label { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(10,15,30,0.9); border:1px solid rgba(255,255,255,0.1); }
+
+    /* Nav */
+    .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
+    .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; background:none; color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0.5px; transition:color 0.2s; position:relative; }
+    .nav-btn.active { color:var(--accent); }
+    .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
+    .nav-btn.active .icon { transform:scale(1.1); }
+    .nav-badge { position:absolute; top:6px; right:calc(50% - 16px); background:var(--red); color:white; font-size:9px; font-weight:800; border-radius:99px; padding:1px 5px; min-width:16px; text-align:center; }
+
+    /* Cards */
+    .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
+    .card-sm { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px; }
+
+    /* Member pill */
+    .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
+    .member-row:last-child { margin-bottom:0; }
+    .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+
+    /* Toggle */
+    .big-toggle { width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; }
+    .toggle-ripple { position:absolute; inset:-8px; border-radius:50%; animation: ripple 2s ease-out infinite; }
+
+    /* Inputs */
+    .inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:14px; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
+    .inp::placeholder { color:var(--text3); }
+    .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
+
+    /* Btn */
+    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:white; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
+    .btn-primary:disabled { opacity:0.4; cursor:default; }
+    .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
+
+    /* Status dot */
+    .dot-live { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; display:inline-block; }
+    .dot-off { width:7px; height:7px; border-radius:50%; background:var(--text3); display:inline-block; }
+
+    /* Page */
+    .page { flex:1; overflow-y:auto; padding:16px; animation:fadeIn 0.25s ease; }
+
+    /* Profile avatar upload */
+    .avatar-upload { position:relative; display:inline-block; cursor:pointer; }
+    .avatar-upload input { display:none; }
+    .avatar-upload-overlay { position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; opacity:0; transition:opacity 0.2s; }
+    .avatar-upload:hover .avatar-upload-overlay { opacity:1; }
+
+    /* Tabs */
+    .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
+    .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
+    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; }
+
+    /* Role cards */
+    .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+    .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+
+    /* Overlay/modal */
+    .overlay { position:fixed; inset:0; background:rgba(7,11,24,0.85); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:flex-end; }
+    .sheet { background:var(--bg2); border-radius:20px 20px 0 0; border-top:1px solid var(--border); width:100%; padding:20px; max-height:90vh; overflow-y:auto; animation:slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .sheet-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 20px; }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
 
-  <!-- React + Babel from CDN — no install needed -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script type="text/babel" data-presets="react">
-    const { useState, useEffect, useRef, useCallback } = React;
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-    // ── Firebase ──────────────────────────────────────────────────────────────
-    const FB = "https://lantam-cyril-default-rtdb.firebaseio.com";
-    const fbGet = async (p) => { try { const r = await fetch(`${FB}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
-    const fbSet = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+// ── Firebase ──────────────────────────────────────────────────────────────────
+const FB = "https://lantam-cyril-default-rtdb.firebaseio.com";
+const fbGet = async (p) => { try { const r = await fetch(`${FB}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
+const fbSet = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+const fbPatch = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 
-    // ── LocalStorage ──────────────────────────────────────────────────────────
-    const LS = {
-      get: (k) => { try { return JSON.parse(localStorage.getItem("sn_"+k)); } catch { return null; } },
-      set: (k,v) => { try { localStorage.setItem("sn_"+k, JSON.stringify(v)); } catch {} },
-      del: (k) => { try { localStorage.removeItem("sn_"+k); } catch {} },
-    };
+// ── LocalStorage ──────────────────────────────────────────────────────────────
+const LS = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem("sn3_"+k)); } catch { return null; } },
+  set: (k,v) => { try { localStorage.setItem("sn3_"+k, JSON.stringify(v)); } catch {} },
+  del: (k) => { try { localStorage.removeItem("sn3_"+k); } catch {} },
+};
 
-    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,14);
-    const FATHER = "father", SON = "son";
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
+const ROLES = ["father","son","girlfriend"];
+const ROLE_META = {
+  father:     { emoji:"👨", label:"Father",     color:"#f59e0b" },
+  son:        { emoji:"👦", label:"Son",         color:"#3b82f6" },
+  girlfriend: { emoji:"👩", label:"Girlfriend",  color:"#ec4899" },
+};
 
-    // ── Radar ─────────────────────────────────────────────────────────────────
-    function Radar({ sonLoc, sonOnline, sonName }) {
-      const ref = useRef(null);
-      const live = useRef({ angle:0, sonLoc, sonOnline, sonName });
-      useEffect(() => { live.current = { ...live.current, sonLoc, sonOnline, sonName }; }, [sonLoc, sonOnline, sonName]);
+// ── Real Map Component (Leaflet) ───────────────────────────────────────────────
+function LiveMap({ members, currentUser }) {
+  const mapRef = useRef(null);
+  const leafletRef = useRef(null);
+  const markersRef = useRef({});
 
-      useEffect(() => {
-        const canvas = ref.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        let raf;
-        const resize = () => {
-          const p = canvas.parentElement.getBoundingClientRect();
-          canvas.width = p.width * devicePixelRatio;
-          canvas.height = p.height * devicePixelRatio;
-        };
-        resize();
-        window.addEventListener("resize", resize);
+  useEffect(() => {
+    if (leafletRef.current) return;
+    const map = L.map("safenest-map", {
+      center: [9.0, -2.5],
+      zoom: 6,
+      zoomControl: false,
+      attributionControl: false,
+    });
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+    }).addTo(map);
+    L.control.zoom({ position:"bottomright" }).addTo(map);
+    leafletRef.current = map;
+  }, []);
 
-        const draw = () => {
-          const { sonLoc, sonOnline, sonName } = live.current;
-          const W = canvas.width, H = canvas.height, dpr = devicePixelRatio;
-          const cx = W/2, cy = H/2, R = Math.min(W,H)*0.4;
-          ctx.clearRect(0,0,W,H);
-          ctx.fillStyle="#030a10"; ctx.fillRect(0,0,W,H);
+  useEffect(() => {
+    const map = leafletRef.current;
+    if (!map) return;
 
-          [1,0.75,0.5,0.25].forEach((f,i) => {
-            ctx.beginPath(); ctx.arc(cx,cy,R*f,0,Math.PI*2);
-            ctx.strokeStyle=i===0?"#14532d":"#071a0f"; ctx.lineWidth=i===0?1.5:1; ctx.stroke();
-          });
-          [[cx-R,cy,cx+R,cy],[cx,cy-R,cx,cy+R],[cx-R*.707,cy-R*.707,cx+R*.707,cy+R*.707],[cx+R*.707,cy-R*.707,cx-R*.707,cy+R*.707]].forEach(([x1,y1,x2,y2])=>{
-            ctx.strokeStyle="#071a0f"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-          });
+    const onlineMembers = members.filter(m => m.online && m.lat);
 
-          if (sonOnline) {
-            ctx.save(); ctx.translate(cx,cy); ctx.rotate(live.current.angle);
-            live.current.angle += 0.022;
-            const g = ctx.createLinearGradient(0,0,R,0);
-            g.addColorStop(0,"rgba(74,222,128,0.38)"); g.addColorStop(0.65,"rgba(74,222,128,0.08)"); g.addColorStop(1,"rgba(74,222,128,0)");
-            ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,-0.44,0.44); ctx.closePath();
-            ctx.fillStyle=g; ctx.fill(); ctx.restore();
-          }
+    // Remove stale markers
+    Object.keys(markersRef.current).forEach(role => {
+      if (!onlineMembers.find(m => m.role === role)) {
+        map.removeLayer(markersRef.current[role]);
+        delete markersRef.current[role];
+      }
+    });
 
-          ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R-1,0,Math.PI*2); ctx.clip();
-          ctx.beginPath(); ctx.arc(cx,cy,7*dpr,0,Math.PI*2); ctx.fillStyle="#f59e0b"; ctx.fill();
-          ctx.beginPath(); ctx.arc(cx,cy,13*dpr,0,Math.PI*2); ctx.strokeStyle="#f59e0b50"; ctx.lineWidth=2; ctx.stroke();
+    // Add/update markers
+    onlineMembers.forEach(m => {
+      const meta = ROLE_META[m.role];
+      const color = meta.color;
+      const label = m.name || meta.label;
 
-          if (sonOnline && sonLoc) {
-            const px=cx+sonLoc.x*R*0.6, py=cy+sonLoc.y*R*0.6;
-            const p=(Math.sin(Date.now()/350)+1)/2;
-            ctx.setLineDash([3*dpr,5*dpr]); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.strokeStyle="#60a5fa20"; ctx.lineWidth=1.5; ctx.stroke(); ctx.setLineDash([]);
-            ctx.beginPath(); ctx.arc(px,py,(11+p*7)*dpr,0,Math.PI*2); ctx.strokeStyle=`rgba(96,165,250,${0.5-p*0.3})`; ctx.lineWidth=2; ctx.stroke();
-            ctx.beginPath(); ctx.arc(px,py,8*dpr,0,Math.PI*2); ctx.fillStyle="#60a5fa"; ctx.fill();
-            ctx.fillStyle="#93c5fd"; ctx.font=`bold ${10*dpr}px DM Mono,monospace`; ctx.textAlign="center";
-            ctx.fillText((sonName||"SON").toUpperCase(), px, py+22*dpr);
-          }
-          ctx.restore();
-          ctx.fillStyle="#f59e0b80"; ctx.font=`bold ${9*dpr}px DM Mono,monospace`; ctx.textAlign="center"; ctx.fillText("YOU",cx,cy+22*dpr);
-          ctx.fillStyle="#14532d"; ctx.font=`${9*dpr}px DM Mono,monospace`;
-          ctx.fillText("N",cx,cy-R-8*dpr); ctx.fillText("S",cx,cy+R+16*dpr);
-          ctx.textAlign="left"; ctx.fillText("E",cx+R+6*dpr,cy+4*dpr);
-          ctx.textAlign="right"; ctx.fillText("W",cx-R-4*dpr,cy+4*dpr);
-          raf = requestAnimationFrame(draw);
-        };
-        draw();
-        return () => { cancelAnimationFrame(raf); window.removeEventListener("resize",resize); };
-      }, []);
+      const iconHtml = `
+        <div style="position:relative;width:24px;height:24px;">
+          <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${color};animation:ripple 1.8s ease-out infinite;opacity:0.6;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 16px ${color}80;"></div>
+          <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};padding:2px 7px;border-radius:5px;background:rgba(7,11,24,0.92);border:1px solid ${color}40;">${label.toUpperCase()}</div>
+        </div>`;
 
-      return <canvas ref={ref} style={{width:"100%",height:"100%",display:"block"}} />;
+      const icon = L.divIcon({ html: iconHtml, className:"", iconSize:[24,24], iconAnchor:[12,12] });
+
+      if (markersRef.current[m.role]) {
+        markersRef.current[m.role].setLatLng([m.lat, m.lng]);
+        markersRef.current[m.role].setIcon(icon);
+      } else {
+        markersRef.current[m.role] = L.marker([m.lat, m.lng], { icon }).addTo(map);
+      }
+    });
+
+    // Fit map to show all online members
+    if (onlineMembers.length > 0) {
+      const bounds = onlineMembers.map(m => [m.lat, m.lng]);
+      if (onlineMembers.length === 1) {
+        map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
+      } else {
+        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:14 });
+      }
     }
+  }, [members]);
 
-    // ── Auth ──────────────────────────────────────────────────────────────────
-    function Auth({ onAuth }) {
-      const [mode,setMode] = useState("login");
-      const [role,setRole] = useState(FATHER);
-      const [name,setName] = useState("");
-      const [code,setCode] = useState("");
-      const [pass,setPass] = useState("");
-      const [err,setErr] = useState("");
-      const [busy,setBusy] = useState(false);
+  return <div id="safenest-map" style={{width:"100%",height:"100%"}} />;
+}
 
-      const submit = async () => {
-        setErr("");
-        if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
-        if (pass.length < 4) { setErr("Password needs at least 4 characters."); return; }
-        setBusy(true);
-        const room = slug(code);
-        let users = await fbGet(`sn/${room}/users`) || LS.get(`${room}_u`) || {};
+// ── Auth Screen ───────────────────────────────────────────────────────────────
+function AuthScreen({ onAuth }) {
+  const [mode,setMode] = useState("login");
+  const [role,setRole] = useState("father");
+  const [name,setName] = useState("");
+  const [code,setCode] = useState("");
+  const [pass,setPass] = useState("");
+  const [err,setErr] = useState("");
+  const [busy,setBusy] = useState(false);
 
-        if (mode === "register") {
-          if (Object.values(users).find(u => u.role === role)) { setErr(`A ${role} is already registered in this family.`); setBusy(false); return; }
-          if (users[slug(name)]) { setErr("That name is already taken."); setBusy(false); return; }
-          const u = { name:name.trim(), role, pass, at:Date.now() };
-          users[slug(name)] = u;
-          await fbSet(`sn/${room}/users`, users);
-          LS.set(`${room}_u`, users);
-          const sess = { name:u.name, role, room };
-          LS.set("sess", sess); onAuth(sess);
-        } else {
-          const all = { ...(LS.get(`${room}_u`)||{}), ...users };
-          const u = all[slug(name)];
-          if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
-          if (u.pass !== pass) { setErr("Wrong password."); setBusy(false); return; }
-          const sess = { name:u.name, role:u.role, room };
-          LS.set("sess", sess); onAuth(sess);
-        }
-        setBusy(false);
-      };
+  const submit = async () => {
+    setErr("");
+    if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
+    if (pass.length < 4) { setErr("Password must be at least 4 characters."); return; }
+    setBusy(true);
+    const room = slug(code);
+    let users = await fbGet(`sn3/${room}/users`) || LS.get(`${room}_u`) || {};
 
-      return (
-        <div style={{minHeight:"100vh",background:"#050c14",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}}>
-          <div style={{width:"100%",maxWidth:"390px",background:"linear-gradient(155deg,#0a1a24,#060f18)",border:"1px solid #0d3a2a",borderRadius:"24px",padding:"36px 30px",boxShadow:"0 0 80px rgba(74,222,128,0.04)"}}>
+    if (mode === "register") {
+      if (Object.values(users).find(u => u.role === role)) {
+        setErr(`A ${role} is already registered. Please log in instead.`); setBusy(false); return;
+      }
+      if (users[slug(name)]) { setErr("That name is taken in this family."); setBusy(false); return; }
+      const u = { name:name.trim(), role, pass, avatar:"", bio:"", createdAt:Date.now() };
+      users[slug(name)] = u;
+      await fbSet(`sn3/${room}/users`, users);
+      LS.set(`${room}_u`, users);
+      const sess = { name:u.name, role, room };
+      LS.set("sess", sess); onAuth(sess);
+    } else {
+      const all = { ...(LS.get(`${room}_u`)||{}), ...users };
+      const u = all[slug(name)];
+      if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
+      if (u.pass !== pass) { setErr("Incorrect password."); setBusy(false); return; }
+      const sess = { name:u.name, role:u.role, room };
+      LS.set("sess", sess); onAuth(sess);
+    }
+    setBusy(false);
+  };
 
-            {/* Logo */}
-            <div style={{display:"flex",alignItems:"center",gap:"10px",justifyContent:"center",marginBottom:"6px"}}>
-              <div style={{width:"42px",height:"42px",background:"linear-gradient(135deg,#4ade80,#22d3ee)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>🛡️</div>
-              <span style={{fontSize:"22px",fontWeight:"900",background:"linear-gradient(135deg,#4ade80,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>SafeNest</span>
-            </div>
-            <div style={{textAlign:"center",color:"#0d4a2a",fontSize:"10px",fontWeight:"800",letterSpacing:"3px",marginBottom:"26px"}}>FAMILY LOCATION SHARING</div>
+  return (
+    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
+      <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
+        {/* Logo */}
+        <div style={{textAlign:"center",marginBottom:"32px"}}>
+          <div style={{width:"60px",height:"60px",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",borderRadius:"18px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px",margin:"0 auto 12px",boxShadow:"0 0 40px rgba(59,130,246,0.3)"}}>🛡️</div>
+          <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>SafeNest</div>
+          <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>FAMILY SAFETY NETWORK</div>
+        </div>
 
-            {/* Tabs */}
-            <div style={{display:"flex",background:"#030a10",borderRadius:"11px",padding:"4px",marginBottom:"20px",border:"1px solid #0d3a2a"}}>
-              {["login","register"].map(m => (
-                <button key={m} onClick={()=>{setMode(m);setErr("");}} style={{flex:1,padding:"10px",borderRadius:"8px",border:"none",fontFamily:"inherit",fontWeight:"700",fontSize:"13px",cursor:"pointer",transition:"all 0.18s",background:mode===m?"linear-gradient(135deg,#4ade80,#22d3ee)":"transparent",color:mode===m?"#050c14":"#14532d"}}>
-                  {m==="login"?"Log In":"Register"}
-                </button>
-              ))}
-            </div>
+        <div className="card" style={{padding:"28px"}}>
+          <div className="tabs">
+            <button className={`tab ${mode==="login"?"active":""}`} onClick={()=>{setMode("login");setErr("");}}>Log In</button>
+            <button className={`tab ${mode==="register"?"active":""}`} onClick={()=>{setMode("register");setErr("");}}>Register</button>
+          </div>
 
-            {/* Role picker */}
-            {mode==="register" && <>
-              <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>I am the</span>
-              <div style={{display:"flex",gap:"10px",marginBottom:"13px"}}>
-                {[[FATHER,"👨","#f59e0b"],[SON,"👦","#60a5fa"]].map(([r,emoji,c])=>(
-                  <button key={r} onClick={()=>setRole(r)} style={{flex:1,padding:"13px 8px",borderRadius:"11px",border:`2px solid ${role===r?c:"#0d3a2a"}`,background:role===r?c+"18":"transparent",color:role===r?c:"#14532d",fontWeight:"800",fontSize:"14px",cursor:"pointer",fontFamily:"inherit",transition:"all 0.18s",display:"flex",flexDirection:"column",alignItems:"center",gap:"3px"}}>
-                    <span style={{fontSize:"22px"}}>{emoji}</span>{r.charAt(0).toUpperCase()+r.slice(1)}
+          {mode==="register" && <>
+            <span className="lbl">I am the</span>
+            <div className="role-grid" style={{marginBottom:"16px"}}>
+              {ROLES.map(r => {
+                const m = ROLE_META[r];
+                const active = role===r;
+                return (
+                  <button key={r} className="role-card" onClick={()=>setRole(r)}
+                    style={{borderColor:active?m.color:"var(--border)",background:active?m.color+"18":"transparent",color:active?m.color:"var(--text3)"}}>
+                    <span style={{fontSize:"24px"}}>{m.emoji}</span>
+                    {m.label}
                   </button>
-                ))}
-              </div>
-            </>}
-
-            {/* Family Code */}
-            <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>Family Code</span>
-            <input value={code} onChange={e=>setCode(e.target.value)} placeholder='e.g. "smithfamily"'
-              style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"10px",color:"#e2e8f0",padding:"11px 14px",fontSize:"14px",fontFamily:"inherit",marginBottom:"8px"}} />
-            <div style={{fontSize:"11px",color:"#0a3a1a",marginBottom:"13px",lineHeight:"1.6",padding:"9px 12px",background:"#030a10",borderRadius:"8px",border:"1px solid #0a2a14"}}>
-              📌 Both father and son must use the <strong style={{color:"#4ade80"}}>same Family Code</strong> to connect across different phones.
+                );
+              })}
             </div>
+          </>}
 
-            {/* Name */}
-            <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>Your Name</span>
-            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Enter your name"
-              style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"10px",color:"#e2e8f0",padding:"11px 14px",fontSize:"14px",fontFamily:"inherit",marginBottom:"13px"}} />
+          <span className="lbl">Family Code</span>
+          <input className="inp" style={{marginBottom:"8px"}} placeholder='e.g. "johnson2024"' value={code} onChange={e=>setCode(e.target.value)} />
+          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"16px",lineHeight:"1.6",padding:"9px 12px",background:"var(--bg3)",borderRadius:"8px",border:"1px solid var(--border)"}}>
+            📌 All family members must use the <strong style={{color:"var(--accent)"}}>same Family Code</strong> to connect.
+          </div>
 
-            {/* Password */}
-            <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>Password</span>
-            <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Min 4 characters"
-              onKeyDown={e=>e.key==="Enter"&&submit()}
-              style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"10px",color:"#e2e8f0",padding:"11px 14px",fontSize:"14px",fontFamily:"inherit",marginBottom:"13px"}} />
+          <span className="lbl">Your Name</span>
+          <input className="inp" style={{marginBottom:"14px"}} placeholder="Enter your name" value={name} onChange={e=>setName(e.target.value)} />
 
-            {err && <div style={{background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.25)",borderRadius:"9px",color:"#f87171",fontSize:"12px",fontWeight:"600",padding:"9px 13px",marginBottom:"12px"}}>⚠️ {err}</div>}
+          <span className="lbl">Password</span>
+          <input className="inp" style={{marginBottom:"16px"}} type="password" placeholder="Min 4 characters" value={pass}
+            onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} />
 
-            <button onClick={submit} disabled={busy}
-              style={{width:"100%",padding:"13px",background:busy?"#0a2a14":"linear-gradient(135deg,#4ade80,#22d3ee)",border:"none",borderRadius:"11px",color:busy?"#14532d":"#050c14",fontWeight:"900",fontSize:"14px",cursor:busy?"default":"pointer",fontFamily:"inherit"}}>
-              {busy ? "Please wait…" : mode==="register" ? "Create Account →" : "Log In →"}
+          {err && <div style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:"9px",color:"#f87171",fontSize:"12px",fontWeight:"600",padding:"10px 13px",marginBottom:"14px"}}>⚠️ {err}</div>}
+
+          <button className="btn-primary" onClick={submit} disabled={busy}>
+            {busy?"Please wait…":mode==="register"?"Create Account →":"Log In →"}
+          </button>
+
+          <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"var(--text3)"}}>
+            {mode==="login"?"No account? ":"Already registered? "}
+            <button style={{background:"none",border:"none",color:"var(--accent)",fontWeight:"800",cursor:"pointer",fontFamily:"var(--font)",fontSize:"13px"}}
+              onClick={()=>{setMode(mode==="login"?"register":"login");setErr("");}}>
+              {mode==="login"?"Register":"Log In"}
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-            <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"#14532d"}}>
-              {mode==="login" ? "No account? " : "Already registered? "}
-              <button onClick={()=>{setMode(mode==="login"?"register":"login");setErr("");}}
-                style={{background:"none",border:"none",color:"#4ade80",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",fontSize:"13px"}}>
-                {mode==="login" ? "Register" : "Log In"}
-              </button>
+// ── Main App (after login) ────────────────────────────────────────────────────
+function MainApp({ session, onLogout }) {
+  const [tab, setTab] = useState("map");
+  const [members, setMembers] = useState([]);
+  const [myData, setMyData] = useState(null);
+  const [sharing, setSharing] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+
+  const watchRef = useRef(null);
+  const simRef = useRef(null);
+  const simCoordsRef = useRef(null);
+  const activeRef = useRef(false);
+
+  const meta = ROLE_META[session.role];
+
+  // ── Load my profile ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const loadProfile = async () => {
+      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+      const u = users[slug(session.name)];
+      if (u) setMyData(u);
+    };
+    loadProfile();
+  }, [session]);
+
+  // ── Poll all members' locations ───────────────────────────────────────────
+  useEffect(() => {
+    const poll = async () => {
+      const locs = await fbGet(`sn3/${session.room}/locs`) || {};
+      const localLocs = LS.get(`${session.room}_locs`) || {};
+      const merged = { ...localLocs, ...locs };
+      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+
+      const list = Object.entries(merged).map(([role, d]) => {
+        const stale = Date.now() - (d.t||0) > 20000;
+        const u = Object.values(users).find(u => u.role === role) || {};
+        return {
+          role, name: d.name||u.name||role,
+          lat: d.lat, lng: d.lng, accuracy: d.accuracy,
+          online: d.online && !stale,
+          avatar: u.avatar||"",
+          t: d.t,
+        };
+      });
+      setMembers(list);
+    };
+    poll();
+    const t = setInterval(poll, 3000);
+    return () => clearInterval(t);
+  }, [session]);
+
+  // ── Push location ─────────────────────────────────────────────────────────
+  const pushLoc = useCallback(async (loc) => {
+    const d = { ...loc, online:true, name:session.name, t:Date.now() };
+    const locs = LS.get(`${session.room}_locs`) || {};
+    locs[session.role] = d;
+    LS.set(`${session.room}_locs`, locs);
+    await fbPatch(`sn3/${session.room}/locs`, { [session.role]: d });
+  }, [session]);
+
+  // ── Stop sharing ──────────────────────────────────────────────────────────
+  const stopSharing = useCallback(() => {
+    activeRef.current = false;
+    if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
+    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
+    const off = { online:false, name:session.name, t:Date.now() };
+    const locs = LS.get(`${session.room}_locs`) || {};
+    locs[session.role] = off;
+    LS.set(`${session.room}_locs`, locs);
+    fbPatch(`sn3/${session.room}/locs`, { [session.role]: off });
+    setSharing(false); setPending(false);
+  }, [session]);
+
+  // ── Start simulated ───────────────────────────────────────────────────────
+  const startSim = useCallback(() => {
+    const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
+    simCoordsRef.current = {...base};
+    pushLoc(base);
+    setSharing(true); setPending(false); activeRef.current = true;
+    simRef.current = setInterval(() => {
+      if (!activeRef.current) return;
+      simCoordsRef.current.lat += (Math.random()-.48)*.001;
+      simCoordsRef.current.lng += (Math.random()-.48)*.001;
+      pushLoc({...simCoordsRef.current});
+    }, 5000);
+  }, [pushLoc]);
+
+  // ── Toggle sharing ────────────────────────────────────────────────────────
+  const toggleSharing = useCallback(() => {
+    if (sharing || pending) { stopSharing(); return; }
+    setPending(true);
+    if (!navigator.geolocation) { startSim(); return; }
+
+    const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
+
+    // watchPosition keeps running forever until cleared — this is the persistent sharing
+    watchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        clearTimeout(fallback);
+        if (watchRef.current == null) return;
+        const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
+        pushLoc(loc);
+        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); }
+      },
+      () => { clearTimeout(fallback); startSim(); },
+      { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
+    );
+  }, [sharing, pending, stopSharing, startSim]);
+
+  useEffect(() => () => stopSharing(), [stopSharing]);
+
+  const onlineCount = members.filter(m=>m.online).length;
+
+  return (
+    <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
+      {/* ── MAP TAB ─────────────────────────────────────────────────────── */}
+      {tab==="map" && (
+        <div style={{flex:1,position:"relative",overflow:"hidden"}}>
+          <LiveMap members={members} currentUser={session} />
+
+          {/* Header overlay */}
+          <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
+            <div>
+              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
+              <div style={{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"500",marginTop:"1px"}}>
+                {onlineCount} of {members.length||"—"} online
+              </div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"6px",background:"rgba(7,11,24,0.8)",border:"1px solid var(--border)",borderRadius:"10px",padding:"6px 12px"}}>
+              <div style={{width:"7px",height:"7px",borderRadius:"50%",background:sharing?"var(--green)":pending?"var(--amber)":"var(--text3)",animation:sharing?"pulse 1.5s infinite":"none"}} />
+              <span style={{fontSize:"11px",fontWeight:"700",color:sharing?"var(--green)":pending?"var(--amber)":"var(--text2)",fontFamily:"var(--mono)"}}>
+                {sharing?"LIVE":pending?"STARTING…":"OFF"}
+              </span>
+            </div>
+          </div>
+
+          {/* Share toggle fab */}
+          <div style={{position:"absolute",bottom:"24px",left:"50%",transform:"translateX(-50%)",zIndex:500}}>
+            <div onClick={toggleSharing} className="big-toggle"
+              style={{background:sharing?`linear-gradient(135deg,${meta.color}30,${meta.color}10)`:pending?"rgba(245,158,11,0.1)":"rgba(13,18,37,0.9)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 40px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.5)",backdropFilter:"blur(10px)"}}>
+              {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.3}} />}
+              <span style={{fontSize:"36px"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
+              <span style={{fontSize:"9px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
+                {sharing?"SHARING":pending?"WAIT":"TAP"}
+              </span>
+            </div>
+            <div style={{textAlign:"center",marginTop:"8px",fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",background:"rgba(7,11,24,0.8)",padding:"4px 10px",borderRadius:"6px",border:"1px solid var(--border)"}}>
+              {sharing?"Sharing until you stop":pending?"Getting location…":"Tap to share location"}
             </div>
           </div>
         </div>
-      );
-    }
+      )}
 
-    // ── Son ───────────────────────────────────────────────────────────────────
-    function Son({ user, onLogout }) {
-      const [sharing,setSharing] = useState(false);
-      const [pending,setPending] = useState(false);
-      const [coords,setCoords] = useState(null);
-      const watchId = useRef(null);
-      const simTimer = useRef(null);
-      const simCoords = useRef(null);
-      const activeRef = useRef(false);
+      {/* ── FAMILY TAB ───────────────────────────────────────────────────── */}
+      {tab==="family" && (
+        <div className="page">
+          <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"4px"}}>Family</div>
+          <div style={{fontSize:"12px",color:"var(--text3)",marginBottom:"20px",fontFamily:"var(--mono)"}}>Room: {session.room}</div>
 
-      const push = useCallback(async (loc) => {
-        const d = { ...loc, online:true, name:user.name, t:Date.now() };
-        LS.set(`${user.room}_loc`, d);
-        await fbSet(`sn/${user.room}/loc`, d);
-      }, [user]);
-
-      const stopAll = useCallback(() => {
-        activeRef.current = false;
-        if (watchId.current != null) { navigator.geolocation?.clearWatch(watchId.current); watchId.current = null; }
-        if (simTimer.current) { clearInterval(simTimer.current); simTimer.current = null; }
-        LS.set(`${user.room}_loc`, { online:false, name:user.name, t:Date.now() });
-        fbSet(`sn/${user.room}/loc`, { online:false, name:user.name, t:Date.now() });
-        setSharing(false); setPending(false); setCoords(null);
-      }, [user]);
-
-      const startSim = useCallback(() => {
-        const base = { lat:40.758+(Math.random()-.5)*.02, lng:-73.9855+(Math.random()-.5)*.02, accuracy:18 };
-        simCoords.current = {...base};
-        setCoords({...base}); push(base);
-        setSharing(true); setPending(false); activeRef.current = true;
-        simTimer.current = setInterval(() => {
-          if (!activeRef.current) return;
-          simCoords.current.lat += (Math.random()-.48)*.0004;
-          simCoords.current.lng += (Math.random()-.48)*.0004;
-          const next = {...simCoords.current};
-          setCoords({...next}); push(next);
-        }, 4000);
-      }, [push]);
-
-      const toggle = useCallback(() => {
-        if (sharing || pending) { stopAll(); return; }
-        setPending(true);
-        if (!navigator.geolocation) { startSim(); return; }
-        const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 7000);
-        watchId.current = navigator.geolocation.watchPosition(
-          (pos) => {
-            clearTimeout(fallback);
-            if (watchId.current == null) return;
-            const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
-            setCoords(loc); push(loc);
-            if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); }
-          },
-          () => { clearTimeout(fallback); startSim(); },
-          { enableHighAccuracy:true, maximumAge:5000, timeout:10000 }
-        );
-      }, [sharing, pending, stopAll, startSim]);
-
-      useEffect(() => () => stopAll(), [stopAll]);
-
-      const borderColor = sharing?"#4ade80":pending?"#fbbf24":"#0d3a2a";
-
-      return (
-        <div style={{minHeight:"100vh",background:"#050c14",color:"#e2e8f0",display:"flex",flexDirection:"column"}}>
-          {/* Header */}
-          <header style={{background:"#060f18",borderBottom:"1px solid #0d3a2a",padding:"0 20px",height:"56px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <div style={{width:"28px",height:"28px",background:"linear-gradient(135deg,#4ade80,#22d3ee)",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px"}}>🛡️</div>
-              <span style={{fontSize:"16px",fontWeight:"900",background:"linear-gradient(135deg,#4ade80,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>SafeNest</span>
+          {members.length === 0 && (
+            <div className="card" style={{padding:"32px",textAlign:"center"}}>
+              <div style={{fontSize:"40px",marginBottom:"12px"}}>👨‍👩‍👦</div>
+              <div style={{color:"var(--text2)",fontWeight:"600"}}>No family members connected yet</div>
+              <div style={{color:"var(--text3)",fontSize:"12px",marginTop:"6px"}}>Others need to register with the same family code: <strong style={{color:"var(--accent)"}}>{session.room}</strong></div>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <span style={{fontSize:"11px",color:"#60a5fa",fontWeight:"800"}}>👦 Son</span>
-              <button onClick={onLogout} style={{background:"transparent",border:"1px solid #0d3a2a",borderRadius:"7px",color:"#14532d",fontSize:"11px",fontWeight:"700",padding:"5px 11px",cursor:"pointer",fontFamily:"inherit"}}>Log Out</button>
-            </div>
-          </header>
+          )}
 
-          {/* Main */}
-          <main style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px 20px",gap:"22px"}}>
-            <div style={{textAlign:"center"}}>
-              <div style={{fontSize:"26px",fontWeight:"900",color:"#60a5fa"}}>Hey, {user.name} 👋</div>
-              <div style={{fontSize:"12px",color:"#14532d",marginTop:"4px",fontWeight:"600"}}>Tap to share your location with Dad</div>
-            </div>
-
-            <div style={{width:"100%",maxWidth:"320px",background:"linear-gradient(155deg,#0a1a24,#060f18)",border:`2px solid ${borderColor}`,borderRadius:"24px",padding:"32px 22px",display:"flex",flexDirection:"column",alignItems:"center",gap:"18px",boxShadow:sharing?"0 0 60px rgba(74,222,128,0.08)":"none",transition:"all 0.35s"}}>
-
-              {/* Big button */}
-              <div onClick={toggle} style={{width:"128px",height:"128px",borderRadius:"50%",border:`3px solid ${borderColor}`,background:sharing?"radial-gradient(circle at 40% 40%,rgba(74,222,128,0.16),#050c14)":pending?"radial-gradient(circle,rgba(251,191,36,0.07),#050c14)":"#060f18",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:pending?"default":"pointer",transition:"all 0.3s",boxShadow:sharing?"0 0 48px rgba(74,222,128,0.2)":"none",fontSize:"44px",gap:"2px",userSelect:"none",WebkitTapHighlightColor:"transparent"}}>
-                <span style={{animation:pending?"spin 1s linear infinite":sharing?"glow 2s infinite":"none",display:"inline-block"}}>
-                  {sharing?"📡":pending?"⏳":"📴"}
-                </span>
-                <span style={{fontSize:"9px",fontWeight:"900",color:sharing?"#4ade80":pending?"#fbbf24":"#0d4a2a",letterSpacing:"2px"}}>
-                  {sharing?"LIVE":pending?"WAIT":"OFF"}
-                </span>
-              </div>
-
-              <div style={{fontSize:"17px",fontWeight:"900",color:sharing?"#4ade80":pending?"#fbbf24":"#14532d"}}>
-                {sharing?"✅ Sharing Live":pending?"⏳ Starting…":"Location Off"}
-              </div>
-              <div style={{fontSize:"12px",color:sharing?"rgba(74,222,128,0.6)":"#14532d",fontWeight:"600",textAlign:"center"}}>
-                {sharing?"Dad can see you right now":pending?"Requesting access…":"Tap the button above to go live"}
-              </div>
-
-              {coords && sharing && (
-                <div style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"11px",padding:"13px",fontFamily:"'DM Mono',monospace",fontSize:"11px",color:"#0d4a2a",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",lineHeight:"1.6"}}>
-                  <div><div>LAT</div><div style={{color:"#4ade80",fontWeight:"700"}}>{coords.lat.toFixed(5)}</div></div>
-                  <div><div>LNG</div><div style={{color:"#4ade80",fontWeight:"700"}}>{coords.lng.toFixed(5)}</div></div>
-                  <div><div>ACCURACY</div><div style={{color:"#4ade80",fontWeight:"700"}}>±{coords.accuracy}m</div></div>
-                  <div><div>STATUS</div><div style={{color:"#4ade80",fontWeight:"700"}}>LIVE</div></div>
+          {ROLES.map(role => {
+            const m = members.find(x=>x.role===role);
+            const meta = ROLE_META[role];
+            const isMe = session.role === role;
+            return (
+              <div key={role} className="member-row" style={{borderColor:m?.online?meta.color+"40":"var(--border)"}}>
+                {/* Avatar */}
+                <div className="member-avatar" style={{background:meta.color+"20",border:`2px solid ${m?.online?meta.color:"var(--border2)"}`}}>
+                  {m?.avatar ? <img src={m.avatar} style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover"}} /> : <span>{meta.emoji}</span>}
                 </div>
-              )}
-            </div>
-
-            <div style={{background:"#0a2a14",borderRadius:"7px",padding:"5px 12px",fontSize:"10px",color:"#14532d",fontFamily:"'DM Mono',monospace",fontWeight:"700"}}>
-              📡 Family: {user.room}
-            </div>
-          </main>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                    <span style={{fontWeight:"800",fontSize:"15px"}}>{m?.name || meta.label}</span>
+                    {isMe && <span style={{fontSize:"9px",background:"var(--accent)20",color:"var(--accent)",border:"1px solid var(--accent)40",borderRadius:"4px",padding:"1px 6px",fontWeight:"700",letterSpacing:"1px"}}>YOU</span>}
+                  </div>
+                  <div style={{fontSize:"11px",color:meta.color,fontWeight:"700",marginTop:"2px"}}>{meta.label}</div>
+                  <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"4px"}}>
+                    {m ? (
+                      m.online ? <>
+                        <div className="dot-live" />
+                        <span style={{fontSize:"10px",color:"var(--green)",fontFamily:"var(--mono)",fontWeight:"700"}}>LIVE</span>
+                        {m.accuracy && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>±{m.accuracy}m</span>}
+                      </> : <>
+                        <div className="dot-off" />
+                        <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>OFFLINE</span>
+                        {m.t && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>· {new Date(m.t).toLocaleTimeString()}</span>}
+                      </>
+                    ) : (
+                      <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>NOT REGISTERED</span>
+                    )}
+                  </div>
+                </div>
+                {m?.online && m.lat && (
+                  <div style={{textAlign:"right",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)"}}>
+                    <div>{m.lat.toFixed(4)}</div>
+                    <div>{m.lng.toFixed(4)}</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-      );
-    }
+      )}
 
-    // ── Father ────────────────────────────────────────────────────────────────
-    function Father({ user, onLogout }) {
-      const [son,setSon] = useState(null);
-      const [mapLoc,setMapLoc] = useState(null);
+      {/* ── SHARE TAB ────────────────────────────────────────────────────── */}
+      {tab==="share" && (
+        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
+          <div style={{textAlign:"center",marginBottom:"28px"}}>
+            <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
+            <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
+          </div>
 
-      useEffect(() => {
-        const poll = async () => {
-          let d = await fbGet(`sn/${user.room}/loc`);
-          if (!d) d = LS.get(`${user.room}_loc`);
-          if (!d) return;
-          const stale = Date.now()-(d.t||0) > 18000;
-          const data = { ...d, online:d.online&&!stale };
-          setSon(data);
-          if (data.online && data.lat) {
-            setMapLoc({ x:Math.max(-1,Math.min(1,(data.lng+73.9855)*80)), y:Math.max(-1,Math.min(1,-(data.lat-40.758)*80)) });
-          } else setMapLoc(null);
-        };
-        poll();
-        const t = setInterval(poll,2500);
-        return () => clearInterval(t);
-      }, [user.room]);
+          {/* Big toggle */}
+          <div onClick={toggleSharing} className="big-toggle"
+            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
+            {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
+            <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
+            <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
+              {sharing?"LIVE":pending?"WAIT":"OFF"}
+            </span>
+          </div>
 
-      const online = son?.online;
-      const sonName = son?.name || "Son";
+          <div style={{fontSize:"18px",fontWeight:"800",color:sharing?meta.color:pending?"var(--amber)":"var(--text2)",marginBottom:"8px"}}>
+            {sharing?"✅ Location Sharing On":pending?"⏳ Starting…":"Location Off"}
+          </div>
+          <div style={{fontSize:"13px",color:"var(--text3)",textAlign:"center",maxWidth:"260px",lineHeight:"1.6",marginBottom:"28px"}}>
+            {sharing?"Your location is being shared live with your family. It will keep sharing until you tap to stop."
+            :pending?"Requesting location access…"
+            :"Tap the button to start sharing your live location with family."}
+          </div>
 
-      return (
-        <div style={{minHeight:"100vh",background:"#050c14",color:"#e2e8f0",display:"flex",flexDirection:"column"}}>
-          <style>{`@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}`}</style>
-
-          {/* Header */}
-          <header style={{background:"#060f18",borderBottom:"1px solid #0d3a2a",padding:"0 20px",height:"56px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <div style={{width:"28px",height:"28px",background:"linear-gradient(135deg,#4ade80,#22d3ee)",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px"}}>🛡️</div>
-              <span style={{fontSize:"16px",fontWeight:"900",background:"linear-gradient(135deg,#4ade80,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>SafeNest</span>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <span style={{fontSize:"11px",color:"#f59e0b",fontWeight:"800"}}>👨 Father</span>
-              <button onClick={onLogout} style={{background:"transparent",border:"1px solid #0d3a2a",borderRadius:"7px",color:"#14532d",fontSize:"11px",fontWeight:"700",padding:"5px 11px",cursor:"pointer",fontFamily:"inherit"}}>Log Out</button>
-            </div>
-          </header>
-
-          {/* Main */}
-          <main style={{flex:1,padding:"18px",display:"flex",flexDirection:"column",gap:"13px",maxWidth:"540px",margin:"0 auto",width:"100%"}}>
-            <div>
-              <div style={{fontSize:"20px",fontWeight:"900",color:"#f59e0b"}}>Welcome, {user.name} 👨</div>
-              <div style={{fontSize:"10px",color:"#14532d",fontWeight:"700",marginTop:"2px"}}>Updates every 2.5 seconds</div>
-            </div>
-
-            {/* Map */}
-            <div style={{background:"#060f18",border:"1px solid #0d3a2a",borderRadius:"18px",overflow:"hidden"}}>
-              <div style={{padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #0d3a2a"}}>
-                <span style={{fontSize:"10px",fontWeight:"800",color:"#14532d",letterSpacing:"2px"}}>🛰️ LIVE RADAR</span>
-                <div style={{display:"flex",alignItems:"center",gap:"5px",background:online?"rgba(74,222,128,0.06)":"#0a0a0a",border:`1px solid ${online?"rgba(74,222,128,0.2)":"#111"}`,borderRadius:"99px",padding:"3px 11px",fontSize:"10px",fontWeight:"800",color:online?"#4ade80":"#1a1a1a"}}>
-                  <div style={{width:"6px",height:"6px",borderRadius:"50%",background:online?"#4ade80":"#111",animation:online?"blink 1.2s infinite":"none"}} />
-                  {online ? `${sonName} is LIVE` : "Waiting for Son…"}
-                </div>
-              </div>
-              <div style={{height:"290px"}}>
-                <Radar sonLoc={mapLoc} sonOnline={!!online} sonName={sonName} />
+          {sharing && (
+            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:"16px"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
+                {[
+                  ["STATUS","SHARING LIVE ●"],
+                  ["FAMILY",session.room.toUpperCase()],
+                  ["ROLE",meta.label.toUpperCase()],
+                  ["MODE","PERSISTENT"],
+                ].map(([l,v])=>(
+                  <div key={l} className="card-sm">
+                    <div style={{fontSize:"8px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
+                    <div style={{fontSize:"11px",color:l==="STATUS"?meta.color:"var(--text)",fontWeight:"700",fontFamily:"var(--mono)",marginTop:"3px"}}>{v}</div>
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Info card */}
-            <div style={{background:"#060f18",border:`1px solid ${online?"#0d3a2a":"#080f14"}`,borderRadius:"14px",padding:"16px"}}>
-              <div style={{display:"flex",gap:"13px",alignItems:"center"}}>
-                <div style={{width:"48px",height:"48px",borderRadius:"50%",background:online?"rgba(96,165,250,0.08)":"#060f18",border:`2px solid ${online?"#60a5fa":"#0d2030"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px"}}>👦</div>
-                <div>
-                  <div style={{fontSize:"16px",fontWeight:"800",color:online?"#e2e8f0":"#14532d"}}>{sonName}</div>
-                  <div style={{fontSize:"11px",color:online?"#4ade80":"#14532d",fontWeight:"700",marginTop:"2px"}}>{online?"📡 Sharing location live":"📴 Not sharing yet"}</div>
-                  {son?.t && <div style={{fontSize:"9px",color:"#0d3a2a",marginTop:"3px",fontFamily:"'DM Mono',monospace"}}>Updated: {new Date(son.t).toLocaleTimeString()}</div>}
-                </div>
-              </div>
-              {online && son?.lat && (
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"7px",marginTop:"11px"}}>
-                  {[["LATITUDE",son.lat.toFixed(5)],["LONGITUDE",son.lng.toFixed(5)],["ACCURACY",`±${son.accuracy}m`],["STATUS","ONLINE ✓"]].map(([l,v])=>(
-                    <div key={l} style={{background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"9px",padding:"9px 11px",fontFamily:"'DM Mono',monospace"}}>
-                      <div style={{fontSize:"8px",color:"#0d4a2a",fontWeight:"800",letterSpacing:"1px"}}>{l}</div>
-                      <div style={{fontSize:"12px",color:"#4ade80",fontWeight:"700",marginTop:"2px"}}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",gap:"14px",fontSize:"10px",color:"#0d4a2a",fontFamily:"'DM Mono',monospace"}}>
-                <span>🟡 You (Father)</span><span>🔵 {sonName}</span>
-              </div>
-              <div style={{background:"#0a2a14",borderRadius:"7px",padding:"4px 11px",fontSize:"10px",color:"#14532d",fontFamily:"'DM Mono',monospace",fontWeight:"700"}}>📡 {user.room}</div>
-            </div>
-          </main>
+          )}
         </div>
-      );
-    }
+      )}
 
-    // ── Root ──────────────────────────────────────────────────────────────────
-    function App() {
-      const [user,setUser] = useState(() => LS.get("sess"));
-      const login = (u) => setUser(u);
-      const logout = () => { LS.del("sess"); setUser(null); };
-      if (!user) return <Auth onAuth={login} />;
-      if (user.role === SON) return <Son user={user} onLogout={logout} />;
-      return <Father user={user} onLogout={logout} />;
-    }
+      {/* ── PROFILE TAB ──────────────────────────────────────────────────── */}
+      {tab==="profile" && (
+        <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />
+      )}
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+      {/* ── Bottom Nav ───────────────────────────────────────────────────── */}
+      <nav className="nav">
+        {[
+          { id:"map",    icon:"🗺️",  label:"MAP"    },
+          { id:"family", icon:"👨‍👩‍👦", label:"FAMILY" },
+          { id:"share",  icon:"📡",  label:"SHARE"  },
+          { id:"profile",icon:"👤",  label:"ME"     },
+        ].map(n => (
+          <button key={n.id} className={`nav-btn ${tab===n.id?"active":""}`} onClick={()=>setTab(n.id)}>
+            <span className="icon">{n.id==="share" && sharing ? "🟢" : n.icon}</span>
+            <span>{n.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+// ── Profile Tab ───────────────────────────────────────────────────────────────
+function ProfileTab({ session, myData, setMyData, onLogout }) {
+  const [editMode, setEditMode] = useState(false);
+  const [displayName, setDisplayName] = useState(myData?.name||session.name);
+  const [bio, setBio] = useState(myData?.bio||"");
+  const [avatar, setAvatar] = useState(myData?.avatar||"");
+  const [saving, setSaving] = useState(false);
+  const fileRef = useRef(null);
+  const meta = ROLE_META[session.role];
+
+  useEffect(() => {
+    if (myData) { setDisplayName(myData.name||session.name); setBio(myData.bio||""); setAvatar(myData.avatar||""); }
+  }, [myData]);
+
+  const handleAvatar = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500000) { alert("Please choose an image under 500KB"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => setAvatar(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+    const key = slug(session.name);
+    if (users[key]) {
+      users[key] = { ...users[key], name:displayName, bio, avatar };
+      await fbSet(`sn3/${session.room}/users`, users);
+      LS.set(`${session.room}_u`, users);
+      setMyData(users[key]);
+    }
+    setSaving(false); setEditMode(false);
+  };
+
+  return (
+    <div className="page">
+      <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"20px"}}>My Profile</div>
+
+      {/* Avatar + name */}
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"24px"}}>
+        <label className="avatar-upload" style={{marginBottom:"14px"}}>
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} />
+          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:meta.color+"20",border:`3px solid ${meta.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"42px",overflow:"hidden",position:"relative"}}>
+            {avatar
+              ? <img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />
+              : <span>{meta.emoji}</span>}
+            <div className="avatar-upload-overlay">📷</div>
+          </div>
+        </label>
+        <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"4px",fontFamily:"var(--mono)"}}>TAP PHOTO TO CHANGE</div>
+
+        {editMode ? (
+          <input className="inp" style={{maxWidth:"240px",textAlign:"center",fontSize:"18px",fontWeight:"800"}}
+            value={displayName} onChange={e=>setDisplayName(e.target.value)} />
+        ) : (
+          <div style={{fontSize:"22px",fontWeight:"800"}}>{displayName}</div>
+        )}
+
+        <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"6px"}}>
+          <span style={{fontSize:"14px"}}>{meta.emoji}</span>
+          <span style={{fontSize:"13px",color:meta.color,fontWeight:"700"}}>{meta.label}</span>
+        </div>
+      </div>
+
+      {/* Info card */}
+      <div className="card" style={{padding:"16px",marginBottom:"12px"}}>
+        <div style={{marginBottom:"14px"}}>
+          <span className="lbl">Bio / Note</span>
+          {editMode
+            ? <textarea className="inp" rows={3} style={{resize:"none"}} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Add a short note about yourself…" />
+            : <div style={{fontSize:"14px",color:bio?"var(--text)":"var(--text3)",lineHeight:"1.6"}}>{bio||"No bio yet. Tap Edit to add one."}</div>
+          }
+        </div>
+        <div>
+          <span className="lbl">Family Room</span>
+          <div style={{fontFamily:"var(--mono)",fontSize:"14px",color:"var(--accent)",fontWeight:"700"}}>📡 {session.room}</div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"20px"}}>
+        {[
+          ["ROLE", meta.label, meta.color],
+          ["MEMBER SINCE", myData?.createdAt ? new Date(myData.createdAt).toLocaleDateString() : "—", "var(--text2)"],
+        ].map(([l,v,c])=>(
+          <div key={l} className="card-sm">
+            <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
+            <div style={{fontSize:"13px",color:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Actions */}
+      {editMode ? (
+        <div style={{display:"flex",gap:"10px"}}>
+          <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEditMode(false)}>Cancel</button>
+          <button className="btn-primary" style={{flex:2}} onClick={save} disabled={saving}>{saving?"Saving…":"Save Changes"}</button>
+        </div>
+      ) : (
+        <button className="btn-primary" style={{marginBottom:"12px"}} onClick={()=>setEditMode(true)}>✏️ Edit Profile</button>
+      )}
+
+      <button onClick={onLogout} style={{width:"100%",padding:"13px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"11px",color:"#f87171",fontWeight:"800",fontSize:"14px",fontFamily:"var(--font)"}}>
+        Log Out
+      </button>
+    </div>
+  );
+}
+
+// ── Root ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [sess, setSess] = useState(() => LS.get("sess"));
+  const login = (s) => setSess(s);
+  const logout = () => { LS.del("sess"); setSess(null); };
+  if (!sess) return <AuthScreen onAuth={login} />;
+  return <MainApp session={sess} onLogout={logout} />;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
 </body>
 </html>
