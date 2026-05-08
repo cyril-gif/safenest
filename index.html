@@ -1,17 +1,457 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#050c14" />
-    <title>SafeNest</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #050c14; }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#050c14" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>SafeNest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { background: #050c14; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    input:focus { border-color: #4ade80 !important; box-shadow: 0 0 0 3px rgba(74,222,128,0.15) !important; outline: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes glow { 0%,100% { box-shadow: 0 0 30px #4ade8030; } 50% { box-shadow: 0 0 58px #4ade8060; } }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { box-shadow: 0 0 0 8px rgba(74,222,128,0); } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel from CDN — no install needed -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ── Firebase ──────────────────────────────────────────────────────────────
+    const FB = "https://lantam-cyril-default-rtdb.firebaseio.com";
+    const fbGet = async (p) => { try { const r = await fetch(`${FB}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
+    const fbSet = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+
+    // ── LocalStorage ──────────────────────────────────────────────────────────
+    const LS = {
+      get: (k) => { try { return JSON.parse(localStorage.getItem("sn_"+k)); } catch { return null; } },
+      set: (k,v) => { try { localStorage.setItem("sn_"+k, JSON.stringify(v)); } catch {} },
+      del: (k) => { try { localStorage.removeItem("sn_"+k); } catch {} },
+    };
+
+    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,14);
+    const FATHER = "father", SON = "son";
+
+    // ── Radar ─────────────────────────────────────────────────────────────────
+    function Radar({ sonLoc, sonOnline, sonName }) {
+      const ref = useRef(null);
+      const live = useRef({ angle:0, sonLoc, sonOnline, sonName });
+      useEffect(() => { live.current = { ...live.current, sonLoc, sonOnline, sonName }; }, [sonLoc, sonOnline, sonName]);
+
+      useEffect(() => {
+        const canvas = ref.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let raf;
+        const resize = () => {
+          const p = canvas.parentElement.getBoundingClientRect();
+          canvas.width = p.width * devicePixelRatio;
+          canvas.height = p.height * devicePixelRatio;
+        };
+        resize();
+        window.addEventListener("resize", resize);
+
+        const draw = () => {
+          const { sonLoc, sonOnline, sonName } = live.current;
+          const W = canvas.width, H = canvas.height, dpr = devicePixelRatio;
+          const cx = W/2, cy = H/2, R = Math.min(W,H)*0.4;
+          ctx.clearRect(0,0,W,H);
+          ctx.fillStyle="#030a10"; ctx.fillRect(0,0,W,H);
+
+          [1,0.75,0.5,0.25].forEach((f,i) => {
+            ctx.beginPath(); ctx.arc(cx,cy,R*f,0,Math.PI*2);
+            ctx.strokeStyle=i===0?"#14532d":"#071a0f"; ctx.lineWidth=i===0?1.5:1; ctx.stroke();
+          });
+          [[cx-R,cy,cx+R,cy],[cx,cy-R,cx,cy+R],[cx-R*.707,cy-R*.707,cx+R*.707,cy+R*.707],[cx+R*.707,cy-R*.707,cx-R*.707,cy+R*.707]].forEach(([x1,y1,x2,y2])=>{
+            ctx.strokeStyle="#071a0f"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+          });
+
+          if (sonOnline) {
+            ctx.save(); ctx.translate(cx,cy); ctx.rotate(live.current.angle);
+            live.current.angle += 0.022;
+            const g = ctx.createLinearGradient(0,0,R,0);
+            g.addColorStop(0,"rgba(74,222,128,0.38)"); g.addColorStop(0.65,"rgba(74,222,128,0.08)"); g.addColorStop(1,"rgba(74,222,128,0)");
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,R,-0.44,0.44); ctx.closePath();
+            ctx.fillStyle=g; ctx.fill(); ctx.restore();
+          }
+
+          ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R-1,0,Math.PI*2); ctx.clip();
+          ctx.beginPath(); ctx.arc(cx,cy,7*dpr,0,Math.PI*2); ctx.fillStyle="#f59e0b"; ctx.fill();
+          ctx.beginPath(); ctx.arc(cx,cy,13*dpr,0,Math.PI*2); ctx.strokeStyle="#f59e0b50"; ctx.lineWidth=2; ctx.stroke();
+
+          if (sonOnline && sonLoc) {
+            const px=cx+sonLoc.x*R*0.6, py=cy+sonLoc.y*R*0.6;
+            const p=(Math.sin(Date.now()/350)+1)/2;
+            ctx.setLineDash([3*dpr,5*dpr]); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.strokeStyle="#60a5fa20"; ctx.lineWidth=1.5; ctx.stroke(); ctx.setLineDash([]);
+            ctx.beginPath(); ctx.arc(px,py,(11+p*7)*dpr,0,Math.PI*2); ctx.strokeStyle=`rgba(96,165,250,${0.5-p*0.3})`; ctx.lineWidth=2; ctx.stroke();
+            ctx.beginPath(); ctx.arc(px,py,8*dpr,0,Math.PI*2); ctx.fillStyle="#60a5fa"; ctx.fill();
+            ctx.fillStyle="#93c5fd"; ctx.font=`bold ${10*dpr}px DM Mono,monospace`; ctx.textAlign="center";
+            ctx.fillText((sonName||"SON").toUpperCase(), px, py+22*dpr);
+          }
+          ctx.restore();
+          ctx.fillStyle="#f59e0b80"; ctx.font=`bold ${9*dpr}px DM Mono,monospace`; ctx.textAlign="center"; ctx.fillText("YOU",cx,cy+22*dpr);
+          ctx.fillStyle="#14532d"; ctx.font=`${9*dpr}px DM Mono,monospace`;
+          ctx.fillText("N",cx,cy-R-8*dpr); ctx.fillText("S",cx,cy+R+16*dpr);
+          ctx.textAlign="left"; ctx.fillText("E",cx+R+6*dpr,cy+4*dpr);
+          ctx.textAlign="right"; ctx.fillText("W",cx-R-4*dpr,cy+4*dpr);
+          raf = requestAnimationFrame(draw);
+        };
+        draw();
+        return () => { cancelAnimationFrame(raf); window.removeEventListener("resize",resize); };
+      }, []);
+
+      return <canvas ref={ref} style={{width:"100%",height:"100%",display:"block"}} />;
+    }
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    function Auth({ onAuth }) {
+      const [mode,setMode] = useState("login");
+      const [role,setRole] = useState(FATHER);
+      const [name,setName] = useState("");
+      const [code,setCode] = useState("");
+      const [pass,setPass] = useState("");
+      const [err,setErr] = useState("");
+      const [busy,setBusy] = useState(false);
+
+      const submit = async () => {
+        setErr("");
+        if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
+        if (pass.length < 4) { setErr("Password needs at least 4 characters."); return; }
+        setBusy(true);
+        const room = slug(code);
+        let users = await fbGet(`sn/${room}/users`) || LS.get(`${room}_u`) || {};
+
+        if (mode === "register") {
+          if (Object.values(users).find(u => u.role === role)) { setErr(`A ${role} is already registered in this family.`); setBusy(false); return; }
+          if (users[slug(name)]) { setErr("That name is already taken."); setBusy(false); return; }
+          const u = { name:name.trim(), role, pass, at:Date.now() };
+          users[slug(name)] = u;
+          await fbSet(`sn/${room}/users`, users);
+          LS.set(`${room}_u`, users);
+          const sess = { name:u.name, role, room };
+          LS.set("sess", sess); onAuth(sess);
+        } else {
+          const all = { ...(LS.get(`${room}_u`)||{}), ...users };
+          const u = all[slug(name)];
+          if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
+          if (u.pass !== pass) { setErr("Wrong password."); setBusy(false); return; }
+          const sess = { name:u.name, role:u.role, room };
+          LS.set("sess", sess); onAuth(sess);
+        }
+        setBusy(false);
+      };
+
+      return (
+        <div style={{minHeight:"100vh",background:"#050c14",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}}>
+          <div style={{width:"100%",maxWidth:"390px",background:"linear-gradient(155deg,#0a1a24,#060f18)",border:"1px solid #0d3a2a",borderRadius:"24px",padding:"36px 30px",boxShadow:"0 0 80px rgba(74,222,128,0.04)"}}>
+
+            {/* Logo */}
+            <div style={{display:"flex",alignItems:"center",gap:"10px",justifyContent:"center",marginBottom:"6px"}}>
+              <div style={{width:"42px",height:"42px",background:"linear-gradient(135deg,#4ade80,#22d3ee)",borderRadius:"12px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>🛡️</div>
+              <span style={{fontSize:"22px",fontWeight:"900",background:"linear-gradient(135deg,#4ade80,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>SafeNest</span>
+            </div>
+            <div style={{textAlign:"center",color:"#0d4a2a",fontSize:"10px",fontWeight:"800",letterSpacing:"3px",marginBottom:"26px"}}>FAMILY LOCATION SHARING</div>
+
+            {/* Tabs */}
+            <div style={{display:"flex",background:"#030a10",borderRadius:"11px",padding:"4px",marginBottom:"20px",border:"1px solid #0d3a2a"}}>
+              {["login","register"].map(m => (
+                <button key={m} onClick={()=>{setMode(m);setErr("");}} style={{flex:1,padding:"10px",borderRadius:"8px",border:"none",fontFamily:"inherit",fontWeight:"700",fontSize:"13px",cursor:"pointer",transition:"all 0.18s",background:mode===m?"linear-gradient(135deg,#4ade80,#22d3ee)":"transparent",color:mode===m?"#050c14":"#14532d"}}>
+                  {m==="login"?"Log In":"Register"}
+                </button>
+              ))}
+            </div>
+
+            {/* Role picker */}
+            {mode==="register" && <>
+              <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>I am the</span>
+              <div style={{display:"flex",gap:"10px",marginBottom:"13px"}}>
+                {[[FATHER,"👨","#f59e0b"],[SON,"👦","#60a5fa"]].map(([r,emoji,c])=>(
+                  <button key={r} onClick={()=>setRole(r)} style={{flex:1,padding:"13px 8px",borderRadius:"11px",border:`2px solid ${role===r?c:"#0d3a2a"}`,background:role===r?c+"18":"transparent",color:role===r?c:"#14532d",fontWeight:"800",fontSize:"14px",cursor:"pointer",fontFamily:"inherit",transition:"all 0.18s",display:"flex",flexDirection:"column",alignItems:"center",gap:"3px"}}>
+                    <span style={{fontSize:"22px"}}>{emoji}</span>{r.charAt(0).toUpperCase()+r.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </>}
+
+            {/* Family Code */}
+            <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>Family Code</span>
+            <input value={code} onChange={e=>setCode(e.target.value)} placeholder='e.g. "smithfamily"'
+              style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"10px",color:"#e2e8f0",padding:"11px 14px",fontSize:"14px",fontFamily:"inherit",marginBottom:"8px"}} />
+            <div style={{fontSize:"11px",color:"#0a3a1a",marginBottom:"13px",lineHeight:"1.6",padding:"9px 12px",background:"#030a10",borderRadius:"8px",border:"1px solid #0a2a14"}}>
+              📌 Both father and son must use the <strong style={{color:"#4ade80"}}>same Family Code</strong> to connect across different phones.
+            </div>
+
+            {/* Name */}
+            <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>Your Name</span>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Enter your name"
+              style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"10px",color:"#e2e8f0",padding:"11px 14px",fontSize:"14px",fontFamily:"inherit",marginBottom:"13px"}} />
+
+            {/* Password */}
+            <span style={{fontSize:"10px",fontWeight:"800",color:"#0d4a2a",letterSpacing:"2px",textTransform:"uppercase",marginBottom:"6px",display:"block"}}>Password</span>
+            <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Min 4 characters"
+              onKeyDown={e=>e.key==="Enter"&&submit()}
+              style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"10px",color:"#e2e8f0",padding:"11px 14px",fontSize:"14px",fontFamily:"inherit",marginBottom:"13px"}} />
+
+            {err && <div style={{background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.25)",borderRadius:"9px",color:"#f87171",fontSize:"12px",fontWeight:"600",padding:"9px 13px",marginBottom:"12px"}}>⚠️ {err}</div>}
+
+            <button onClick={submit} disabled={busy}
+              style={{width:"100%",padding:"13px",background:busy?"#0a2a14":"linear-gradient(135deg,#4ade80,#22d3ee)",border:"none",borderRadius:"11px",color:busy?"#14532d":"#050c14",fontWeight:"900",fontSize:"14px",cursor:busy?"default":"pointer",fontFamily:"inherit"}}>
+              {busy ? "Please wait…" : mode==="register" ? "Create Account →" : "Log In →"}
+            </button>
+
+            <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"#14532d"}}>
+              {mode==="login" ? "No account? " : "Already registered? "}
+              <button onClick={()=>{setMode(mode==="login"?"register":"login");setErr("");}}
+                style={{background:"none",border:"none",color:"#4ade80",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",fontSize:"13px"}}>
+                {mode==="login" ? "Register" : "Log In"}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Son ───────────────────────────────────────────────────────────────────
+    function Son({ user, onLogout }) {
+      const [sharing,setSharing] = useState(false);
+      const [pending,setPending] = useState(false);
+      const [coords,setCoords] = useState(null);
+      const watchId = useRef(null);
+      const simTimer = useRef(null);
+      const simCoords = useRef(null);
+      const activeRef = useRef(false);
+
+      const push = useCallback(async (loc) => {
+        const d = { ...loc, online:true, name:user.name, t:Date.now() };
+        LS.set(`${user.room}_loc`, d);
+        await fbSet(`sn/${user.room}/loc`, d);
+      }, [user]);
+
+      const stopAll = useCallback(() => {
+        activeRef.current = false;
+        if (watchId.current != null) { navigator.geolocation?.clearWatch(watchId.current); watchId.current = null; }
+        if (simTimer.current) { clearInterval(simTimer.current); simTimer.current = null; }
+        LS.set(`${user.room}_loc`, { online:false, name:user.name, t:Date.now() });
+        fbSet(`sn/${user.room}/loc`, { online:false, name:user.name, t:Date.now() });
+        setSharing(false); setPending(false); setCoords(null);
+      }, [user]);
+
+      const startSim = useCallback(() => {
+        const base = { lat:40.758+(Math.random()-.5)*.02, lng:-73.9855+(Math.random()-.5)*.02, accuracy:18 };
+        simCoords.current = {...base};
+        setCoords({...base}); push(base);
+        setSharing(true); setPending(false); activeRef.current = true;
+        simTimer.current = setInterval(() => {
+          if (!activeRef.current) return;
+          simCoords.current.lat += (Math.random()-.48)*.0004;
+          simCoords.current.lng += (Math.random()-.48)*.0004;
+          const next = {...simCoords.current};
+          setCoords({...next}); push(next);
+        }, 4000);
+      }, [push]);
+
+      const toggle = useCallback(() => {
+        if (sharing || pending) { stopAll(); return; }
+        setPending(true);
+        if (!navigator.geolocation) { startSim(); return; }
+        const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 7000);
+        watchId.current = navigator.geolocation.watchPosition(
+          (pos) => {
+            clearTimeout(fallback);
+            if (watchId.current == null) return;
+            const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
+            setCoords(loc); push(loc);
+            if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); }
+          },
+          () => { clearTimeout(fallback); startSim(); },
+          { enableHighAccuracy:true, maximumAge:5000, timeout:10000 }
+        );
+      }, [sharing, pending, stopAll, startSim]);
+
+      useEffect(() => () => stopAll(), [stopAll]);
+
+      const borderColor = sharing?"#4ade80":pending?"#fbbf24":"#0d3a2a";
+
+      return (
+        <div style={{minHeight:"100vh",background:"#050c14",color:"#e2e8f0",display:"flex",flexDirection:"column"}}>
+          {/* Header */}
+          <header style={{background:"#060f18",borderBottom:"1px solid #0d3a2a",padding:"0 20px",height:"56px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+              <div style={{width:"28px",height:"28px",background:"linear-gradient(135deg,#4ade80,#22d3ee)",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px"}}>🛡️</div>
+              <span style={{fontSize:"16px",fontWeight:"900",background:"linear-gradient(135deg,#4ade80,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>SafeNest</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+              <span style={{fontSize:"11px",color:"#60a5fa",fontWeight:"800"}}>👦 Son</span>
+              <button onClick={onLogout} style={{background:"transparent",border:"1px solid #0d3a2a",borderRadius:"7px",color:"#14532d",fontSize:"11px",fontWeight:"700",padding:"5px 11px",cursor:"pointer",fontFamily:"inherit"}}>Log Out</button>
+            </div>
+          </header>
+
+          {/* Main */}
+          <main style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px 20px",gap:"22px"}}>
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:"26px",fontWeight:"900",color:"#60a5fa"}}>Hey, {user.name} 👋</div>
+              <div style={{fontSize:"12px",color:"#14532d",marginTop:"4px",fontWeight:"600"}}>Tap to share your location with Dad</div>
+            </div>
+
+            <div style={{width:"100%",maxWidth:"320px",background:"linear-gradient(155deg,#0a1a24,#060f18)",border:`2px solid ${borderColor}`,borderRadius:"24px",padding:"32px 22px",display:"flex",flexDirection:"column",alignItems:"center",gap:"18px",boxShadow:sharing?"0 0 60px rgba(74,222,128,0.08)":"none",transition:"all 0.35s"}}>
+
+              {/* Big button */}
+              <div onClick={toggle} style={{width:"128px",height:"128px",borderRadius:"50%",border:`3px solid ${borderColor}`,background:sharing?"radial-gradient(circle at 40% 40%,rgba(74,222,128,0.16),#050c14)":pending?"radial-gradient(circle,rgba(251,191,36,0.07),#050c14)":"#060f18",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:pending?"default":"pointer",transition:"all 0.3s",boxShadow:sharing?"0 0 48px rgba(74,222,128,0.2)":"none",fontSize:"44px",gap:"2px",userSelect:"none",WebkitTapHighlightColor:"transparent"}}>
+                <span style={{animation:pending?"spin 1s linear infinite":sharing?"glow 2s infinite":"none",display:"inline-block"}}>
+                  {sharing?"📡":pending?"⏳":"📴"}
+                </span>
+                <span style={{fontSize:"9px",fontWeight:"900",color:sharing?"#4ade80":pending?"#fbbf24":"#0d4a2a",letterSpacing:"2px"}}>
+                  {sharing?"LIVE":pending?"WAIT":"OFF"}
+                </span>
+              </div>
+
+              <div style={{fontSize:"17px",fontWeight:"900",color:sharing?"#4ade80":pending?"#fbbf24":"#14532d"}}>
+                {sharing?"✅ Sharing Live":pending?"⏳ Starting…":"Location Off"}
+              </div>
+              <div style={{fontSize:"12px",color:sharing?"rgba(74,222,128,0.6)":"#14532d",fontWeight:"600",textAlign:"center"}}>
+                {sharing?"Dad can see you right now":pending?"Requesting access…":"Tap the button above to go live"}
+              </div>
+
+              {coords && sharing && (
+                <div style={{width:"100%",background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"11px",padding:"13px",fontFamily:"'DM Mono',monospace",fontSize:"11px",color:"#0d4a2a",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",lineHeight:"1.6"}}>
+                  <div><div>LAT</div><div style={{color:"#4ade80",fontWeight:"700"}}>{coords.lat.toFixed(5)}</div></div>
+                  <div><div>LNG</div><div style={{color:"#4ade80",fontWeight:"700"}}>{coords.lng.toFixed(5)}</div></div>
+                  <div><div>ACCURACY</div><div style={{color:"#4ade80",fontWeight:"700"}}>±{coords.accuracy}m</div></div>
+                  <div><div>STATUS</div><div style={{color:"#4ade80",fontWeight:"700"}}>LIVE</div></div>
+                </div>
+              )}
+            </div>
+
+            <div style={{background:"#0a2a14",borderRadius:"7px",padding:"5px 12px",fontSize:"10px",color:"#14532d",fontFamily:"'DM Mono',monospace",fontWeight:"700"}}>
+              📡 Family: {user.room}
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    // ── Father ────────────────────────────────────────────────────────────────
+    function Father({ user, onLogout }) {
+      const [son,setSon] = useState(null);
+      const [mapLoc,setMapLoc] = useState(null);
+
+      useEffect(() => {
+        const poll = async () => {
+          let d = await fbGet(`sn/${user.room}/loc`);
+          if (!d) d = LS.get(`${user.room}_loc`);
+          if (!d) return;
+          const stale = Date.now()-(d.t||0) > 18000;
+          const data = { ...d, online:d.online&&!stale };
+          setSon(data);
+          if (data.online && data.lat) {
+            setMapLoc({ x:Math.max(-1,Math.min(1,(data.lng+73.9855)*80)), y:Math.max(-1,Math.min(1,-(data.lat-40.758)*80)) });
+          } else setMapLoc(null);
+        };
+        poll();
+        const t = setInterval(poll,2500);
+        return () => clearInterval(t);
+      }, [user.room]);
+
+      const online = son?.online;
+      const sonName = son?.name || "Son";
+
+      return (
+        <div style={{minHeight:"100vh",background:"#050c14",color:"#e2e8f0",display:"flex",flexDirection:"column"}}>
+          <style>{`@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}`}</style>
+
+          {/* Header */}
+          <header style={{background:"#060f18",borderBottom:"1px solid #0d3a2a",padding:"0 20px",height:"56px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+              <div style={{width:"28px",height:"28px",background:"linear-gradient(135deg,#4ade80,#22d3ee)",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px"}}>🛡️</div>
+              <span style={{fontSize:"16px",fontWeight:"900",background:"linear-gradient(135deg,#4ade80,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>SafeNest</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+              <span style={{fontSize:"11px",color:"#f59e0b",fontWeight:"800"}}>👨 Father</span>
+              <button onClick={onLogout} style={{background:"transparent",border:"1px solid #0d3a2a",borderRadius:"7px",color:"#14532d",fontSize:"11px",fontWeight:"700",padding:"5px 11px",cursor:"pointer",fontFamily:"inherit"}}>Log Out</button>
+            </div>
+          </header>
+
+          {/* Main */}
+          <main style={{flex:1,padding:"18px",display:"flex",flexDirection:"column",gap:"13px",maxWidth:"540px",margin:"0 auto",width:"100%"}}>
+            <div>
+              <div style={{fontSize:"20px",fontWeight:"900",color:"#f59e0b"}}>Welcome, {user.name} 👨</div>
+              <div style={{fontSize:"10px",color:"#14532d",fontWeight:"700",marginTop:"2px"}}>Updates every 2.5 seconds</div>
+            </div>
+
+            {/* Map */}
+            <div style={{background:"#060f18",border:"1px solid #0d3a2a",borderRadius:"18px",overflow:"hidden"}}>
+              <div style={{padding:"12px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #0d3a2a"}}>
+                <span style={{fontSize:"10px",fontWeight:"800",color:"#14532d",letterSpacing:"2px"}}>🛰️ LIVE RADAR</span>
+                <div style={{display:"flex",alignItems:"center",gap:"5px",background:online?"rgba(74,222,128,0.06)":"#0a0a0a",border:`1px solid ${online?"rgba(74,222,128,0.2)":"#111"}`,borderRadius:"99px",padding:"3px 11px",fontSize:"10px",fontWeight:"800",color:online?"#4ade80":"#1a1a1a"}}>
+                  <div style={{width:"6px",height:"6px",borderRadius:"50%",background:online?"#4ade80":"#111",animation:online?"blink 1.2s infinite":"none"}} />
+                  {online ? `${sonName} is LIVE` : "Waiting for Son…"}
+                </div>
+              </div>
+              <div style={{height:"290px"}}>
+                <Radar sonLoc={mapLoc} sonOnline={!!online} sonName={sonName} />
+              </div>
+            </div>
+
+            {/* Info card */}
+            <div style={{background:"#060f18",border:`1px solid ${online?"#0d3a2a":"#080f14"}`,borderRadius:"14px",padding:"16px"}}>
+              <div style={{display:"flex",gap:"13px",alignItems:"center"}}>
+                <div style={{width:"48px",height:"48px",borderRadius:"50%",background:online?"rgba(96,165,250,0.08)":"#060f18",border:`2px solid ${online?"#60a5fa":"#0d2030"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"24px"}}>👦</div>
+                <div>
+                  <div style={{fontSize:"16px",fontWeight:"800",color:online?"#e2e8f0":"#14532d"}}>{sonName}</div>
+                  <div style={{fontSize:"11px",color:online?"#4ade80":"#14532d",fontWeight:"700",marginTop:"2px"}}>{online?"📡 Sharing location live":"📴 Not sharing yet"}</div>
+                  {son?.t && <div style={{fontSize:"9px",color:"#0d3a2a",marginTop:"3px",fontFamily:"'DM Mono',monospace"}}>Updated: {new Date(son.t).toLocaleTimeString()}</div>}
+                </div>
+              </div>
+              {online && son?.lat && (
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"7px",marginTop:"11px"}}>
+                  {[["LATITUDE",son.lat.toFixed(5)],["LONGITUDE",son.lng.toFixed(5)],["ACCURACY",`±${son.accuracy}m`],["STATUS","ONLINE ✓"]].map(([l,v])=>(
+                    <div key={l} style={{background:"#030a10",border:"1px solid #0d3a2a",borderRadius:"9px",padding:"9px 11px",fontFamily:"'DM Mono',monospace"}}>
+                      <div style={{fontSize:"8px",color:"#0d4a2a",fontWeight:"800",letterSpacing:"1px"}}>{l}</div>
+                      <div style={{fontSize:"12px",color:"#4ade80",fontWeight:"700",marginTop:"2px"}}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div style={{display:"flex",gap:"14px",fontSize:"10px",color:"#0d4a2a",fontFamily:"'DM Mono',monospace"}}>
+                <span>🟡 You (Father)</span><span>🔵 {sonName}</span>
+              </div>
+              <div style={{background:"#0a2a14",borderRadius:"7px",padding:"4px 11px",fontSize:"10px",color:"#14532d",fontFamily:"'DM Mono',monospace",fontWeight:"700"}}>📡 {user.room}</div>
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    // ── Root ──────────────────────────────────────────────────────────────────
+    function App() {
+      const [user,setUser] = useState(() => LS.get("sess"));
+      const login = (u) => setUser(u);
+      const logout = () => { LS.del("sess"); setUser(null); };
+      if (!user) return <Auth onAuth={login} />;
+      if (user.role === SON) return <Son user={user} onLogout={logout} />;
+      return <Father user={user} onLogout={logout} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
 </html>
