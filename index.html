@@ -149,8 +149,8 @@ const LS = {
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
 const ROLES = ["main","buddy","girlfriend"];
 const ROLE_META = {
-  Main:     { emoji:"👨", label:"Main",     color:"#f59e0b" },
-  Buddy:        { emoji:"😎", label:"Buddy",         color:"#3b82f6" },
+  main:     { emoji:"👨", label:"Main",     color:"#f59e0b" },
+  buddy:        { emoji:"😎", label:"Buddy",         color:"#3b82f6" },
   girlfriend: { emoji:"🥰", label:"Girlfriend",  color:"#ec4899" },
 };
 
@@ -158,6 +158,7 @@ const ROLE_META = {
 function LiveMap({ members, currentUser }) {
   const mapRef = useRef(null);
   const leafletRef = useRef(null);
+  
   const markersRef = useRef({});
 
   useEffect(() => {
