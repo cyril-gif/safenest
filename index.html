@@ -7,162 +7,226 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <title>SafeNest</title>
-  <link rel="icon" type="image/jpeg" href="data:image/jpeg;base64,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"/>
-  <link rel="apple-touch-icon" href="data:image/jpeg;base64,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"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <!-- Leaflet for real map (no API key needed) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
-      --bg:#070b18;--bg2:#0d1225;--bg3:#111828;--border:#1e2d4a;--border2:#243352;
-      --accent:#3b82f6;--accent2:#06b6d4;--green:#10b981;--amber:#f59e0b;
-      --pink:#ec4899;--red:#ef4444;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
-      --font:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+      --bg: #070b18;
+      --bg2: #0d1225;
+      --bg3: #111828;
+      --border: #1e2d4a;
+      --border2: #243352;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --pink: #ec4899;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #475569;
+      --font: 'Syne', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;}
-    #root{height:100%;display:flex;flex-direction:column;}
-    button{font-family:var(--font);cursor:pointer;border:none;outline:none;}
-    input,textarea{font-family:var(--font);outline:none;}
-    input:focus,textarea:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(59,130,246,0.15)!important;}
-    ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0.6}}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes ripple{0%{transform:scale(0.8);opacity:1}100%{transform:scale(2.4);opacity:0}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .fade-in{animation:fadeIn 0.3s ease forwards;}
-    .leaflet-container{background:#0d1225!important;}
-    .leaflet-tile{filter:brightness(0.92) saturate(0.75);}
-    .nav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding:4px 0 max(4px,env(safe-area-inset-bottom));flex-shrink:0;}
-    .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;background:none;color:var(--text3);font-size:10px;font-weight:700;letter-spacing:0.5px;transition:color 0.2s;position:relative;}
-    .nav-btn.active{color:var(--accent);}
-    .nav-btn .icon{font-size:20px;transition:transform 0.2s;}
-    .nav-btn.active .icon{transform:scale(1.1);}
-    .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;}
-    .card-sm{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;}
-    .member-row{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px;transition:all 0.2s;}
-    .big-toggle{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all 0.3s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;}
-    .toggle-ripple{position:absolute;inset:-8px;border-radius:50%;animation:ripple 2s ease-out infinite;}
-    .inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 14px;font-size:14px;font-family:var(--font);transition:border-color 0.2s,box-shadow 0.2s;}
-    .inp::placeholder{color:var(--text3);}
-    .lbl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:block;}
-    .btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:11px;color:white;font-weight:800;font-size:14px;cursor:pointer;font-family:var(--font);letter-spacing:0.5px;transition:opacity 0.2s;}
-    .btn-primary:disabled{opacity:0.4;cursor:default;}
-    .btn-ghost{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:12px;font-weight:700;padding:6px 14px;}
-    .dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;display:inline-block;}
-    .dot-off{width:7px;height:7px;border-radius:50%;background:var(--text3);display:inline-block;}
-    .page{flex:1;overflow-y:auto;padding:16px;animation:fadeIn 0.25s ease;}
-    .avatar-upload{position:relative;display:inline-block;cursor:pointer;}
-    .avatar-upload input{display:none;}
-    .avatar-upload-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0;transition:opacity 0.2s;}
-    .avatar-upload:hover .avatar-upload-overlay,.avatar-upload:active .avatar-upload-overlay{opacity:1;}
-    .tabs{display:flex;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border);margin-bottom:20px;}
-    .tab{flex:1;padding:9px;border-radius:8px;border:none;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:all 0.18s;background:transparent;color:var(--text3);}
-    .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;}
-    .role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-    .role-card{padding:14px 8px;border-radius:12px;border:2px solid var(--border);background:transparent;color:var(--text3);font-weight:800;font-size:13px;cursor:pointer;font-family:var(--font);transition:all 0.18s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+    #root { height: 100%; display: flex; flex-direction: column; }
+    button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+    input { font-family: var(--font); outline: none; }
+    input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes ripple { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.4); opacity:0; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    .fade-in { animation: fadeIn 0.3s ease forwards; }
+    .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    /* Map */
+    #map { width:100%; height:100%; }
+    .leaflet-container { background: #0d1225 !important; }
+    .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
+
+    /* Custom marker */
+    .member-marker { position:relative; }
+    .marker-dot { width:16px; height:16px; border-radius:50%; border:2.5px solid white; box-shadow:0 0 12px currentColor; }
+    .marker-pulse { position:absolute; top:-4px; left:-4px; width:24px; height:24px; border-radius:50%; border:2px solid currentColor; animation: ripple 1.8s ease-out infinite; }
+    .marker-label { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(10,15,30,0.9); border:1px solid rgba(255,255,255,0.1); }
+
+    /* Nav */
+    .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
+    .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; background:none; color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0.5px; transition:color 0.2s; position:relative; }
+    .nav-btn.active { color:var(--accent); }
+    .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
+    .nav-btn.active .icon { transform:scale(1.1); }
+    .nav-badge { position:absolute; top:6px; right:calc(50% - 16px); background:var(--red); color:white; font-size:9px; font-weight:800; border-radius:99px; padding:1px 5px; min-width:16px; text-align:center; }
+
+    /* Cards */
+    .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
+    .card-sm { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px; }
+
+    /* Member pill */
+    .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
+    .member-row:last-child { margin-bottom:0; }
+    .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+
+    /* Toggle */
+    .big-toggle { width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; }
+    .toggle-ripple { position:absolute; inset:-8px; border-radius:50%; animation: ripple 2s ease-out infinite; }
+
+    /* Inputs */
+    .inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:14px; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
+    .inp::placeholder { color:var(--text3); }
+    .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
+
+    /* Btn */
+    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:white; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
+    .btn-primary:disabled { opacity:0.4; cursor:default; }
+    .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
+
+    /* Status dot */
+    .dot-live { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; display:inline-block; }
+    .dot-off { width:7px; height:7px; border-radius:50%; background:var(--text3); display:inline-block; }
+
+    /* Page */
+    .page { flex:1; overflow-y:auto; padding:16px; animation:fadeIn 0.25s ease; }
+
+    /* Profile avatar upload */
+    .avatar-upload { position:relative; display:inline-block; cursor:pointer; }
+    .avatar-upload input { display:none; }
+    .avatar-upload-overlay { position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; opacity:0; transition:opacity 0.2s; }
+    .avatar-upload:hover .avatar-upload-overlay { opacity:1; }
+
+    /* Tabs */
+    .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
+    .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
+    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; }
+
+    /* Role cards */
+    .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+    .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+
+    /* Overlay/modal */
+    .overlay { position:fixed; inset:0; background:rgba(7,11,24,0.85); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:flex-end; }
+    .sheet { background:var(--bg2); border-radius:20px 20px 0 0; border-top:1px solid var(--border); width:100%; padding:20px; max-height:90vh; overflow-y:auto; animation:slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .sheet-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 20px; }
   </style>
 </head>
 <body>
 <div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin><\/script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin><\/script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef, useCallback } = React;
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-const APP_ICON = "data:image/jpeg;base64,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";
-
+// ── Firebase ──────────────────────────────────────────────────────────────────
 const FB = "https://lantam-cyril-default-rtdb.firebaseio.com";
 const fbGet = async (p) => { try { const r = await fetch(`${FB}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
 const fbSet = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 const fbPatch = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 
+// ── LocalStorage ──────────────────────────────────────────────────────────────
 const LS = {
-  get:(k)=>{ try{return JSON.parse(localStorage.getItem("sn3_"+k));}catch{return null;} },
-  set:(k,v)=>{ try{localStorage.setItem("sn3_"+k,JSON.stringify(v));}catch{} },
-  del:(k)=>{ try{localStorage.removeItem("sn3_"+k);}catch{} },
+  get: (k) => { try { return JSON.parse(localStorage.getItem("sn3_"+k)); } catch { return null; } },
+  set: (k,v) => { try { localStorage.setItem("sn3_"+k, JSON.stringify(v)); } catch {} },
+  del: (k) => { try { localStorage.removeItem("sn3_"+k); } catch {} },
 };
 
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
 const ROLES = ["father","son","girlfriend"];
 const ROLE_META = {
-  father:    {emoji:"👨",label:"Father",    color:"#f59e0b"},
-  son:       {emoji:"👦",label:"Son",        color:"#3b82f6"},
-  girlfriend:{emoji:"👩",label:"Girlfriend", color:"#ec4899"},
+  father:     { emoji:"👨", label:"Father",     color:"#f59e0b" },
+  son:        { emoji:"👦", label:"Son",         color:"#3b82f6" },
+  girlfriend: { emoji:"👩", label:"Girlfriend",  color:"#ec4899" },
 };
 
-// ── Logo component using real photo ──────────────────────────────────────────
-function AppLogo({ size=48, radius=14 }) {
-  return (
-    <div style={{width:size,height:size,borderRadius:radius,overflow:"hidden",border:"2px solid rgba(59,130,246,0.4)",boxShadow:"0 0 24px rgba(59,130,246,0.25)",flexShrink:0}}>
-      <img src={APP_ICON} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} />
-    </div>
-  );
-}
-
-// ── Real Leaflet Map ──────────────────────────────────────────────────────────
-function LiveMap({ members }) {
+// ── Real Map Component (Leaflet) ───────────────────────────────────────────────
+function LiveMap({ members, currentUser }) {
+  const mapRef = useRef(null);
   const leafletRef = useRef(null);
   const markersRef = useRef({});
 
   useEffect(() => {
     if (leafletRef.current) return;
     const map = L.map("safenest-map", {
-      center:[9.0,-2.5], zoom:8,
-      zoomControl:false, attributionControl:false,
+      center: [9.0, -2.5],
+      zoom: 6,
+      zoomControl: false,
+      attributionControl: false,
     });
-    // Same tile style as screenshot — dark Carto with subtle colors
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_matter_nolabels/{z}/{x}/{y}{r}.png", {maxZoom:19}).addTo(map);
-    // Add road labels as separate layer (matches screenshot style)
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_matter_only_labels/{z}/{x}/{y}{r}.png", {maxZoom:19,opacity:0.6}).addTo(map);
-    L.control.zoom({position:"bottomright"}).addTo(map);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+    }).addTo(map);
+    L.control.zoom({ position:"bottomright" }).addTo(map);
     leafletRef.current = map;
   }, []);
 
   useEffect(() => {
     const map = leafletRef.current;
     if (!map) return;
-    const online = members.filter(m => m.online && m.lat);
 
+    const onlineMembers = members.filter(m => m.online && m.lat);
+
+    // Remove stale markers
     Object.keys(markersRef.current).forEach(role => {
-      if (!online.find(m => m.role === role)) {
+      if (!onlineMembers.find(m => m.role === role)) {
         map.removeLayer(markersRef.current[role]);
         delete markersRef.current[role];
       }
     });
 
-    online.forEach(m => {
-      const {color, label} = ROLE_META[m.role];
-      const name = m.name || label;
-      const html = `
-        <div style="position:relative;width:20px;height:20px;">
-          <div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid ${color};animation:ripple 1.8s ease-out infinite;opacity:0.5;"></div>
-          <div style="width:20px;height:20px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 0 12px ${color}90;"></div>
-          <div style="position:absolute;top:24px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};padding:2px 7px;border-radius:5px;background:rgba(7,11,24,0.9);border:1px solid ${color}40;">${name.toUpperCase()}</div>
+    // Add/update markers
+    onlineMembers.forEach(m => {
+      const meta = ROLE_META[m.role];
+      const color = meta.color;
+      const label = m.name || meta.label;
+
+      const iconHtml = `
+        <div style="position:relative;width:24px;height:24px;">
+          <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${color};animation:ripple 1.8s ease-out infinite;opacity:0.6;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 16px ${color}80;"></div>
+          <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};padding:2px 7px;border-radius:5px;background:rgba(7,11,24,0.92);border:1px solid ${color}40;">${label.toUpperCase()}</div>
         </div>`;
-      const icon = L.divIcon({html, className:"", iconSize:[20,20], iconAnchor:[10,10]});
+
+      const icon = L.divIcon({ html: iconHtml, className:"", iconSize:[24,24], iconAnchor:[12,12] });
+
       if (markersRef.current[m.role]) {
-        markersRef.current[m.role].setLatLng([m.lat,m.lng]);
+        markersRef.current[m.role].setLatLng([m.lat, m.lng]);
         markersRef.current[m.role].setIcon(icon);
       } else {
-        markersRef.current[m.role] = L.marker([m.lat,m.lng],{icon}).addTo(map);
+        markersRef.current[m.role] = L.marker([m.lat, m.lng], { icon }).addTo(map);
       }
     });
 
-    if (online.length === 1) {
-      map.setView([online[0].lat,online[0].lng], 15, {animate:true});
-    } else if (online.length > 1) {
-      map.fitBounds(online.map(m=>[m.lat,m.lng]), {padding:[60,60],animate:true,maxZoom:14});
+    // Fit map to show all online members
+    if (onlineMembers.length > 0) {
+      const bounds = onlineMembers.map(m => [m.lat, m.lng]);
+      if (onlineMembers.length === 1) {
+        map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
+      } else {
+        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:14 });
+      }
     }
   }, [members]);
 
   return <div id="safenest-map" style={{width:"100%",height:"100%"}} />;
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// ── Auth Screen ───────────────────────────────────────────────────────────────
 function AuthScreen({ onAuth }) {
   const [mode,setMode] = useState("login");
   const [role,setRole] = useState("father");
@@ -181,34 +245,33 @@ function AuthScreen({ onAuth }) {
     let users = await fbGet(`sn3/${room}/users`) || LS.get(`${room}_u`) || {};
 
     if (mode === "register") {
-      if (Object.values(users).find(u=>u.role===role)) { setErr(`A ${role} is already registered. Log in instead.`); setBusy(false); return; }
-      if (users[slug(name)]) { setErr("Name already taken."); setBusy(false); return; }
-      const u = {name:name.trim(),role,pass,avatar:"",bio:"",createdAt:Date.now()};
+      if (Object.values(users).find(u => u.role === role)) {
+        setErr(`A ${role} is already registered. Please log in instead.`); setBusy(false); return;
+      }
+      if (users[slug(name)]) { setErr("That name is taken in this family."); setBusy(false); return; }
+      const u = { name:name.trim(), role, pass, avatar:"", bio:"", createdAt:Date.now() };
       users[slug(name)] = u;
-      await fbSet(`sn3/${room}/users`,users);
-      LS.set(`${room}_u`,users);
-      const sess = {name:u.name,role,room};
-      LS.set("sess",sess); onAuth(sess);
+      await fbSet(`sn3/${room}/users`, users);
+      LS.set(`${room}_u`, users);
+      const sess = { name:u.name, role, room };
+      LS.set("sess", sess); onAuth(sess);
     } else {
-      const all = {...(LS.get(`${room}_u`)||{}),...users};
+      const all = { ...(LS.get(`${room}_u`)||{}), ...users };
       const u = all[slug(name)];
-      if (!u) { setErr("Account not found. Register first."); setBusy(false); return; }
-      if (u.pass!==pass) { setErr("Incorrect password."); setBusy(false); return; }
-      const sess = {name:u.name,role:u.role,room};
-      LS.set("sess",sess); onAuth(sess);
+      if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
+      if (u.pass !== pass) { setErr("Incorrect password."); setBusy(false); return; }
+      const sess = { name:u.name, role:u.role, room };
+      LS.set("sess", sess); onAuth(sess);
     }
     setBusy(false);
   };
 
   return (
-    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflowY:"auto"}}>
+    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
       <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
-        <div style={{textAlign:"center",marginBottom:"28px"}}>
-          <div style={{display:"flex",justifyContent:"center",marginBottom:"14px"}}>
-            <div style={{width:"72px",height:"72px",borderRadius:"20px",overflow:"hidden",border:"3px solid rgba(59,130,246,0.5)",boxShadow:"0 0 40px rgba(59,130,246,0.3)"}}>
-              <img src={APP_ICON} style={{width:"100%",height:"100%",objectFit:"cover"}} />
-            </div>
-          </div>
+        {/* Logo */}
+        <div style={{textAlign:"center",marginBottom:"32px"}}>
+          <div style={{width:"60px",height:"60px",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",borderRadius:"18px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px",margin:"0 auto 12px",boxShadow:"0 0 40px rgba(59,130,246,0.3)"}}>🛡️</div>
           <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>SafeNest</div>
           <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>FAMILY SAFETY NETWORK</div>
         </div>
@@ -221,25 +284,29 @@ function AuthScreen({ onAuth }) {
 
           {mode==="register" && <>
             <span className="lbl">I am the</span>
-            <div className="role-grid">
+            <div className="role-grid" style={{marginBottom:"16px"}}>
               {ROLES.map(r => {
-                const m=ROLE_META[r]; const active=role===r;
-                return <button key={r} className="role-card" onClick={()=>setRole(r)}
-                  style={{borderColor:active?m.color:"var(--border)",background:active?m.color+"18":"transparent",color:active?m.color:"var(--text3)"}}>
-                  <span style={{fontSize:"24px"}}>{m.emoji}</span>{m.label}
-                </button>;
+                const m = ROLE_META[r];
+                const active = role===r;
+                return (
+                  <button key={r} className="role-card" onClick={()=>setRole(r)}
+                    style={{borderColor:active?m.color:"var(--border)",background:active?m.color+"18":"transparent",color:active?m.color:"var(--text3)"}}>
+                    <span style={{fontSize:"24px"}}>{m.emoji}</span>
+                    {m.label}
+                  </button>
+                );
               })}
             </div>
           </>}
 
           <span className="lbl">Family Code</span>
-          <input className="inp" style={{marginBottom:"8px"}} placeholder='e.g. "cyrilfamily"' value={code} onChange={e=>setCode(e.target.value)} />
-          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"14px",lineHeight:"1.6",padding:"9px 12px",background:"var(--bg3)",borderRadius:"8px",border:"1px solid var(--border)"}}>
-            📌 All family members must use the <strong style={{color:"var(--accent)"}}>same Family Code</strong> to connect across phones.
+          <input className="inp" style={{marginBottom:"8px"}} placeholder='e.g. "johnson2024"' value={code} onChange={e=>setCode(e.target.value)} />
+          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"16px",lineHeight:"1.6",padding:"9px 12px",background:"var(--bg3)",borderRadius:"8px",border:"1px solid var(--border)"}}>
+            📌 All family members must use the <strong style={{color:"var(--accent)"}}>same Family Code</strong> to connect.
           </div>
 
           <span className="lbl">Your Name</span>
-          <input className="inp" style={{marginBottom:"13px"}} placeholder="Enter your name" value={name} onChange={e=>setName(e.target.value)} />
+          <input className="inp" style={{marginBottom:"14px"}} placeholder="Enter your name" value={name} onChange={e=>setName(e.target.value)} />
 
           <span className="lbl">Password</span>
           <input className="inp" style={{marginBottom:"16px"}} type="password" placeholder="Min 4 characters" value={pass}
@@ -250,6 +317,7 @@ function AuthScreen({ onAuth }) {
           <button className="btn-primary" onClick={submit} disabled={busy}>
             {busy?"Please wait…":mode==="register"?"Create Account →":"Log In →"}
           </button>
+
           <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"var(--text3)"}}>
             {mode==="login"?"No account? ":"Already registered? "}
             <button style={{background:"none",border:"none",color:"var(--accent)",fontWeight:"800",cursor:"pointer",fontFamily:"var(--font)",fontSize:"13px"}}
@@ -263,209 +331,254 @@ function AuthScreen({ onAuth }) {
   );
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────────
+// ── Main App (after login) ────────────────────────────────────────────────────
 function MainApp({ session, onLogout }) {
-  const [tab,setTab] = useState("map");
-  const [members,setMembers] = useState([]);
-  const [myData,setMyData] = useState(null);
-  const [sharing,setSharing] = useState(false);
-  const [pending,setPending] = useState(false);
+  const [tab, setTab] = useState("map");
+  const [members, setMembers] = useState([]);
+  const [myData, setMyData] = useState(null);
+  const [sharing, setSharing] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+
   const watchRef = useRef(null);
   const simRef = useRef(null);
-  const simCoords = useRef(null);
+  const simCoordsRef = useRef(null);
   const activeRef = useRef(false);
+
   const meta = ROLE_META[session.role];
 
+  // ── Load my profile ───────────────────────────────────────────────────────
   useEffect(() => {
-    const load = async () => {
+    const loadProfile = async () => {
       const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
       const u = users[slug(session.name)];
       if (u) setMyData(u);
     };
-    load();
+    loadProfile();
   }, [session]);
 
+  // ── Poll all members' locations ───────────────────────────────────────────
   useEffect(() => {
     const poll = async () => {
       const locs = await fbGet(`sn3/${session.room}/locs`) || {};
-      const local = LS.get(`${session.room}_locs`) || {};
-      const merged = {...local,...locs};
+      const localLocs = LS.get(`${session.room}_locs`) || {};
+      const merged = { ...localLocs, ...locs };
       const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-      const list = Object.entries(merged).map(([role,d]) => {
-        const stale = Date.now()-(d.t||0)>20000;
-        const u = Object.values(users).find(u=>u.role===role)||{};
-        return {role,name:d.name||u.name||role,lat:d.lat,lng:d.lng,accuracy:d.accuracy,online:d.online&&!stale,avatar:u.avatar||"",t:d.t};
+
+      const list = Object.entries(merged).map(([role, d]) => {
+        const stale = Date.now() - (d.t||0) > 20000;
+        const u = Object.values(users).find(u => u.role === role) || {};
+        return {
+          role, name: d.name||u.name||role,
+          lat: d.lat, lng: d.lng, accuracy: d.accuracy,
+          online: d.online && !stale,
+          avatar: u.avatar||"",
+          t: d.t,
+        };
       });
       setMembers(list);
     };
     poll();
-    const t = setInterval(poll,3000);
-    return ()=>clearInterval(t);
+    const t = setInterval(poll, 3000);
+    return () => clearInterval(t);
   }, [session]);
 
+  // ── Push location ─────────────────────────────────────────────────────────
   const pushLoc = useCallback(async (loc) => {
-    const d = {...loc,online:true,name:session.name,t:Date.now()};
-    const locs = LS.get(`${session.room}_locs`)||{};
-    locs[session.role]=d; LS.set(`${session.room}_locs`,locs);
-    await fbPatch(`sn3/${session.room}/locs`,{[session.role]:d});
+    const d = { ...loc, online:true, name:session.name, t:Date.now() };
+    const locs = LS.get(`${session.room}_locs`) || {};
+    locs[session.role] = d;
+    LS.set(`${session.room}_locs`, locs);
+    await fbPatch(`sn3/${session.room}/locs`, { [session.role]: d });
   }, [session]);
 
+  // ── Stop sharing ──────────────────────────────────────────────────────────
   const stopSharing = useCallback(() => {
-    activeRef.current=false;
-    if (watchRef.current!=null){navigator.geolocation?.clearWatch(watchRef.current);watchRef.current=null;}
-    if (simRef.current){clearInterval(simRef.current);simRef.current=null;}
-    const off={online:false,name:session.name,t:Date.now()};
-    const locs=LS.get(`${session.room}_locs`)||{};
-    locs[session.role]=off; LS.set(`${session.room}_locs`,locs);
-    fbPatch(`sn3/${session.room}/locs`,{[session.role]:off});
+    activeRef.current = false;
+    if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
+    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
+    const off = { online:false, name:session.name, t:Date.now() };
+    const locs = LS.get(`${session.room}_locs`) || {};
+    locs[session.role] = off;
+    LS.set(`${session.room}_locs`, locs);
+    fbPatch(`sn3/${session.room}/locs`, { [session.role]: off });
     setSharing(false); setPending(false);
   }, [session]);
 
+  // ── Start simulated ───────────────────────────────────────────────────────
   const startSim = useCallback(() => {
-    const base={lat:9.98+(Math.random()-.5)*.02,lng:-2.47+(Math.random()-.5)*.02,accuracy:25};
-    simCoords.current={...base};
-    pushLoc(base); setSharing(true); setPending(false); activeRef.current=true;
-    simRef.current=setInterval(()=>{
-      if(!activeRef.current)return;
-      simCoords.current.lat+=(Math.random()-.48)*.0005;
-      simCoords.current.lng+=(Math.random()-.48)*.0005;
-      pushLoc({...simCoords.current});
-    },5000);
-  },[pushLoc]);
+    const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
+    simCoordsRef.current = {...base};
+    pushLoc(base);
+    setSharing(true); setPending(false); activeRef.current = true;
+    simRef.current = setInterval(() => {
+      if (!activeRef.current) return;
+      simCoordsRef.current.lat += (Math.random()-.48)*.001;
+      simCoordsRef.current.lng += (Math.random()-.48)*.001;
+      pushLoc({...simCoordsRef.current});
+    }, 5000);
+  }, [pushLoc]);
 
+  // ── Toggle sharing ────────────────────────────────────────────────────────
   const toggleSharing = useCallback(() => {
-    if (sharing||pending){stopSharing();return;}
+    if (sharing || pending) { stopSharing(); return; }
     setPending(true);
-    if (!navigator.geolocation){startSim();return;}
-    const fb = setTimeout(()=>{if(!activeRef.current)startSim();},8000);
-    watchRef.current = navigator.geolocation.watchPosition(
-      (pos)=>{
-        clearTimeout(fb);
-        if(watchRef.current==null)return;
-        const loc={lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:Math.round(pos.coords.accuracy)};
-        pushLoc(loc);
-        if(!activeRef.current){activeRef.current=true;setSharing(true);setPending(false);}
-      },
-      ()=>{clearTimeout(fb);startSim();},
-      {enableHighAccuracy:true,maximumAge:0,timeout:15000}
-    );
-  },[sharing,pending,stopSharing,startSim]);
+    if (!navigator.geolocation) { startSim(); return; }
 
-  useEffect(()=>()=>stopSharing(),[stopSharing]);
+    const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
+
+    // watchPosition keeps running forever until cleared — this is the persistent sharing
+    watchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        clearTimeout(fallback);
+        if (watchRef.current == null) return;
+        const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
+        pushLoc(loc);
+        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); }
+      },
+      () => { clearTimeout(fallback); startSim(); },
+      { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
+    );
+  }, [sharing, pending, stopSharing, startSim]);
+
+  useEffect(() => () => stopSharing(), [stopSharing]);
 
   const onlineCount = members.filter(m=>m.online).length;
 
   return (
     <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
-
-      {/* MAP TAB */}
+      {/* ── MAP TAB ─────────────────────────────────────────────────────── */}
       {tab==="map" && (
         <div style={{flex:1,position:"relative",overflow:"hidden"}}>
-          <LiveMap members={members} />
+          <LiveMap members={members} currentUser={session} />
 
-          {/* Header */}
-          <div style={{position:"absolute",top:0,left:0,right:0,padding:"12px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.96) 60%,transparent)",zIndex:500,display:"flex",alignItems:"center",gap:"10px",pointerEvents:"none"}}>
-            <AppLogo size={36} radius={10} />
-            <div style={{flex:1}}>
-              <div style={{fontSize:"17px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
-              <div style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",marginTop:"1px"}}>{onlineCount} of {members.length||"—"} online</div>
+          {/* Header overlay */}
+          <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
+            <div>
+              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
+              <div style={{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"500",marginTop:"1px"}}>
+                {onlineCount} of {members.length||"—"} online
+              </div>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:"6px",background:"rgba(7,11,24,0.85)",border:"1px solid var(--border)",borderRadius:"10px",padding:"5px 11px",pointerEvents:"all"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"6px",background:"rgba(7,11,24,0.8)",border:"1px solid var(--border)",borderRadius:"10px",padding:"6px 12px"}}>
               <div style={{width:"7px",height:"7px",borderRadius:"50%",background:sharing?"var(--green)":pending?"var(--amber)":"var(--text3)",animation:sharing?"pulse 1.5s infinite":"none"}} />
-              <span style={{fontSize:"10px",fontWeight:"700",color:sharing?"var(--green)":pending?"var(--amber)":"var(--text2)",fontFamily:"var(--mono)"}}>
-                {sharing?"LIVE":pending?"WAIT...":"OFF"}
+              <span style={{fontSize:"11px",fontWeight:"700",color:sharing?"var(--green)":pending?"var(--amber)":"var(--text2)",fontFamily:"var(--mono)"}}>
+                {sharing?"LIVE":pending?"STARTING…":"OFF"}
               </span>
             </div>
           </div>
 
-          {/* FAB toggle */}
-          <div style={{position:"absolute",bottom:"20px",left:"50%",transform:"translateX(-50%)",zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",gap:"8px"}}>
+          {/* Share toggle fab */}
+          <div style={{position:"absolute",bottom:"24px",left:"50%",transform:"translateX(-50%)",zIndex:500}}>
             <div onClick={toggleSharing} className="big-toggle"
-              style={{background:sharing?`linear-gradient(135deg,${meta.color}28,${meta.color}0a)`:pending?"rgba(245,158,11,0.08)":"rgba(13,18,37,0.92)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 36px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.6)",backdropFilter:"blur(12px)"}}>
+              style={{background:sharing?`linear-gradient(135deg,${meta.color}30,${meta.color}10)`:pending?"rgba(245,158,11,0.1)":"rgba(13,18,37,0.9)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 40px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.5)",backdropFilter:"blur(10px)"}}>
               {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.3}} />}
-              <span style={{fontSize:"34px"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
+              <span style={{fontSize:"36px"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
               <span style={{fontSize:"9px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
                 {sharing?"SHARING":pending?"WAIT":"TAP"}
               </span>
             </div>
-            <div style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",background:"rgba(7,11,24,0.85)",padding:"4px 10px",borderRadius:"6px",border:"1px solid var(--border)",backdropFilter:"blur(8px)"}}>
-              {sharing?"Tap to stop sharing":pending?"Getting location…":"Tap to share location"}
+            <div style={{textAlign:"center",marginTop:"8px",fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",background:"rgba(7,11,24,0.8)",padding:"4px 10px",borderRadius:"6px",border:"1px solid var(--border)"}}>
+              {sharing?"Sharing until you stop":pending?"Getting location…":"Tap to share location"}
             </div>
           </div>
         </div>
       )}
 
-      {/* FAMILY TAB */}
+      {/* ── FAMILY TAB ───────────────────────────────────────────────────── */}
       {tab==="family" && (
         <div className="page">
-          <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"4px"}}>
-            <AppLogo size={32} radius={9} />
-            <div style={{fontSize:"20px",fontWeight:"800"}}>Family</div>
-          </div>
-          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"18px",fontFamily:"var(--mono)"}}>Room: {session.room}</div>
+          <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"4px"}}>Family</div>
+          <div style={{fontSize:"12px",color:"var(--text3)",marginBottom:"20px",fontFamily:"var(--mono)"}}>Room: {session.room}</div>
 
-          {members.length===0 && (
+          {members.length === 0 && (
             <div className="card" style={{padding:"32px",textAlign:"center"}}>
               <div style={{fontSize:"40px",marginBottom:"12px"}}>👨‍👩‍👦</div>
               <div style={{color:"var(--text2)",fontWeight:"600"}}>No family members connected yet</div>
-              <div style={{color:"var(--text3)",fontSize:"12px",marginTop:"6px"}}>Others register with family code: <strong style={{color:"var(--accent)"}}>{session.room}</strong></div>
+              <div style={{color:"var(--text3)",fontSize:"12px",marginTop:"6px"}}>Others need to register with the same family code: <strong style={{color:"var(--accent)"}}>{session.room}</strong></div>
             </div>
           )}
 
           {ROLES.map(role => {
-            const m=members.find(x=>x.role===role);
-            const rm=ROLE_META[role]; const isMe=session.role===role;
+            const m = members.find(x=>x.role===role);
+            const meta = ROLE_META[role];
+            const isMe = session.role === role;
             return (
-              <div key={role} className="member-row" style={{borderColor:m?.online?rm.color+"50":"var(--border)"}}>
-                <div style={{width:"44px",height:"44px",borderRadius:"50%",background:rm.color+"20",border:`2px solid ${m?.online?rm.color:"var(--border2)"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",overflow:"hidden",flexShrink:0}}>
-                  {m?.avatar?<img src={m.avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />:<span>{rm.emoji}</span>}
+              <div key={role} className="member-row" style={{borderColor:m?.online?meta.color+"40":"var(--border)"}}>
+                {/* Avatar */}
+                <div className="member-avatar" style={{background:meta.color+"20",border:`2px solid ${m?.online?meta.color:"var(--border2)"}`}}>
+                  {m?.avatar ? <img src={m.avatar} style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover"}} /> : <span>{meta.emoji}</span>}
                 </div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:"flex",alignItems:"center",gap:"7px"}}>
-                    <span style={{fontWeight:"800",fontSize:"15px"}}>{m?.name||rm.label}</span>
-                    {isMe&&<span style={{fontSize:"9px",background:"rgba(59,130,246,0.12)",color:"var(--accent)",border:"1px solid rgba(59,130,246,0.25)",borderRadius:"4px",padding:"1px 6px",fontWeight:"700"}}>YOU</span>}
+                  <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                    <span style={{fontWeight:"800",fontSize:"15px"}}>{m?.name || meta.label}</span>
+                    {isMe && <span style={{fontSize:"9px",background:"var(--accent)20",color:"var(--accent)",border:"1px solid var(--accent)40",borderRadius:"4px",padding:"1px 6px",fontWeight:"700",letterSpacing:"1px"}}>YOU</span>}
                   </div>
-                  <div style={{fontSize:"11px",color:rm.color,fontWeight:"700",marginTop:"2px"}}>{rm.label}</div>
+                  <div style={{fontSize:"11px",color:meta.color,fontWeight:"700",marginTop:"2px"}}>{meta.label}</div>
                   <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"4px"}}>
-                    {m?(m.online?<><div className="dot-live"/><span style={{fontSize:"10px",color:"var(--green)",fontFamily:"var(--mono)",fontWeight:"700"}}>LIVE</span>{m.accuracy&&<span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>±{m.accuracy}m</span>}</>:<><div className="dot-off"/><span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>OFFLINE</span>{m.t&&<span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>· {new Date(m.t).toLocaleTimeString()}</span>}</>):<span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>NOT REGISTERED</span>}
+                    {m ? (
+                      m.online ? <>
+                        <div className="dot-live" />
+                        <span style={{fontSize:"10px",color:"var(--green)",fontFamily:"var(--mono)",fontWeight:"700"}}>LIVE</span>
+                        {m.accuracy && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>±{m.accuracy}m</span>}
+                      </> : <>
+                        <div className="dot-off" />
+                        <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>OFFLINE</span>
+                        {m.t && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>· {new Date(m.t).toLocaleTimeString()}</span>}
+                      </>
+                    ) : (
+                      <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>NOT REGISTERED</span>
+                    )}
                   </div>
                 </div>
-                {m?.online&&m.lat&&<div style={{textAlign:"right",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)"}}><div>{m.lat.toFixed(4)}</div><div>{m.lng.toFixed(4)}</div></div>}
+                {m?.online && m.lat && (
+                  <div style={{textAlign:"right",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)"}}>
+                    <div>{m.lat.toFixed(4)}</div>
+                    <div>{m.lng.toFixed(4)}</div>
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
       )}
 
-      {/* SHARE TAB */}
+      {/* ── SHARE TAB ────────────────────────────────────────────────────── */}
       {tab==="share" && (
-        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 130px)"}}>
-          <AppLogo size={56} radius={16} />
-          <div style={{textAlign:"center",margin:"16px 0 28px"}}>
+        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
+          <div style={{textAlign:"center",marginBottom:"28px"}}>
             <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
             <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
           </div>
 
+          {/* Big toggle */}
           <div onClick={toggleSharing} className="big-toggle"
-            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}1a,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
-            {sharing&&<div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
+            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
+            {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
             <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
-            <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>{sharing?"LIVE":pending?"WAIT":"OFF"}</span>
+            <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
+              {sharing?"LIVE":pending?"WAIT":"OFF"}
+            </span>
           </div>
 
           <div style={{fontSize:"18px",fontWeight:"800",color:sharing?meta.color:pending?"var(--amber)":"var(--text2)",marginBottom:"8px"}}>
-            {sharing?"✅ Sharing Live":pending?"⏳ Starting…":"Location Off"}
+            {sharing?"✅ Location Sharing On":pending?"⏳ Starting…":"Location Off"}
           </div>
-          <div style={{fontSize:"13px",color:"var(--text3)",textAlign:"center",maxWidth:"260px",lineHeight:"1.6",marginBottom:"24px"}}>
-            {sharing?"Your location is being shared with your family. Tap to stop."
+          <div style={{fontSize:"13px",color:"var(--text3)",textAlign:"center",maxWidth:"260px",lineHeight:"1.6",marginBottom:"28px"}}>
+            {sharing?"Your location is being shared live with your family. It will keep sharing until you tap to stop."
             :pending?"Requesting location access…"
-            :"Tap the button to start sharing your live location."}
+            :"Tap the button to start sharing your live location with family."}
           </div>
 
-          {sharing&&(
-            <div className="card fade-in" style={{width:"100%",maxWidth:"300px",padding:"14px"}}>
+          {sharing && (
+            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:"16px"}}>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-                {[["STATUS","LIVE ●"],["FAMILY",session.room.toUpperCase()],["ROLE",meta.label.toUpperCase()],["MODE","PERSISTENT"]].map(([l,v])=>(
+                {[
+                  ["STATUS","SHARING LIVE ●"],
+                  ["FAMILY",session.room.toUpperCase()],
+                  ["ROLE",meta.label.toUpperCase()],
+                  ["MODE","PERSISTENT"],
+                ].map(([l,v])=>(
                   <div key={l} className="card-sm">
                     <div style={{fontSize:"8px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
                     <div style={{fontSize:"11px",color:l==="STATUS"?meta.color:"var(--text)",fontWeight:"700",fontFamily:"var(--mono)",marginTop:"3px"}}>{v}</div>
@@ -477,14 +590,21 @@ function MainApp({ session, onLogout }) {
         </div>
       )}
 
-      {/* PROFILE TAB */}
-      {tab==="profile" && <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />}
+      {/* ── PROFILE TAB ──────────────────────────────────────────────────── */}
+      {tab==="profile" && (
+        <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />
+      )}
 
-      {/* NAV */}
+      {/* ── Bottom Nav ───────────────────────────────────────────────────── */}
       <nav className="nav">
-        {[{id:"map",icon:"🗺️",label:"MAP"},{id:"family",icon:"👨‍👩‍👦",label:"FAMILY"},{id:"share",icon:"📡",label:"SHARE"},{id:"profile",icon:"👤",label:"ME"}].map(n=>(
+        {[
+          { id:"map",    icon:"🗺️",  label:"MAP"    },
+          { id:"family", icon:"👨‍👩‍👦", label:"FAMILY" },
+          { id:"share",  icon:"📡",  label:"SHARE"  },
+          { id:"profile",icon:"👤",  label:"ME"     },
+        ].map(n => (
           <button key={n.id} className={`nav-btn ${tab===n.id?"active":""}`} onClick={()=>setTab(n.id)}>
-            <span className="icon">{n.id==="share"&&sharing?"🟢":n.icon}</span>
+            <span className="icon">{n.id==="share" && sharing ? "🟢" : n.icon}</span>
             <span>{n.label}</span>
           </button>
         ))}
@@ -493,78 +613,93 @@ function MainApp({ session, onLogout }) {
   );
 }
 
-// ── Profile ───────────────────────────────────────────────────────────────────
+// ── Profile Tab ───────────────────────────────────────────────────────────────
 function ProfileTab({ session, myData, setMyData, onLogout }) {
-  const [edit,setEdit] = useState(false);
-  const [dname,setDname] = useState(myData?.name||session.name);
-  const [bio,setBio] = useState(myData?.bio||"");
-  const [avatar,setAvatar] = useState(myData?.avatar||"");
-  const [saving,setSaving] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [displayName, setDisplayName] = useState(myData?.name||session.name);
+  const [bio, setBio] = useState(myData?.bio||"");
+  const [avatar, setAvatar] = useState(myData?.avatar||"");
+  const [saving, setSaving] = useState(false);
+  const fileRef = useRef(null);
   const meta = ROLE_META[session.role];
 
-  useEffect(()=>{
-    if(myData){setDname(myData.name||session.name);setBio(myData.bio||"");setAvatar(myData.avatar||"");}
-  },[myData]);
+  useEffect(() => {
+    if (myData) { setDisplayName(myData.name||session.name); setBio(myData.bio||""); setAvatar(myData.avatar||""); }
+  }, [myData]);
 
-  const handleImg = (e) => {
-    const file=e.target.files?.[0]; if(!file)return;
-    if(file.size>600000){alert("Image too large, please use under 600KB");return;}
-    const r=new FileReader();
-    r.onload=(ev)=>setAvatar(ev.target.result);
-    r.readAsDataURL(file);
+  const handleAvatar = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500000) { alert("Please choose an image under 500KB"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => setAvatar(ev.target.result);
+    reader.readAsDataURL(file);
   };
 
   const save = async () => {
     setSaving(true);
-    const users=await fbGet(`sn3/${session.room}/users`)||LS.get(`${session.room}_u`)||{};
-    const key=slug(session.name);
-    if(users[key]){
-      users[key]={...users[key],name:dname,bio,avatar};
-      await fbSet(`sn3/${session.room}/users`,users);
-      LS.set(`${session.room}_u`,users);
+    const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+    const key = slug(session.name);
+    if (users[key]) {
+      users[key] = { ...users[key], name:displayName, bio, avatar };
+      await fbSet(`sn3/${session.room}/users`, users);
+      LS.set(`${session.room}_u`, users);
       setMyData(users[key]);
     }
-    setSaving(false);setEdit(false);
+    setSaving(false); setEditMode(false);
   };
 
   return (
     <div className="page">
-      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"20px"}}>
-        <AppLogo size={32} radius={9} />
-        <div style={{fontSize:"20px",fontWeight:"800"}}>My Profile</div>
-      </div>
+      <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"20px"}}>My Profile</div>
 
-      <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"22px"}}>
-        <label className="avatar-upload" style={{marginBottom:"10px"}}>
-          <input type="file" accept="image/*" onChange={handleImg} />
-          <div style={{width:"88px",height:"88px",borderRadius:"50%",background:meta.color+"20",border:`3px solid ${meta.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"40px",overflow:"hidden",position:"relative"}}>
-            {avatar?<img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />:<span>{meta.emoji}</span>}
+      {/* Avatar + name */}
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"24px"}}>
+        <label className="avatar-upload" style={{marginBottom:"14px"}}>
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} />
+          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:meta.color+"20",border:`3px solid ${meta.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"42px",overflow:"hidden",position:"relative"}}>
+            {avatar
+              ? <img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />
+              : <span>{meta.emoji}</span>}
             <div className="avatar-upload-overlay">📷</div>
           </div>
         </label>
-        <div style={{fontSize:"10px",color:"var(--text3)",marginBottom:"6px",fontFamily:"var(--mono)"}}>TAP TO CHANGE PHOTO</div>
-        {edit
-          ?<input className="inp" style={{maxWidth:"220px",textAlign:"center",fontSize:"17px",fontWeight:"800"}} value={dname} onChange={e=>setDname(e.target.value)} />
-          :<div style={{fontSize:"22px",fontWeight:"800"}}>{dname}</div>}
+        <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"4px",fontFamily:"var(--mono)"}}>TAP PHOTO TO CHANGE</div>
+
+        {editMode ? (
+          <input className="inp" style={{maxWidth:"240px",textAlign:"center",fontSize:"18px",fontWeight:"800"}}
+            value={displayName} onChange={e=>setDisplayName(e.target.value)} />
+        ) : (
+          <div style={{fontSize:"22px",fontWeight:"800"}}>{displayName}</div>
+        )}
+
         <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"6px"}}>
-          <span>{meta.emoji}</span>
+          <span style={{fontSize:"14px"}}>{meta.emoji}</span>
           <span style={{fontSize:"13px",color:meta.color,fontWeight:"700"}}>{meta.label}</span>
         </div>
       </div>
 
+      {/* Info card */}
       <div className="card" style={{padding:"16px",marginBottom:"12px"}}>
         <div style={{marginBottom:"14px"}}>
-          <span className="lbl">Bio</span>
-          {edit
-            ?<textarea className="inp" rows={3} style={{resize:"none"}} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Add a short note…" />
-            :<div style={{fontSize:"13px",color:bio?"var(--text)":"var(--text3)",lineHeight:"1.6"}}>{bio||"No bio yet. Tap Edit to add one."}</div>}
+          <span className="lbl">Bio / Note</span>
+          {editMode
+            ? <textarea className="inp" rows={3} style={{resize:"none"}} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Add a short note about yourself…" />
+            : <div style={{fontSize:"14px",color:bio?"var(--text)":"var(--text3)",lineHeight:"1.6"}}>{bio||"No bio yet. Tap Edit to add one."}</div>
+          }
         </div>
-        <span className="lbl">Family Room</span>
-        <div style={{fontFamily:"var(--mono)",fontSize:"14px",color:"var(--accent)",fontWeight:"700"}}>📡 {session.room}</div>
+        <div>
+          <span className="lbl">Family Room</span>
+          <div style={{fontFamily:"var(--mono)",fontSize:"14px",color:"var(--accent)",fontWeight:"700"}}>📡 {session.room}</div>
+        </div>
       </div>
 
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"18px"}}>
-        {[["ROLE",meta.label,meta.color],["SINCE",myData?.createdAt?new Date(myData.createdAt).toLocaleDateString():"—","var(--text2)"]].map(([l,v,c])=>(
+      {/* Stats */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"20px"}}>
+        {[
+          ["ROLE", meta.label, meta.color],
+          ["MEMBER SINCE", myData?.createdAt ? new Date(myData.createdAt).toLocaleDateString() : "—", "var(--text2)"],
+        ].map(([l,v,c])=>(
           <div key={l} className="card-sm">
             <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
             <div style={{fontSize:"13px",color:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
@@ -572,13 +707,14 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
         ))}
       </div>
 
-      {edit?(
-        <div style={{display:"flex",gap:"10px",marginBottom:"12px"}}>
-          <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEdit(false)}>Cancel</button>
-          <button className="btn-primary" style={{flex:2}} onClick={save} disabled={saving}>{saving?"Saving…":"Save"}</button>
+      {/* Actions */}
+      {editMode ? (
+        <div style={{display:"flex",gap:"10px"}}>
+          <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEditMode(false)}>Cancel</button>
+          <button className="btn-primary" style={{flex:2}} onClick={save} disabled={saving}>{saving?"Saving…":"Save Changes"}</button>
         </div>
-      ):(
-        <button className="btn-primary" style={{marginBottom:"12px"}} onClick={()=>setEdit(true)}>✏️ Edit Profile</button>
+      ) : (
+        <button className="btn-primary" style={{marginBottom:"12px"}} onClick={()=>setEditMode(true)}>✏️ Edit Profile</button>
       )}
 
       <button onClick={onLogout} style={{width:"100%",padding:"13px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"11px",color:"#f87171",fontWeight:"800",fontSize:"14px",fontFamily:"var(--font)"}}>
@@ -590,12 +726,14 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 function App() {
-  const [sess,setSess] = useState(()=>LS.get("sess"));
-  if(!sess) return <AuthScreen onAuth={s=>setSess(s)} />;
-  return <MainApp session={sess} onLogout={()=>{LS.del("sess");setSess(null);}} />;
+  const [sess, setSess] = useState(() => LS.get("sess"));
+  const login = (s) => setSess(s);
+  const logout = () => { LS.del("sess"); setSess(null); };
+  if (!sess) return <AuthScreen onAuth={login} />;
+  return <MainApp session={sess} onLogout={logout} />;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-<\/script>
+</script>
 </body>
 </html>
