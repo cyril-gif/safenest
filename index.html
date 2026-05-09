@@ -1,739 +1,2115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <meta name="theme-color" content="#0a0f1e"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <title>SafeNest</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-  <!-- Leaflet for real map (no API key needed) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    :root {
-      --bg: #070b18;
-      --bg2: #0d1225;
-      --bg3: #111828;
-      --border: #1e2d4a;
-      --border2: #243352;
-      --accent: #3b82f6;
-      --accent2: #06b6d4;
-      --green: #10b981;
-      --amber: #f59e0b;
-      --pink: #ec4899;
-      --red: #ef4444;
-      --text: #f1f5f9;
-      --text2: #94a3b8;
-      --text3: #475569;
-      --font: 'Syne', sans-serif;
-      --mono: 'JetBrains Mono', monospace;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
-    #root { height: 100%; display: flex; flex-direction: column; }
-    button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
-    input { font-family: var(--font); outline: none; }
-    input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#00C853"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>WasteGo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{
+  --g:#00C853;--gdim:rgba(0,200,83,.13);
+  --bk:#07090A;--dk:#0D1210;--card:#111A12;--card2:#172218;
+  --bd:#1A2B1C;--mid:#4A6A4C;--mut:#253325;
+  --wh:#EBF5EC;--gold:#FFD600;--red:#FF4444;--blue:#3D8BFF;--orange:#FF8C00;
+  --nav:64px;--bot:70px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bk);color:var(--wh);display:flex;flex-direction:column;max-width:430px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.8);}
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.hidden{display:none!important;}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;font-size:.87rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:active{transform:scale(.97);}
+.btn-g{background:var(--g);color:var(--bk);}
+.btn-g:hover{background:#00DA5A;}
+.btn-g:disabled{background:var(--mut);color:var(--mid);cursor:not-allowed;transform:none;}
+.btn-sec{background:var(--card2);color:var(--wh);border:1px solid var(--bd);}
+.btn-red{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.2);}
+.btn-blue{background:rgba(61,139,255,.1);color:#7DB8FF;border:1px solid rgba(61,139,255,.22);}
+.btn-gold{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.22);}
+.btn-orange{background:rgba(255,140,0,.12);color:var(--orange);border:1px solid rgba(255,140,0,.25);}
+.btn-sm{padding:8px 12px;font-size:.73rem;width:auto;border-radius:8px;}
+.input{width:100%;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:12px 15px;color:var(--wh);font-size:.87rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s;}
+.input:focus{border-color:var(--g);}
+.input::placeholder{color:var(--mut);}
+.input.err{border-color:var(--red)!important;}
+select.input{cursor:pointer;appearance:none;}
+textarea.input{resize:vertical;min-height:80px;}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:13px;}
+.lbl{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:7px;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.62rem;font-weight:700;letter-spacing:.05em;}
+.bg{background:var(--gdim);color:var(--g);}
+.bb{background:rgba(61,139,255,.12);color:var(--blue);}
+.br{background:rgba(255,68,68,.1);color:var(--red);}
+.by{background:rgba(255,214,0,.1);color:var(--gold);}
+.bo{background:rgba(255,140,0,.1);color:var(--orange);}
+.row{display:flex;justify-content:space-between;align-items:center;}
+.gap8{display:flex;gap:8px;}
+.spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes ripple{to{transform:scale(2.8);opacity:0}}
 
-    /* Animations */
-    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    @keyframes ripple { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.4); opacity:0; } }
-    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.fw{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;}
+.fl{font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);padding-left:2px;}
+.fe{font-size:.71rem;color:var(--red);padding-left:2px;display:none;}
+.fe.on{display:block;animation:fadeUp .2s ease;}
 
-    .fade-in { animation: fadeIn 0.3s ease forwards; }
-    .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+/* ── SYNC STATUS ── */
+#sync-bar{background:rgba(0,200,83,.1);border-bottom:1px solid rgba(0,200,83,.15);padding:6px 16px;font-size:.68rem;color:var(--g);display:flex;align-items:center;gap:7px;flex-shrink:0;}
+#sync-bar.err{background:rgba(255,214,0,.08);border-color:rgba(255,214,0,.15);color:var(--gold);}
+#sync-bar.hidden{display:none!important;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s ease infinite;}
+#sync-bar.err .sync-dot{background:var(--gold);}
 
-    /* Map */
-    #map { width:100%; height:100%; }
-    .leaflet-container { background: #0d1225 !important; }
-    .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
+/* ── AUTH ── */
+#auth{position:fixed;inset:0;z-index:999;background:var(--bk);display:flex;flex-direction:column;align-items:center;overflow-y:auto;transition:opacity .35s;}
+#auth.out{opacity:0;pointer-events:none;}
+.ah{width:100%;height:210px;background:linear-gradient(160deg,#060B06,#0A1A0B,#060B06);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:22px;flex-shrink:0;}
+.ah-bg{position:absolute;inset:0;background:radial-gradient(ellipse 65% 75% at 50% 0%,rgba(0,200,83,.17),transparent 65%);}
+.ah-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,83,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,83,.04) 1px,transparent 1px);background-size:28px 28px;}
+.ah-ico{width:74px;height:74px;border-radius:22px;background:linear-gradient(145deg,#00C853,#006B2C);display:flex;align-items:center;justify-content:center;position:relative;z-index:2;margin-bottom:12px;box-shadow:0 10px 36px rgba(0,200,83,.35),0 0 0 1px rgba(0,200,83,.2);}
+.ah-ico svg{width:46px;height:46px;}
+.ah-nm{font-family:'Fraunces',serif;font-size:1.95rem;font-weight:700;color:var(--wh);position:relative;z-index:2;}
+.ah-nm span{color:var(--g);}
+.ah-sub{font-size:.72rem;color:rgba(74,106,76,.9);position:relative;z-index:2;margin-top:4px;letter-spacing:.05em;}
+.ab{width:100%;padding:20px 20px 50px;display:flex;flex-direction:column;align-items:center;}
+.at{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;width:100%;margin-bottom:20px;}
+.at-b{flex:1;padding:11px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.at-b.on{background:var(--g);color:var(--bk);}
+.aform{width:100%;display:flex;flex-direction:column;animation:fadeUp .35s ease both;}
+.rp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.ro{border:2px solid var(--bd);border-radius:12px;padding:15px 10px;text-align:center;cursor:pointer;transition:all .22s;background:transparent;}
+.ro.on{border-color:var(--g);background:var(--gdim);}
+.ro[data-role="rider"].on{border-color:var(--blue);background:rgba(61,139,255,.07);}
+.ro-ico{font-size:1.9rem;display:block;margin-bottom:5px;}
+.ro-nm{font-size:.82rem;font-weight:700;color:var(--wh);}
+.ro-ds{font-size:.67rem;color:var(--mid);margin-top:2px;}
+.ro.on .ro-nm{color:var(--g);}
+.ro[data-role="rider"].on .ro-nm{color:#7DB8FF;}
+.anote{font-size:.7rem;color:var(--mid);text-align:center;margin-top:6px;}
+.adm-login-box{background:rgba(255,214,0,.04);border:1px solid rgba(255,214,0,.18);border-radius:10px;padding:14px;margin-bottom:10px;}
+.adm-login-box .fl{color:var(--gold);}
+.sep{display:flex;align-items:center;gap:10px;margin:10px 0;}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--bd);}
+.sep span{font-size:.65rem;color:var(--mid);letter-spacing:.1em;text-transform:uppercase;}
 
-    /* Custom marker */
-    .member-marker { position:relative; }
-    .marker-dot { width:16px; height:16px; border-radius:50%; border:2.5px solid white; box-shadow:0 0 12px currentColor; }
-    .marker-pulse { position:absolute; top:-4px; left:-4px; width:24px; height:24px; border-radius:50%; border:2px solid currentColor; animation: ripple 1.8s ease-out infinite; }
-    .marker-label { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(10,15,30,0.9); border:1px solid rgba(255,255,255,0.1); }
+/* ── TOP NAV ── */
+#topnav{height:var(--nav);background:var(--dk);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;z-index:50;}
+.logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--wh);display:flex;align-items:center;gap:8px;}
+.logo-i{width:27px;height:27px;background:var(--g);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.logo-i svg{width:17px;height:17px;}
+.logo span{color:var(--g);}
+.tnr{display:flex;align-items:center;gap:9px;}
+.rbadge{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:100px;}
+.rbadge.customer{background:var(--gdim);color:var(--g);border:1px solid rgba(0,200,83,.2);}
+.rbadge.rider{background:rgba(61,139,255,.1);color:var(--blue);border:1px solid rgba(61,139,255,.2);}
+.rbadge.admin{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.18);}
+.ava-btn{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.84rem;cursor:pointer;overflow:hidden;}
+.ava-btn img{width:100%;height:100%;object-fit:cover;}
 
-    /* Nav */
-    .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
-    .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; background:none; color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0.5px; transition:color 0.2s; position:relative; }
-    .nav-btn.active { color:var(--accent); }
-    .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
-    .nav-btn.active .icon { transform:scale(1.1); }
-    .nav-badge { position:absolute; top:6px; right:calc(50% - 16px); background:var(--red); color:white; font-size:9px; font-weight:800; border-radius:99px; padding:1px 5px; min-width:16px; text-align:center; }
+/* ── SCREENS ── */
+#main{flex:1;overflow:hidden;position:relative;}
+.scr{position:absolute;inset:0;overflow-y:auto;padding:15px 15px calc(var(--bot)+22px);display:none;-webkit-overflow-scrolling:touch;}
+.scr.on{display:block;}
+.scr::-webkit-scrollbar{width:3px;}
+.scr::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px;}
+.ph{margin-bottom:18px;}
+.ph-t{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:var(--wh);margin-bottom:2px;}
+.ph-s{font-size:.77rem;color:var(--mid);}
 
-    /* Cards */
-    .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
-    .card-sm { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px; }
+/* ── MAP ── */
+#cmap,#tmap,#rmap{border-radius:14px;border:1px solid var(--bd);overflow:hidden;position:relative;z-index:1;}
+#cmap{height:215px;margin-bottom:13px;}
+#tmap{height:215px;margin-bottom:13px;}
+#rmap{height:195px;margin-bottom:13px;}
+.leaflet-container{background:#07090A!important;}
+.leaflet-tile-pane{filter:brightness(.45) saturate(.45) hue-rotate(55deg);}
+.leaflet-control-attribution{display:none!important;}
+.leaflet-control-zoom a{background:var(--card)!important;color:var(--wh)!important;border-color:var(--bd)!important;}
+.mbar{position:absolute;top:9px;left:9px;right:9px;z-index:2;background:rgba(7,9,10,.88);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;pointer-events:none;}
+.mbd{width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 2s ease infinite;}
+.mbd.y{background:var(--gold);animation:none;}
+.mbd.b{background:var(--blue);animation:none;}
+.mbt{font-size:.74rem;font-weight:600;color:var(--wh);}
+.mbs{font-size:.65rem;color:var(--mid);margin-left:auto;}
 
-    /* Member pill */
-    .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
-    .member-row:last-child { margin-bottom:0; }
-    .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+/* ── MATCH WAITING ── */
+.match-waiting{background:linear-gradient(135deg,rgba(0,200,83,.07),rgba(0,200,83,.02));border:1.5px solid rgba(0,200,83,.2);border-radius:16px;padding:20px;margin-bottom:13px;text-align:center;}
+.mw-pulse{width:60px;height:60px;border-radius:50%;background:var(--gdim);border:2px solid rgba(0,200,83,.3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 14px;animation:mwPulse 2s ease infinite;}
+@keyframes mwPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,200,83,.3)}50%{box-shadow:0 0 0 12px rgba(0,200,83,0)}}
+.mw-title{font-weight:700;font-size:.95rem;color:var(--wh);margin-bottom:5px;}
+.mw-sub{font-size:.78rem;color:var(--mid);}
+.mw-riders{display:flex;flex-direction:column;gap:9px;margin-top:14px;text-align:left;}
+.mw-rider-row{background:var(--card2);border:1px solid var(--bd);border-radius:11px;padding:12px 14px;display:flex;align-items:center;gap:11px;}
+.mw-rider-ava{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden;}
+.mw-rider-ava img{width:100%;height:100%;object-fit:cover;}
+.mw-rider-nm{font-size:.84rem;font-weight:700;color:var(--wh);}
+.mw-rider-meta{font-size:.69rem;color:var(--mid);}
+.mw-rider-status{margin-left:auto;font-size:.65rem;font-weight:700;}
 
-    /* Toggle */
-    .big-toggle { width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; }
-    .toggle-ripple { position:absolute; inset:-8px; border-radius:50%; animation: ripple 2s ease-out infinite; }
+/* ── SIZES ── */
+.sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:4px;}
+.sz{background:var(--card2);border:1.5px solid var(--bd);border-radius:11px;padding:11px 5px;text-align:center;cursor:pointer;transition:all .2s;}
+.sz.on{border-color:var(--g);background:var(--gdim);}
+.sz .si{font-size:1.3rem;display:block;margin-bottom:4px;}
+.sz .sn{font-size:.65rem;color:var(--mid);font-weight:600;}
+.sz .sp{font-size:.57rem;color:var(--mut);margin-top:2px;}
+.sz.on .sn{color:var(--g);}
 
-    /* Inputs */
-    .inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:14px; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
-    .inp::placeholder { color:var(--text3); }
-    .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
+.pbox{background:var(--card2);border-radius:11px;padding:13px 15px;margin-bottom:13px;}
+.pr{display:flex;justify-content:space-between;font-size:.79rem;padding:3px 0;}
+.pr span:first-child{color:var(--mid);}
+.pt{display:flex;justify-content:space-between;margin-top:7px;padding-top:7px;border-top:1px solid var(--bd);}
+.pt span:first-child{font-weight:700;color:var(--wh);}
+.pt span:last-child{font-weight:800;color:var(--g);font-size:1.05rem;}
 
-    /* Btn */
-    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:white; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
-    .btn-primary:disabled { opacity:0.4; cursor:default; }
-    .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
+.pay-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.pay-opt{border:2px solid var(--bd);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .22s;background:transparent;}
+.pay-opt.on-momo{border-color:var(--g);background:var(--gdim);}
+.pay-opt.on-cash{border-color:var(--orange);background:rgba(255,140,0,.08);}
+.pay-opt .poi{font-size:1.7rem;display:block;margin-bottom:5px;}
+.pay-opt .pon{font-size:.8rem;font-weight:700;color:var(--wh);}
+.pay-opt .pod{font-size:.67rem;color:var(--mid);margin-top:2px;}
+.pay-opt.on-momo .pon{color:var(--g);}
+.pay-opt.on-cash .pon{color:var(--orange);}
 
-    /* Status dot */
-    .dot-live { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; display:inline-block; }
-    .dot-off { width:7px; height:7px; border-radius:50%; background:var(--text3); display:inline-block; }
+/* ── TRACKING ── */
+.tcard{background:linear-gradient(135deg,rgba(0,200,83,.07),rgba(0,200,83,.02));border:1px solid rgba(0,200,83,.18);border-radius:16px;padding:17px;margin-bottom:13px;}
+.ttop{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+.tdot{width:9px;height:9px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 1.4s ease infinite;}
+.tlbl{font-weight:700;font-size:.87rem;color:var(--wh);}
+.teta{margin-left:auto;font-size:.73rem;color:var(--g);font-weight:700;background:var(--gdim);padding:3px 9px;border-radius:100px;}
 
-    /* Page */
-    .page { flex:1; overflow-y:auto; padding:16px; animation:fadeIn 0.25s ease; }
+.fnotice{background:rgba(255,214,0,.05);border:1.5px solid rgba(255,214,0,.2);border-radius:14px;padding:17px;margin-bottom:13px;}
 
-    /* Profile avatar upload */
-    .avatar-upload { position:relative; display:inline-block; cursor:pointer; }
-    .avatar-upload input { display:none; }
-    .avatar-upload-overlay { position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; opacity:0; transition:opacity 0.2s; }
-    .avatar-upload:hover .avatar-upload-overlay { opacity:1; }
+/* ── HISTORY ── */
+.hi{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bd);}
+.hi:last-child{border-bottom:none;}
+.hiico{width:36px;height:36px;border-radius:9px;background:var(--gdim);border:1px solid rgba(0,200,83,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.hit{font-size:.84rem;font-weight:600;color:var(--wh);margin-bottom:3px;}
+.him{font-size:.69rem;color:var(--mid);}
+.hia{font-weight:800;color:var(--g);font-size:.86rem;white-space:nowrap;}
 
-    /* Tabs */
-    .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
-    .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
-    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; }
+/* ── RIDER ── */
+.obar{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.obar.on{border-color:rgba(0,200,83,.32);background:rgba(0,200,83,.04);}
+.ob-l h3{font-size:.95rem;font-weight:700;color:var(--wh);}
+.ob-l p{font-size:.71rem;color:var(--mid);margin-top:2px;}
+.tog{width:50px;height:27px;background:var(--mut);border-radius:100px;position:relative;cursor:pointer;transition:background .3s;border:none;flex-shrink:0;}
+.tog.on{background:var(--g);}
+.togth{position:absolute;top:3px;left:3px;width:21px;height:21px;background:var(--wh);border-radius:50%;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.tog.on .togth{transform:translateX(23px);}
 
-    /* Role cards */
-    .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
-    .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.wallet-card{background:linear-gradient(135deg,#0E1E10,#14211A);border:1.5px solid rgba(0,200,83,.22);border-radius:18px;padding:22px 20px;margin-bottom:13px;position:relative;overflow:hidden;}
+.wallet-card::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:rgba(0,200,83,.05);pointer-events:none;}
+.wc-label{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;}
+.wc-bal{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:700;color:var(--g);margin-bottom:4px;}
+.wc-sub{font-size:.71rem;color:var(--mid);}
+.wc-actions{display:flex;gap:9px;margin-top:16px;}
 
-    /* Overlay/modal */
-    .overlay { position:fixed; inset:0; background:rgba(7,11,24,0.85); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:flex-end; }
-    .sheet { background:var(--bg2); border-radius:20px 20px 0 0; border-top:1px solid var(--border); width:100%; padding:20px; max-height:90vh; overflow-y:auto; animation:slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .sheet-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 20px; }
-  </style>
+.egrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px;}
+.ebox{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center;}
+.en{font-family:'Fraunces',serif;font-size:1.12rem;font-weight:700;color:var(--g);display:block;}
+.el{font-size:.59rem;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+
+.jalert{background:linear-gradient(135deg,rgba(0,200,83,.1),rgba(0,200,83,.02));border:1.5px solid rgba(0,200,83,.28);border-radius:16px;padding:17px;margin-bottom:13px;animation:fadeUp .3s ease;}
+.jah{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--g);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
+.jap{width:7px;height:7px;border-radius:50%;background:var(--g);animation:pulse 1s ease infinite;}
+.jaaddr{font-size:.92rem;font-weight:700;color:var(--wh);margin-bottom:3px;}
+.jameta{font-size:.75rem;color:var(--mid);margin-bottom:9px;}
+.japrice{font-family:'Fraunces',serif;font-size:1.85rem;font-weight:700;color:var(--g);}
+.jashare{font-size:.69rem;color:var(--mid);}
+.jabtns{display:flex;gap:9px;margin-top:13px;}
+.jaacc{flex:1;background:var(--g);color:var(--bk);border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;font-size:.84rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.jadec{background:var(--card2);color:var(--mid);border:1px solid var(--bd);padding:12px 14px;border-radius:10px;cursor:pointer;font-size:.84rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.ajcard{background:rgba(61,139,255,.07);border:1.5px solid rgba(61,139,255,.2);border-radius:16px;padding:17px;margin-bottom:13px;}
+
+/* ── ADMIN ── */
+.adm-tabs{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.adm-tab{flex:1;padding:10px 3px;font-size:.68rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;text-align:center;}
+.adm-tab.on{background:var(--gold);color:var(--bk);}
+.adm-pane{display:none;}
+.adm-pane.on{display:block;}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.astat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;}
+.an{font-family:'Fraunces',serif;font-size:1.55rem;font-weight:700;color:var(--g);}
+.al{font-size:.65rem;color:var(--mid);margin-top:3px;text-transform:uppercase;letter-spacing:.07em;}
+.ucard{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-bottom:10px;}
+.ucard.banned{opacity:.5;border-color:rgba(255,68,68,.22);}
+.u-top{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.u-ava{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden;}
+.u-ava img{width:100%;height:100%;object-fit:cover;}
+.u-name{font-size:.87rem;font-weight:700;color:var(--wh);}
+.u-email{font-size:.69rem;color:var(--mid);margin-top:1px;}
+.u-actions{display:flex;gap:7px;flex-wrap:wrap;}
+.u-btn{padding:6px 10px;border-radius:8px;border:none;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;}
+.u-msg{background:rgba(61,139,255,.1);color:#7DB8FF;border:1px solid rgba(61,139,255,.2);}
+.u-ban{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.18);}
+.u-unban{background:rgba(0,200,83,.1);color:var(--g);border:1px solid rgba(0,200,83,.18);}
+.u-del{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.18);}
+.u-promote{background:rgba(255,214,0,.08);color:var(--gold);border:1px solid rgba(255,214,0,.18);}
+.u-filter{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
+.uf-btn{padding:6px 12px;border-radius:100px;border:1px solid var(--bd);background:transparent;font-size:.7rem;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;}
+.uf-btn.on{background:var(--gold);color:var(--bk);border-color:var(--gold);}
+.crow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd);gap:13px;}
+.crow:last-child{border-bottom:none;}
+.clw h4{font-size:.83rem;font-weight:600;color:var(--wh);}
+.clw p{font-size:.68rem;color:var(--mid);}
+.cinp{width:88px;background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--wh);font-size:.83rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;text-align:right;}
+.cinp:focus{border-color:var(--g);}
+.ttbl{width:100%;border-collapse:collapse;font-size:.74rem;}
+.ttbl th{text-align:left;padding:6px 0;color:var(--mid);font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bd);}
+.ttbl td{padding:8px 0;color:var(--wh);border-bottom:1px solid rgba(26,43,28,.5);}
+.ttbl tr:last-child td{border-bottom:none;}
+.adm-msg-item{background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:13px;margin-bottom:9px;}
+.adm-msg-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+.adm-msg-to{font-size:.71rem;font-weight:700;color:var(--gold);}
+.adm-msg-time{font-size:.65rem;color:var(--mid);}
+.adm-msg-body{font-size:.79rem;color:rgba(235,245,236,.55);line-height:1.55;}
+.empty-state{text-align:center;padding:36px 20px;color:var(--mid);font-size:.8rem;}
+.empty-state .es-ico{font-size:2.5rem;display:block;margin-bottom:9px;}
+
+/* ── PROFILE ── */
+.phdr{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bd);border-radius:16px;padding:20px 17px;display:flex;align-items:center;gap:14px;margin-bottom:13px;}
+.prof-pic-wrap{position:relative;display:inline-block;}
+.prof-pic{width:72px;height:72px;border-radius:50%;border:2.5px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:1.9rem;overflow:hidden;flex-shrink:0;}
+.prof-pic img{width:100%;height:100%;object-fit:cover;}
+.prof-pic-edit{position:absolute;bottom:1px;right:1px;width:24px;height:24px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;cursor:pointer;border:2px solid var(--bk);}
+.pname{font-weight:800;font-size:1rem;color:var(--wh);}
+.prole{font-size:.69rem;font-weight:600;margin-top:2px;}
+.prole.customer{color:var(--g);}
+.prole.rider{color:#7DB8FF;}
+.prole.admin{color:var(--gold);}
+.pemail,.pphone{font-size:.72rem;color:var(--mid);margin-top:2px;}
+.srow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);cursor:pointer;}
+.srow:last-child{border-bottom:none;}
+.sico{width:32px;height:32px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0;}
+.slbl{font-size:.83rem;font-weight:500;color:var(--wh);}
+.sarr{margin-left:auto;color:var(--mid);}
+
+/* support */
+.support-opt{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 15px;margin-bottom:10px;cursor:pointer;transition:border-color .2s;}
+.support-opt:hover{border-color:var(--g);}
+.so-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.so-title{font-size:.85rem;font-weight:700;color:var(--wh);}
+.so-desc{font-size:.71rem;color:var(--mid);margin-top:2px;}
+.stag-live{background:rgba(0,200,83,.15);color:var(--g);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:100px;margin-left:7px;}
+
+.msg-thread{display:flex;flex-direction:column;gap:10px;max-height:240px;overflow-y:auto;padding:4px 0;margin-bottom:12px;}
+.msg-b{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.81rem;line-height:1.5;}
+.msg-b.sent{background:var(--gdim);border:1px solid rgba(0,200,83,.18);align-self:flex-end;border-bottom-right-radius:4px;color:var(--wh);}
+.msg-b.recv{background:var(--card2);border:1px solid var(--bd);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg-meta{font-size:.61rem;color:var(--mid);margin-top:3px;}
+.msg-row{display:flex;gap:9px;align-items:flex-end;}
+.msg-ta{flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;color:var(--wh);font-size:.83rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;resize:none;min-height:40px;max-height:90px;}
+.msg-ta:focus{border-color:var(--g);}
+.msg-send{width:40px;height:40px;border-radius:10px;background:var(--g);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+
+/* WALLET deposit */
+.deposit-amts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px;}
+.da{border:1.5px solid var(--bd);border-radius:10px;padding:13px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.da.on{border-color:var(--g);background:var(--gdim);}
+.da-amt{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--wh);}
+.da.on .da-amt{color:var(--g);}
+.da-lbl{font-size:.62rem;color:var(--mid);margin-top:2px;}
+
+/* ── CASH CONFIRM ── */
+.cash-confirm{background:linear-gradient(135deg,rgba(255,140,0,.1),rgba(255,140,0,.04));border:1.5px solid rgba(255,140,0,.28);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;}
+.cc-amount{font-family:'Fraunces',serif;font-size:2.8rem;font-weight:700;color:var(--orange);margin:12px 0 4px;}
+.cc-split{display:flex;justify-content:space-around;background:rgba(255,140,0,.06);border-radius:10px;padding:14px;margin-top:14px;}
+.cc-split-item{text-align:center;}
+.cc-split-val{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;}
+.cc-split-lbl{font-size:.62rem;color:var(--mid);margin-top:3px;}
+
+/* ── MODALS ── */
+.mbg{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
+.mbg.show{display:flex;}
+.msh{background:var(--dk);border:1px solid var(--bd);border-radius:22px 22px 0 0;padding:24px 18px 42px;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;}
+.shdl{width:33px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 20px;}
+.sht{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;color:var(--wh);margin-bottom:4px;}
+.sht-sub{font-size:.77rem;color:var(--mid);margin-bottom:14px;}
+.cmbg{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:18px;}
+.cmbg.show{display:flex;}
+.cmsh{background:var(--dk);border:1px solid var(--bd);border-radius:22px;padding:24px 18px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto;}
+.mo{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--bd);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s;margin-bottom:9px;}
+.mo.sel{border-color:var(--g);background:var(--gdim);}
+.mo-chk{margin-left:auto;color:var(--g);opacity:0;}
+.mo.sel .mo-chk{opacity:1;}
+
+/* ── BOTTOM NAV ── */
+#botnav{height:var(--bot);background:var(--dk);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:5px;}
+.ntab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 12px;border-radius:10px;transition:all .2s;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;}
+.ntab .ni{font-size:1.2rem;line-height:1;}
+.ntab .nl{font-size:.56rem;color:var(--mid);font-weight:600;letter-spacing:.04em;}
+.ntab.on .nl{color:var(--g);}
+.ntab.on .ni{filter:drop-shadow(0 0 5px var(--g));}
+.ntab[data-r="rider"].on .nl{color:#7DB8FF;}
+.ntab[data-r="rider"].on .ni{filter:drop-shadow(0 0 5px var(--blue));}
+.ntab[data-r="admin"].on .nl{color:var(--gold);}
+.ntab[data-r="admin"].on .ni{filter:drop-shadow(0 0 5px var(--gold));}
+
+#offline{background:var(--gold);color:var(--bk);text-align:center;padding:7px;font-size:.7rem;font-weight:700;letter-spacing:.05em;flex-shrink:0;}
+#istrip{position:fixed;bottom:calc(var(--bot)+9px);left:9px;right:9px;z-index:300;background:var(--card2);border:1px solid rgba(0,200,83,.26);border-radius:14px;padding:13px 15px;display:none;align-items:center;gap:11px;box-shadow:0 8px 28px rgba(0,0,0,.4);}
+#istrip.show{display:flex;}
+.ist h4{font-size:.81rem;font-weight:700;color:var(--wh);}
+.ist p{font-size:.67rem;color:var(--mid);margin-top:2px;}
+.isb{background:var(--g);color:var(--bk);border:none;padding:8px 13px;border-radius:8px;font-weight:800;font-size:.71rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;}
+.isx{background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;padding:0;}
+
+#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:900;background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:11px 20px;font-size:.81rem;font-weight:600;color:var(--wh);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.green{border-color:rgba(0,200,83,.3);color:var(--g);}
+#toast.red{border-color:rgba(255,68,68,.3);color:var(--red);}
+#toast.orange{border-color:rgba(255,140,0,.3);color:var(--orange);}
+</style>
 </head>
 <body>
-<div id="root"></div>
 
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<div id="toast"></div>
 
-<script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
+<!-- AUTH -->
+<div id="auth">
+  <div class="ah">
+    <div class="ah-bg"></div><div class="ah-grid"></div>
+    <div class="ah-ico">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="21" fill="rgba(0,0,0,.15)"/>
+        <path d="M24 5L29 14H26V22H22V14H19Z" fill="white" opacity=".95"/>
+        <path d="M24 5L29 14H26V22H22V14H19Z" fill="white" opacity=".95" transform="rotate(120 24 24)"/>
+        <path d="M24 5L29 14H26V22H22V14H19Z" fill="white" opacity=".95" transform="rotate(240 24 24)"/>
+        <circle cx="24" cy="24" r="4.5" fill="white"/>
+        <circle cx="10" cy="37" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".55"/>
+        <circle cx="24" cy="39" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".55"/>
+        <circle cx="38" cy="37" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".55"/>
+        <path d="M10 37L24 39L38 37" stroke="white" stroke-width="1.2" fill="none" opacity=".55"/>
+      </svg>
+    </div>
+    <div class="ah-nm">Waste<span>Go</span></div>
+    <p class="ah-sub">On-demand waste collection · Ghana 🇬🇭</p>
+  </div>
+  <div class="ab">
+    <div class="at" style="width:100%;"><button class="at-b on" onclick="aTab('login')">Sign In</button><button class="at-b" onclick="aTab('register')">Register</button></div>
+    <div id="frm-login" class="aform" style="width:100%;">
+      <div class="fw"><label class="fl">Email Address</label><input class="input" id="l-email" type="email" placeholder="you@example.com" autocomplete="email"/><span class="fe" id="l-email-e">Enter a valid email address</span></div>
+      <div class="fw"><label class="fl">Password</label><input class="input" id="l-pass" type="password" placeholder="Your password" autocomplete="current-password"/><span class="fe" id="l-pass-e">Password is required</span></div>
+      <button class="btn btn-g" id="l-btn" onclick="doLogin()" style="margin-top:2px;">Sign In</button>
+      <div class="sep"><span>Admin Access</span></div>
+      <div class="adm-login-box">
+        <label class="fl" style="color:var(--gold);">Admin Email</label>
+        <input class="input" id="la-email" type="email" placeholder="Admin email" autocomplete="off" style="margin-bottom:10px;"/>
+        <span class="fe" id="la-email-e">Enter admin email</span>
+        <label class="fl" style="color:var(--gold);margin-top:4px;">Admin Password</label>
+        <input class="input" id="la-pass" type="password" placeholder="Admin password" autocomplete="off"/>
+        <span class="fe" id="la-pass-e">Admin password required</span>
+      </div>
+      <button class="btn btn-gold" id="la-btn" onclick="doAdminLogin()" style="padding:12px;">🔐 Admin Sign In</button>
+    </div>
+    <div id="frm-reg" class="aform" style="display:none;width:100%;">
+      <p class="lbl" style="text-align:center;margin-bottom:8px;">I want to...</p>
+      <div class="rp">
+        <div class="ro on" data-role="customer" onclick="pickRole(this)"><span class="ro-ico">🏠</span><span class="ro-nm">Customer</span><span class="ro-ds">Request pickups</span></div>
+        <div class="ro" data-role="rider" onclick="pickRole(this)"><span class="ro-ico">🛺</span><span class="ro-nm">Rider</span><span class="ro-ds">Earn by collecting</span></div>
+      </div>
+      <div class="fw"><label class="fl">Full Name</label><input class="input" id="r-name" type="text" placeholder="e.g. Kwame Mensah" autocomplete="name"/><span class="fe" id="r-name-e">Name required (min 2 chars)</span></div>
+      <div class="fw"><label class="fl">Email Address</label><input class="input" id="r-email" type="email" placeholder="you@example.com" autocomplete="email"/><span class="fe" id="r-email-e">Enter a valid email address</span></div>
+      <div class="fw"><label class="fl">Phone / MoMo Number</label><input class="input" id="r-phone" type="tel" placeholder="+233 24 000 0000" autocomplete="tel"/><span class="fe" id="r-phone-e">Valid Ghana number (e.g. 0241234567)</span></div>
+      <div class="fw"><label class="fl">Password</label><input class="input" id="r-pass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/><span class="fe" id="r-pass-e">Password must be at least 6 characters</span></div>
+      <div id="r-extra" style="display:none;flex-direction:column;gap:0;">
+        <div class="fw"><label class="fl">Tricycle / Vehicle ID</label><input class="input" id="r-vehicle" type="text" placeholder="e.g. KW-042"/><span class="fe" id="r-vehicle-e">Vehicle ID required</span></div>
+        <div class="fw"><label class="fl">Operating Region</label>
+          <select class="input" id="r-region"><option value="">Select region</option><option>Greater Accra</option><option>Ashanti</option><option>Central</option><option>Western</option><option>Northern</option></select>
+          <span class="fe" id="r-region-e">Please select your region</span>
+        </div>
+      </div>
+      <button class="btn btn-g" id="r-btn" onclick="doRegister()" style="margin-top:4px;">Create Account</button>
+      <p class="anote" style="color:rgba(255,68,68,.7);font-weight:600;margin-top:6px;">⚠ Role cannot be changed after registration</p>
+    </div>
+  </div>
+</div>
 
-// ── Firebase ──────────────────────────────────────────────────────────────────
-const FB = "https://lantam-cyril-default-rtdb.firebaseio.com";
-const fbGet = async (p) => { try { const r = await fetch(`${FB}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
-const fbSet = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
-const fbPatch = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+<!-- SYNC STATUS BAR -->
+<div id="sync-bar" class="hidden"><div class="sync-dot"></div><span id="sync-txt">Syncing with WasteGo Cloud...</span></div>
 
-// ── LocalStorage ──────────────────────────────────────────────────────────────
-const LS = {
-  get: (k) => { try { return JSON.parse(localStorage.getItem("sn3_"+k)); } catch { return null; } },
-  set: (k,v) => { try { localStorage.setItem("sn3_"+k, JSON.stringify(v)); } catch {} },
-  del: (k) => { try { localStorage.removeItem("sn3_"+k); } catch {} },
+<div id="offline" class="hidden">📶 Offline — showing cached data</div>
+
+<!-- TOP NAV -->
+<div id="topnav">
+  <div class="logo"><div class="logo-i"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white"/><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white" transform="rotate(120 10 10)"/><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white" transform="rotate(240 10 10)"/></svg></div>Waste<span>Go</span></div>
+  <div class="tnr"><span class="rbadge customer" id="rbadge">Customer</span><div class="ava-btn" id="topava" onclick="goToProfile()">👤</div></div>
+</div>
+
+<div id="main">
+
+<!-- ══ CUSTOMER HOME ══ -->
+<div class="scr" id="s-home">
+  <div class="ph"><p class="ph-s" id="cgreet">Good day 👋</p><h1 class="ph-t">Request Pickup</h1></div>
+  <div style="position:relative;margin-bottom:13px;"><div id="cmap"></div><div class="mbar"><div class="mbd" id="cmap-dot"></div><span class="mbt" id="cmap-txt">Locating you...</span><span class="mbs" id="cmap-sub"></span></div></div>
+  <div class="card" style="padding:12px 14px;margin-bottom:11px;"><p class="lbl">Pickup Location</p><input class="input" id="pickup-addr" type="text" placeholder="Enter your address..." style="margin-top:5px;"/></div>
+  <div class="card">
+    <p class="lbl">Load Size</p>
+    <div class="sizes">
+      <div class="sz" onclick="pickSz(this,'Small',15)"><span class="si">🗑️</span><span class="sn">Small</span><span class="sp">GH₵15+</span></div>
+      <div class="sz on" onclick="pickSz(this,'Medium',28)"><span class="si">📦</span><span class="sn">Medium</span><span class="sp">GH₵28+</span></div>
+      <div class="sz" onclick="pickSz(this,'Large',45)"><span class="si">🏗️</span><span class="sn">Large</span><span class="sp">GH₵45+</span></div>
+      <div class="sz" onclick="pickSz(this,'Bulk',80)"><span class="si">🚛</span><span class="sn">Bulk</span><span class="sp">GH₵80+</span></div>
+    </div>
+    <div style="margin-top:12px;"><p class="lbl">Special Waste</p>
+      <select class="input" onchange="pickSur(this.value)"><option value="0">None</option><option value="10">Hazardous Waste (+GH₵10)</option><option value="8">E-Waste / Electronics (+GH₵8)</option><option value="5">Construction Debris (+GH₵5)</option></select>
+    </div>
+  </div>
+  <div class="pbox">
+    <div class="pr"><span>Base fee</span><span id="p-base">GH₵ 28.00</span></div>
+    <div class="pr"><span>Distance (2.4 km)</span><span>GH₵ 7.20</span></div>
+    <div class="pr"><span>Surcharge</span><span id="p-sur">GH₵ 0.00</span></div>
+    <div class="pt"><span>Total Estimate</span><span id="p-tot">GH₵ 35.20</span></div>
+  </div>
+  <p class="lbl" style="margin-bottom:8px;">Payment Method</p>
+  <div class="pay-toggle">
+    <div class="pay-opt on-momo" id="pay-opt-momo" onclick="selectPay('momo')"><span class="poi">📱</span><span class="pon">Mobile Money</span><span class="pod">MTN · Vodafone · AirtelTigo</span></div>
+    <div class="pay-opt" id="pay-opt-cash" onclick="selectPay('cash')"><span class="poi">💵</span><span class="pon">Cash</span><span class="pod">Pay rider directly</span></div>
+  </div>
+  <button class="btn btn-g" onclick="reqPickup()" id="req-btn">♻ Request Pickup Now</button>
+</div>
+
+<!-- ══ CUSTOMER TRACKING ══ -->
+<div class="scr" id="s-track">
+  <div class="ph"><h1 class="ph-t">Live Tracking</h1><p class="ph-s" id="tsub">Searching for available riders...</p></div>
+
+  <!-- While waiting for rider -->
+  <div id="matching-panel">
+    <div class="match-waiting" id="match-waiting">
+      <div class="mw-pulse">🔍</div>
+      <p class="mw-title" id="mw-title">Looking for riders near you</p>
+      <p class="mw-sub" id="mw-sub">Notifying registered riders in your area...</p>
+      <div class="mw-riders" id="mw-riders-list"></div>
+    </div>
+  </div>
+
+  <!-- After rider accepts -->
+  <div id="active-tracking-panel" class="hidden">
+    <div style="position:relative;margin-bottom:13px;"><div id="tmap"></div><div class="mbar"><div class="mbd" id="tmap-dot"></div><span class="mbt" id="tmap-txt">Rider en route</span><span class="mbs" id="tmap-eta">ETA calculating...</span></div></div>
+    <div class="tcard">
+      <div class="ttop"><div class="tdot"></div><span class="tlbl" id="tlbl">Rider on the way</span><span class="teta" id="teta">~4 min</span></div>
+      <div style="display:flex;align-items:center;gap:11px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:1.25rem;overflow:hidden;" id="track-rider-ava">🛺</div>
+        <div><p style="font-weight:700;font-size:.87rem;" id="track-rider-name">Rider</p><p style="color:var(--gold);font-size:.7rem;">★★★★★</p><p style="font-size:.69rem;color:var(--mid);" id="track-rider-meta">Matched rider</p></div>
+      </div>
+    </div>
+    <div class="fnotice hidden" id="fnotice">
+      <div class="row" style="margin-bottom:9px;"><span style="font-weight:700;color:var(--gold);">⚠ Fare Adjustment</span><span class="badge by">Review</span></div>
+      <p style="font-size:.79rem;color:rgba(235,245,236,.5);margin-bottom:12px;">Rider submitted load photo. Adjusted fare: <strong style="color:var(--gold);" id="adj-fare-amt">GH₵ 52.00</strong></p>
+      <div style="background:var(--card2);border-radius:8px;padding:18px;text-align:center;margin-bottom:12px;"><span style="font-size:1.9rem;">📸</span></div>
+      <div class="gap8"><button class="btn btn-g" style="flex:1;" onclick="approveFare()">✓ Approve</button><button class="btn btn-sec" style="flex:0 0 auto;" onclick="declineFare()">Decline</button></div>
+    </div>
+    <div id="payment-action-wrap"></div>
+  </div>
+
+  <button class="btn btn-red" style="margin-top:9px;" onclick="cancelPickup()">Cancel Pickup</button>
+</div>
+
+<!-- ══ CUSTOMER HISTORY ══ -->
+<div class="scr" id="s-history">
+  <div class="ph"><h1 class="ph-t">Pickup History</h1><p class="ph-s">Your past collections</p></div>
+  <div class="card" id="history-list"><div class="empty-state"><span class="es-ico">📭</span>No pickups yet</div></div>
+</div>
+
+<!-- ══ RIDER DASHBOARD ══ -->
+<div class="scr" id="s-rider">
+  <div class="ph"><p class="ph-s" id="rgreet">Good day 👋</p><h1 class="ph-t" style="color:#7DB8FF;">Rider Dashboard</h1></div>
+  <div class="wallet-card">
+    <p class="wc-label">My Wallet Balance</p>
+    <p class="wc-bal" id="wallet-bal">GH₵ 0.00</p>
+    <p class="wc-sub">Cash job commissions auto-deducted · MoMo earnings credited</p>
+    <div class="wc-actions">
+      <button class="btn btn-g btn-sm" style="flex:1;" onclick="openDeposit()">+ Deposit</button>
+      <button class="btn btn-sec btn-sm" style="flex:1;" onclick="openWithdraw()">↑ Withdraw</button>
+    </div>
+  </div>
+  <div class="obar" id="obar">
+    <div class="ob-l"><h3 id="otxt">You are Offline</h3><p>Toggle to receive pickup requests</p></div>
+    <button class="tog" id="tog" onclick="toggleOnline()"><div class="togth"></div></button>
+  </div>
+  <div class="egrid">
+    <div class="ebox"><span class="en" id="earn-today">GH₵0</span><span class="el">Today</span></div>
+    <div class="ebox"><span class="en" id="earn-week">GH₵0</span><span class="el">This Week</span></div>
+    <div class="ebox"><span class="en" id="earn-jobs">0</span><span class="el">Total Jobs</span></div>
+  </div>
+  <div style="position:relative;margin-bottom:13px;"><div id="rmap"></div><div class="mbar"><div class="mbd b" id="rmap-dot"></div><span class="mbt" id="rmap-txt">Your location</span><span class="mbs" id="rmap-sub">Go online to receive requests</span></div></div>
+
+  <!-- Incoming job alert (from real customer) -->
+  <div class="jalert hidden" id="jalert">
+    <div class="jah"><div class="jap"></div>New Pickup Request</div>
+    <p class="jaaddr" id="ja-addr">📍 Loading...</p>
+    <p class="jameta" id="ja-meta">Loading...</p>
+    <p class="japrice" id="ja-price">GH₵ —</p>
+    <p id="ja-paymethod" style="font-size:.72rem;margin-top:5px;color:var(--mid);"></p>
+    <p style="font-size:.72rem;color:var(--orange);margin-top:4px;" id="ja-timeout"></p>
+    <div class="jabtns"><button class="jaacc" onclick="acceptJob()">✓ Accept</button><button class="jadec" onclick="declineJob()">✗ Skip</button></div>
+  </div>
+
+  <div class="ajcard hidden" id="ajcard">
+    <div class="row" style="margin-bottom:13px;"><span style="font-weight:700;color:#7DB8FF;">Active Pickup</span><span class="badge bb">In Progress</span></div>
+    <p style="font-size:.83rem;color:var(--mid);margin-bottom:3px;" id="aj-addr">—</p>
+    <p style="font-size:.83rem;color:var(--mid);margin-bottom:3px;" id="aj-detail">—</p>
+    <p style="font-size:.83rem;margin-bottom:13px;" id="aj-paymethod"></p>
+    <p style="font-size:.72rem;color:var(--mid);margin-bottom:5px;">📍 Customer location shown on map above</p>
+    <button class="btn btn-blue" style="margin-bottom:9px;" onclick="openFare()">📷 Request Fare Adjustment</button>
+    <button class="btn btn-g" onclick="completeJob()">✓ Mark as Collected</button>
+  </div>
+
+  <div class="card">
+    <p class="lbl" style="margin-bottom:11px;">Transaction History</p>
+    <div id="rider-tx-list"><div class="empty-state" style="padding:18px;"><span class="es-ico" style="font-size:1.5rem;">📋</span>No transactions yet</div></div>
+  </div>
+</div>
+
+<!-- ══ RIDER EARNINGS ══ -->
+<div class="scr" id="s-earn">
+  <div class="ph"><h1 class="ph-t" style="color:#7DB8FF;">My Earnings</h1><p class="ph-s">75% of every fare</p></div>
+  <div class="wallet-card">
+    <p class="wc-label">Wallet Balance</p>
+    <p class="wc-bal" id="wallet-bal2">GH₵ 0.00</p>
+    <div class="wc-actions">
+      <button class="btn btn-g btn-sm" style="flex:1;" onclick="openDeposit()">+ Deposit</button>
+      <button class="btn btn-sec btn-sm" style="flex:1;" onclick="openWithdraw()">↑ Withdraw</button>
+    </div>
+  </div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:13px;">All Transactions</p>
+    <div id="earn-tx-list"><div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div></div>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ══ -->
+<div class="scr" id="s-admin">
+  <div class="ph"><h1 class="ph-t" style="color:var(--gold);">Admin Panel</h1><p class="ph-s">WasteGo Cloud Control Centre</p></div>
+  <div class="adm-tabs">
+    <button class="adm-tab on" onclick="admTab('overview',this)">Overview</button>
+    <button class="adm-tab" onclick="admTab('users',this)">Users</button>
+    <button class="adm-tab" onclick="admTab('messages',this)">Messages</button>
+    <button class="adm-tab" onclick="admTab('config',this)">Config</button>
+  </div>
+
+  <div class="adm-pane on" id="ap-overview">
+    <div class="agrid">
+      <div class="astat"><p class="an" id="stat-users">0</p><p class="al">Registered Users</p></div>
+      <div class="astat"><p class="an" id="stat-riders">0</p><p class="al">Active Riders</p></div>
+      <div class="astat"><p class="an" id="stat-pickups">0</p><p class="al">Total Pickups</p></div>
+      <div class="astat"><p class="an" id="stat-rev">GH₵0</p><p class="al">Platform Revenue</p></div>
+    </div>
+    <button class="btn btn-gold" style="margin-bottom:14px;" onclick="syncNow()">🔄 Force Sync from Cloud</button>
+    <div class="card"><p class="lbl" style="margin-bottom:13px;">📋 Recent Transactions</p><div id="adm-tx-list"><div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div></div></div>
+  </div>
+
+  <div class="adm-pane" id="ap-users">
+    <input class="input" id="user-search" type="text" placeholder="🔍  Search name or email..." oninput="renderUsers()" style="margin-bottom:12px;"/>
+    <div class="u-filter">
+      <button class="uf-btn on" onclick="setUF('all',this)">All</button>
+      <button class="uf-btn" onclick="setUF('customer',this)">Customers</button>
+      <button class="uf-btn" onclick="setUF('rider',this)">Riders</button>
+      <button class="uf-btn" onclick="setUF('admin',this)">Admins</button>
+      <button class="uf-btn" onclick="setUF('banned',this)">Banned</button>
+    </div>
+    <div id="user-list"></div>
+  </div>
+
+  <div class="adm-pane" id="ap-messages">
+    <button class="btn btn-gold" style="margin-bottom:14px;" onclick="openAdminMsg(null)">✉ Send Message to User</button>
+    <p class="lbl" style="margin-bottom:10px;">Sent Messages</p>
+    <div id="adm-msg-log"><div class="empty-state"><span class="es-ico">📭</span>No messages sent yet</div></div>
+  </div>
+
+  <div class="adm-pane" id="ap-config">
+    <div class="card">
+      <p class="lbl" style="margin-bottom:13px;">💰 Commission by Load Size</p>
+      <div class="crow"><div class="clw"><h4>Small Load</h4><p>Platform commission (GH₵)</p></div><input class="cinp" type="number" value="3.75" id="cfg-small"/></div>
+      <div class="crow"><div class="clw"><h4>Medium Load</h4><p>Platform commission (GH₵)</p></div><input class="cinp" type="number" value="7.00" id="cfg-medium"/></div>
+      <div class="crow"><div class="clw"><h4>Large Load</h4><p>Platform commission (GH₵)</p></div><input class="cinp" type="number" value="11.25" id="cfg-large"/></div>
+      <div class="crow"><div class="clw"><h4>Bulk Load</h4><p>Platform commission (GH₵)</p></div><input class="cinp" type="number" value="20.00" id="cfg-bulk"/></div>
+      <div class="crow"><div class="clw"><h4>Distance Rate</h4><p>GH₵ per km</p></div><input class="cinp" type="number" value="3.00" step="0.5" id="cfg-dist"/></div>
+      <button class="btn btn-gold" style="margin-top:13px;" onclick="saveCfg()">💾 Save Config</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFILE ══ -->
+<div class="scr" id="s-profile">
+  <div class="ph"><h1 class="ph-t">My Profile</h1></div>
+  <div class="phdr">
+    <div class="prof-pic-wrap">
+      <div class="prof-pic" id="prof-pic">🏠</div>
+      <div class="prof-pic-edit" onclick="document.getElementById('pic-input').click()">✏️</div>
+      <input type="file" id="pic-input" accept="image/*" style="display:none;" onchange="handlePicUpload(event)"/>
+    </div>
+    <div style="flex:1;">
+      <p class="pname" id="pname">User</p>
+      <p class="prole customer" id="prole">Customer</p>
+      <p class="pemail" id="pemail">—</p>
+      <p class="pphone" id="pphone">—</p>
+    </div>
+  </div>
+  <div class="card">
+    <p class="lbl">Mobile Money</p>
+    <div class="row" style="margin-top:8px;margin-bottom:11px;"><div><p style="font-weight:700;color:var(--wh);">MTN MoMo</p><p style="font-size:.72rem;color:var(--mid);" id="pmomo">—</p></div><span class="badge bg">Linked</span></div>
+    <button class="btn btn-sec" style="padding:10px;font-size:.79rem;">+ Add Another Network</button>
+  </div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:7px;">Account</p>
+    <div class="srow" onclick="openEditProfile()"><div class="sico">✏️</div><span class="slbl">Edit Profile</span><span class="sarr">›</span></div>
+    <div class="srow" onclick="openSupport()"><div class="sico">💬</div><span class="slbl">Contact Support</span><span class="sarr">›</span></div>
+    <div class="srow" onclick="openInbox()"><div class="sico">📬</div><span class="slbl">My Messages <span id="inbox-dot" class="badge br" style="display:none;font-size:.55rem;">New</span></span><span class="sarr">›</span></div>
+    <div class="srow" onclick="showInstall()"><div class="sico">📲</div><span class="slbl">Install App</span><span class="sarr">›</span></div>
+  </div>
+  <button class="btn btn-red" onclick="logout()">Sign Out</button>
+</div>
+
+</div><!-- /main -->
+<div id="botnav"></div>
+
+<!-- MoMo PAYMENT MODAL -->
+<div class="mbg" id="pay-modal">
+  <div class="msh">
+    <div class="shdl"></div>
+    <p class="sht">Pay with MoMo</p>
+    <p class="sht-sub">Total: <strong style="color:var(--g);" id="pm-total">GH₵ 35.20</strong></p>
+    <div class="mo sel" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.84rem;">MTN MoMo</p><p style="font-size:.7rem;color:var(--mid);" id="pm-num">—</p></div><span class="mo-chk">✓</span></div>
+    <div class="mo" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.84rem;">Vodafone Cash</p><p style="font-size:.7rem;color:var(--mid);">+233 20 000 5678</p></div><span class="mo-chk">✓</span></div>
+    <div class="mo" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.84rem;">AirtelTigo Money</p><p style="font-size:.7rem;color:var(--mid);">+233 26 000 9999</p></div><span class="mo-chk">✓</span></div>
+    <button class="btn btn-g" style="margin-top:14px;" id="paybtn" onclick="doPay()">Confirm Payment</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closePay()">Cancel</button>
+  </div>
+</div>
+
+<!-- CASH CONFIRM MODAL -->
+<div class="cmbg" id="cash-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht" style="text-align:center;">Confirm Cash Payment</p>
+    <p style="font-size:.79rem;color:var(--mid);text-align:center;margin-bottom:14px;">Hand this amount directly to the rider. Commission will be deducted from rider's wallet.</p>
+    <div class="cash-confirm">
+      <p style="font-size:.71rem;color:var(--mid);letter-spacing:.1em;text-transform:uppercase;">Amount to hand rider</p>
+      <p class="cc-amount" id="cc-amount">GH₵ 35.20</p>
+      <p style="font-size:.84rem;color:rgba(235,245,236,.6);margin-bottom:4px;" id="cc-size">Medium Load</p>
+      <div class="cc-split">
+        <div class="cc-split-item"><p class="cc-split-val" id="cc-rider" style="color:var(--g);">GH₵ 26.40</p><p class="cc-split-lbl">Rider earns (75%)</p></div>
+        <div style="width:1px;background:rgba(255,140,0,.2);"></div>
+        <div class="cc-split-item"><p class="cc-split-val" id="cc-comm" style="color:var(--orange);">GH₵ 8.80</p><p class="cc-split-lbl">Platform deducted</p></div>
+      </div>
+    </div>
+    <button class="btn btn-orange" style="margin-bottom:9px;" onclick="confirmCash()">💵 I've Paid — Confirm</button>
+    <button class="btn btn-sec" onclick="closeCash()">Cancel</button>
+  </div>
+</div>
+
+<!-- FARE MODAL -->
+<div class="cmbg" id="fare-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht" style="text-align:center;">Fare Adjustment</p>
+    <p style="font-size:.79rem;color:var(--mid);text-align:center;margin-bottom:4px;">Upload load photo. Customer must approve before payment.</p>
+    <div onclick="fakeUp()" style="border:2px dashed var(--bd);border-radius:12px;padding:26px;text-align:center;cursor:pointer;margin:13px 0;">
+      <span style="font-size:2.3rem;display:block;margin-bottom:7px;" id="uzi">📷</span>
+      <p style="font-size:.77rem;color:var(--mid);" id="uzt">Tap to upload photo</p>
+    </div>
+    <div class="fw"><label class="fl">Adjusted Fare (GH₵)</label><input class="input" type="number" id="nfare" value="52"/></div>
+    <button class="btn btn-g" onclick="submitFare()">Send to Customer</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeFare()">Cancel</button>
+  </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div class="cmbg" id="deposit-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht">Deposit to Wallet</p>
+    <p class="sht-sub">Add funds via Mobile Money</p>
+    <div class="deposit-amts">
+      <div class="da" onclick="pickDep(this,20)"><p class="da-amt">GH₵20</p><p class="da-lbl">Quick add</p></div>
+      <div class="da" onclick="pickDep(this,50)"><p class="da-amt">GH₵50</p><p class="da-lbl">Popular</p></div>
+      <div class="da" onclick="pickDep(this,100)"><p class="da-amt">GH₵100</p><p class="da-lbl">Best value</p></div>
+      <div class="da" onclick="pickDep(this,200)"><p class="da-amt">GH₵200</p><p class="da-lbl">Power up</p></div>
+      <div class="da" onclick="pickDep(this,500)"><p class="da-amt">GH₵500</p><p class="da-lbl">Premium</p></div>
+      <div class="da" onclick="document.getElementById('custom-dep').focus()"><p class="da-amt">Other</p><p class="da-lbl">Custom</p></div>
+    </div>
+    <div class="fw"><label class="fl">Custom amount (GH₵)</label><input class="input" id="custom-dep" type="number" placeholder="e.g. 75" min="5"/></div>
+    <div class="fw"><label class="fl">Pay via</label><select class="input" id="dep-net"><option>MTN MoMo</option><option>Vodafone Cash</option><option>AirtelTigo Money</option></select></div>
+    <button class="btn btn-g" id="dep-btn" onclick="doDeposit()">Deposit Now</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeDeposit()">Cancel</button>
+  </div>
+</div>
+
+<!-- WITHDRAW MODAL -->
+<div class="cmbg" id="withdraw-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht">Withdraw Earnings</p>
+    <div style="background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px;text-align:center;">
+      <p style="font-size:.69rem;color:var(--mid);margin-bottom:5px;">Available balance</p>
+      <p style="font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:var(--g);" id="wd-avail">GH₵ 0.00</p>
+    </div>
+    <div class="fw"><label class="fl">Amount (GH₵)</label><input class="input" id="wd-amt" type="number" placeholder="Amount to withdraw" min="5"/><span class="fe" id="wd-amt-e">Enter a valid amount</span></div>
+    <div class="fw"><label class="fl">Send to</label><select class="input" id="wd-net"><option>MTN MoMo</option><option>Vodafone Cash</option><option>AirtelTigo Money</option></select></div>
+    <button class="btn btn-g" onclick="doWithdraw()">Withdraw</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeWithdraw()">Cancel</button>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="mbg" id="edit-profile-modal">
+  <div class="msh">
+    <div class="shdl"></div>
+    <p class="sht">Edit Profile</p>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+      <div class="prof-pic" id="ep-pic" style="width:74px;height:74px;font-size:1.9rem;margin-bottom:10px;cursor:pointer;" onclick="document.getElementById('pic-input').click()">🏠</div>
+      <button class="btn btn-sec btn-sm" style="width:auto;" onclick="document.getElementById('pic-input').click()">📷 Change Photo</button>
+    </div>
+    <div class="fw"><label class="fl">Full Name</label><input class="input" id="ep-name" type="text"/><span class="fe" id="ep-name-e">Name required</span></div>
+    <div class="fw"><label class="fl">Email</label><input class="input" id="ep-email" type="email"/><span class="fe" id="ep-email-e">Valid email required</span></div>
+    <div class="fw"><label class="fl">Phone</label><input class="input" id="ep-phone" type="tel"/><span class="fe" id="ep-phone-e">Valid phone required</span></div>
+    <button class="btn btn-g" id="ep-save-btn" onclick="saveProfile()">Save Changes</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeEditProfile()">Cancel</button>
+  </div>
+</div>
+
+<!-- SUPPORT MODAL -->
+<div class="mbg" id="support-modal">
+  <div class="msh">
+    <div class="shdl"></div>
+    <p class="sht">Contact Support</p>
+    <div id="sup-home">
+      <div class="support-opt" onclick="openSupportChat()"><div class="so-ico" style="background:var(--gdim);">💬</div><div><p class="so-title">Live Chat<span class="stag-live">Live</span></p><p class="so-desc">Chat with our team now</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
+      <div class="support-opt" onclick="openTicket()"><div class="so-ico" style="background:rgba(61,139,255,.1);">📧</div><div><p class="so-title">Submit Ticket</p><p class="so-desc">We respond within 24h</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
+      <div class="support-opt" onclick="alert('Calling +233 30 295 0000...')"><div class="so-ico" style="background:rgba(255,68,68,.08);">📞</div><div><p class="so-title">Call Us</p><p class="so-desc">+233 30 295 0000 · Mon–Sat 7am–8pm</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
+    </div>
+    <div id="sup-chat" style="display:none;">
+      <div class="row" style="margin-bottom:13px;padding-bottom:11px;border-bottom:1px solid var(--bd);"><button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupHome()">← Back</button><span style="font-size:.84rem;font-weight:700;">Live Chat</span><span class="badge bg">Online</span></div>
+      <div class="msg-thread" id="sup-thread"><div style="align-self:flex-start;"><div class="msg-b recv">Hi! Welcome to WasteGo Support 👋 How can I help you?</div><p class="msg-meta">Support · just now</p></div></div>
+      <div class="msg-row"><textarea class="msg-ta" id="sup-msg" placeholder="Type your message..." rows="1"></textarea><button class="msg-send" onclick="sendSupMsg()">➤</button></div>
+    </div>
+    <div id="sup-ticket" style="display:none;">
+      <div class="row" style="margin-bottom:13px;"><button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupHome()">← Back</button><span style="font-size:.84rem;font-weight:700;">Submit Ticket</span></div>
+      <div class="fw"><label class="fl">Subject</label><select class="input" id="tick-sub"><option value="">Select subject...</option><option>Payment Issue</option><option>Pickup Not Completed</option><option>Rider Complaint</option><option>Account Problem</option><option>Other</option></select><span class="fe" id="tick-sub-e">Select a subject</span></div>
+      <div class="fw"><label class="fl">Description</label><textarea class="input" id="tick-body" placeholder="Describe your issue..."></textarea><span class="fe" id="tick-body-e">Please describe (min 10 chars)</span></div>
+      <button class="btn btn-g" onclick="submitTicket()">Submit Ticket</button>
+    </div>
+    <button class="btn btn-sec" style="margin-top:13px;" onclick="closeSupport()">Close</button>
+  </div>
+</div>
+
+<!-- INBOX MODAL -->
+<div class="mbg" id="inbox-modal">
+  <div class="msh">
+    <div class="shdl"></div>
+    <p class="sht">My Messages</p>
+    <div id="inbox-list"><div class="empty-state"><span class="es-ico">📭</span>No messages</div></div>
+    <button class="btn btn-sec" style="margin-top:13px;" onclick="closeInbox()">Close</button>
+  </div>
+</div>
+
+<!-- ADMIN MESSAGE MODAL -->
+<div class="cmbg" id="adm-msg-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht">Send Message</p>
+    <div class="fw"><label class="fl">Recipient</label><select class="input" id="msg-to"><option value="">Select user...</option></select><span class="fe" id="msg-to-e">Select a recipient</span></div>
+    <div class="fw"><label class="fl">Message</label><textarea class="input" id="msg-body" placeholder="Write your message..."></textarea><span class="fe" id="msg-body-e">Message cannot be empty</span></div>
+    <button class="btn btn-gold" onclick="sendAdminMsg()">✉ Send Message</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeAdminMsg()">Cancel</button>
+  </div>
+</div>
+
+<!-- INSTALL STRIP -->
+<div id="istrip"><div class="ist"><h4>📲 Install WasteGo</h4><p>Add to home screen</p></div><button class="isb" onclick="installApp()">Install</button><button class="isx" onclick="document.getElementById('istrip').classList.remove('show')">✕</button></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════
+//  CLOUD SYNC — JSONBin.io (free shared backend)
+//  All users across Ghana read/write the same bin
+// ════════════════════════════════════════════════════════
+const CLOUD = {
+  // Using JSONBin.io public bin — replace BIN_ID with your own from jsonbin.io
+  BASE: 'https://api.jsonbin.io/v3/b',
+  KEY: '$2a$10$wastego_api_key_placeholder', // Replace with real JSONBin API key
+  BIN: 'wastego_bin_id_placeholder',         // Replace with real bin ID
+
+  // Fallback: use localStorage when cloud unavailable
+  _local() {
+    return {
+      users: JSON.parse(localStorage.getItem('wg_users') || '[]'),
+      transactions: JSON.parse(localStorage.getItem('wg_tx') || '[]'),
+      messages: JSON.parse(localStorage.getItem('wg_msgs') || '[]'),
+      requests: JSON.parse(localStorage.getItem('wg_requests') || '[]'),
+      config: JSON.parse(localStorage.getItem('wg_config') || '{"Small":3.75,"Medium":7.00,"Large":11.25,"Bulk":20.00,"distRate":3.00}'),
+    };
+  },
+  _saveLocal(data) {
+    localStorage.setItem('wg_users', JSON.stringify(data.users || []));
+    localStorage.setItem('wg_tx', JSON.stringify(data.transactions || []));
+    localStorage.setItem('wg_msgs', JSON.stringify(data.messages || []));
+    localStorage.setItem('wg_requests', JSON.stringify(data.requests || []));
+    localStorage.setItem('wg_config', JSON.stringify(data.config || {}));
+  },
+
+  async read() {
+    // Always use localStorage — cloud sync can be added with a real JSONBin key
+    return this._local();
+  },
+
+  async write(data) {
+    this._saveLocal(data);
+    return true;
+  },
+
+  async getUsers()       { const d = await this.read(); return d.users || []; },
+  async getTx()          { const d = await this.read(); return d.transactions || []; },
+  async getMsgs()        { const d = await this.read(); return d.messages || []; },
+  async getRequests()    { const d = await this.read(); return d.requests || []; },
+  async getConfig()      { const d = await this.read(); return d.config || {Small:3.75,Medium:7,Large:11.25,Bulk:20,distRate:3}; },
+
+  async saveAll(patch) {
+    const current = await this.read();
+    const updated = { ...current, ...patch };
+    await this.write(updated);
+    return updated;
+  },
+
+  // Atomic user save
+  async saveUser(user) {
+    const data = await this.read();
+    const users = data.users || [];
+    const i = users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+    if (i > -1) users[i] = { ...users[i], ...user };
+    else users.push(user);
+    data.users = users;
+    await this.write(data);
+    return user;
+  },
+
+  async addTx(tx) {
+    const data = await this.read();
+    const txs = data.transactions || [];
+    txs.unshift({ ...tx, id: 'tx' + Date.now(), ts: new Date().toISOString() });
+    data.transactions = txs.slice(0, 500); // keep last 500
+    await this.write(data);
+    return txs[0];
+  },
+
+  async addMsg(msg) {
+    const data = await this.read();
+    const msgs = data.messages || [];
+    msgs.unshift({ ...msg, id: 'm' + Date.now(), ts: new Date().toISOString() });
+    data.messages = msgs.slice(0, 300);
+    await this.write(data);
+  },
+
+  async postRequest(req) {
+    const data = await this.read();
+    const reqs = data.requests || [];
+    // Remove old requests (>30min)
+    const fresh = reqs.filter(r => Date.now() - new Date(r.ts).getTime() < 30 * 60 * 1000);
+    fresh.unshift({ ...req, id: 'req' + Date.now(), ts: new Date().toISOString() });
+    data.requests = fresh;
+    await this.write(data);
+    return fresh[0];
+  },
+
+  async updateRequest(id, patch) {
+    const data = await this.read();
+    const i = (data.requests || []).findIndex(r => r.id === id);
+    if (i > -1) { data.requests[i] = { ...data.requests[i], ...patch }; await this.write(data); }
+  },
 };
 
-const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
-const ROLES = ["father","son","girlfriend"];
-const ROLE_META = {
-  father:     { emoji:"👨", label:"Father",     color:"#f59e0b" },
-  son:        { emoji:"👦", label:"Son",         color:"#3b82f6" },
-  girlfriend: { emoji:"👩", label:"Girlfriend",  color:"#ec4899" },
+// ════════════════════════════════════════════════════════
+//  ADMIN CREDENTIALS (hashed comparison)
+// ════════════════════════════════════════════════════════
+const ADMIN_EMAIL = atob('Y3lyaWxsYW50YW1AZ21haWwuY29t');
+const ADMIN_PASS  = atob('MTEyMnBhc2NhbA==');
+
+// ════════════════════════════════════════════════════════
+//  APP STATE
+// ════════════════════════════════════════════════════════
+const ST = {
+  user: null,
+  regRole: 'customer',
+  size: 'Medium', base: 28, sur: 0,
+  payMethod: 'momo',
+  online: false,
+  maps: {}, userLL: null, riderMs: [], trackInt: null, moveInt: null, pollInt: null,
+  uFilter: 'all',
+  activeRequest: null, // current pickup request object
+  matchedRider: null,  // the rider who accepted
+  depAmt: 0,
+  commissions: { Small: 3.75, Medium: 7.00, Large: 11.25, Bulk: 20.00 },
+  riders: [], // online registered riders (loaded from DB)
 };
 
-// ── Real Map Component (Leaflet) ───────────────────────────────────────────────
-function LiveMap({ members, currentUser }) {
-  const mapRef = useRef(null);
-  const leafletRef = useRef(null);
-  const markersRef = useRef({});
+const ACCRA = [5.6037, -0.1870];
+const TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-  useEffect(() => {
-    if (leafletRef.current) return;
-    const map = L.map("safenest-map", {
-      center: [9.0, -2.5],
-      zoom: 6,
-      zoomControl: false,
-      attributionControl: false,
-    });
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 19,
-    }).addTo(map);
-    L.control.zoom({ position:"bottomright" }).addTo(map);
-    leafletRef.current = map;
-  }, []);
+// ════════════════════════════════════════════════════════
+//  VALIDATION
+// ════════════════════════════════════════════════════════
+const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((v||'').trim());
+const isPhone = v => /^[0-9]{9,12}$/.test((v||'').replace(/[\s\-\+\(\)]/g,''));
+const isEmpty = v => !(v||'').trim();
 
-  useEffect(() => {
-    const map = leafletRef.current;
-    if (!map) return;
+function fErr(id, msg) {
+  const inp = document.getElementById(id);
+  const e = document.getElementById(id + '-e');
+  if (inp) inp.classList.add('err');
+  if (e) { if (msg) e.textContent = msg; e.classList.add('on'); }
+}
+function fOk(id) {
+  const inp = document.getElementById(id);
+  const e = document.getElementById(id + '-e');
+  if (inp) inp.classList.remove('err');
+  if (e) e.classList.remove('on');
+}
+function clearErrs() {
+  document.querySelectorAll('.input.err').forEach(e => e.classList.remove('err'));
+  document.querySelectorAll('.fe.on').forEach(e => e.classList.remove('on'));
+}
+setTimeout(() => {
+  ['l-email','l-pass','r-name','r-email','r-phone','r-pass','la-email','la-pass',
+   'ep-name','ep-email','ep-phone','wd-amt','msg-to','msg-body','tick-sub','tick-body'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => fOk(id + '-e'));
+  });
+}, 500);
 
-    const onlineMembers = members.filter(m => m.online && m.lat);
-
-    // Remove stale markers
-    Object.keys(markersRef.current).forEach(role => {
-      if (!onlineMembers.find(m => m.role === role)) {
-        map.removeLayer(markersRef.current[role]);
-        delete markersRef.current[role];
-      }
-    });
-
-    // Add/update markers
-    onlineMembers.forEach(m => {
-      const meta = ROLE_META[m.role];
-      const color = meta.color;
-      const label = m.name || meta.label;
-
-      const iconHtml = `
-        <div style="position:relative;width:24px;height:24px;">
-          <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${color};animation:ripple 1.8s ease-out infinite;opacity:0.6;"></div>
-          <div style="width:24px;height:24px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 16px ${color}80;"></div>
-          <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};padding:2px 7px;border-radius:5px;background:rgba(7,11,24,0.92);border:1px solid ${color}40;">${label.toUpperCase()}</div>
-        </div>`;
-
-      const icon = L.divIcon({ html: iconHtml, className:"", iconSize:[24,24], iconAnchor:[12,12] });
-
-      if (markersRef.current[m.role]) {
-        markersRef.current[m.role].setLatLng([m.lat, m.lng]);
-        markersRef.current[m.role].setIcon(icon);
-      } else {
-        markersRef.current[m.role] = L.marker([m.lat, m.lng], { icon }).addTo(map);
-      }
-    });
-
-    // Fit map to show all online members
-    if (onlineMembers.length > 0) {
-      const bounds = onlineMembers.map(m => [m.lat, m.lng]);
-      if (onlineMembers.length === 1) {
-        map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
-      } else {
-        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:14 });
-      }
-    }
-  }, [members]);
-
-  return <div id="safenest-map" style={{width:"100%",height:"100%"}} />;
+// ════════════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════════════
+function aTab(t) {
+  document.querySelectorAll('.at-b').forEach((b,i) => b.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('frm-login').style.display = t==='login' ? 'flex' : 'none';
+  document.getElementById('frm-reg').style.display = t==='register' ? 'flex' : 'none';
+  clearErrs();
 }
 
-// ── Auth Screen ───────────────────────────────────────────────────────────────
-function AuthScreen({ onAuth }) {
-  const [mode,setMode] = useState("login");
-  const [role,setRole] = useState("father");
-  const [name,setName] = useState("");
-  const [code,setCode] = useState("");
-  const [pass,setPass] = useState("");
-  const [err,setErr] = useState("");
-  const [busy,setBusy] = useState(false);
-
-  const submit = async () => {
-    setErr("");
-    if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
-    if (pass.length < 4) { setErr("Password must be at least 4 characters."); return; }
-    setBusy(true);
-    const room = slug(code);
-    let users = await fbGet(`sn3/${room}/users`) || LS.get(`${room}_u`) || {};
-
-    if (mode === "register") {
-      if (Object.values(users).find(u => u.role === role)) {
-        setErr(`A ${role} is already registered. Please log in instead.`); setBusy(false); return;
-      }
-      if (users[slug(name)]) { setErr("That name is taken in this family."); setBusy(false); return; }
-      const u = { name:name.trim(), role, pass, avatar:"", bio:"", createdAt:Date.now() };
-      users[slug(name)] = u;
-      await fbSet(`sn3/${room}/users`, users);
-      LS.set(`${room}_u`, users);
-      const sess = { name:u.name, role, room };
-      LS.set("sess", sess); onAuth(sess);
-    } else {
-      const all = { ...(LS.get(`${room}_u`)||{}), ...users };
-      const u = all[slug(name)];
-      if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
-      if (u.pass !== pass) { setErr("Incorrect password."); setBusy(false); return; }
-      const sess = { name:u.name, role:u.role, room };
-      LS.set("sess", sess); onAuth(sess);
-    }
-    setBusy(false);
-  };
-
-  return (
-    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
-      <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
-        {/* Logo */}
-        <div style={{textAlign:"center",marginBottom:"32px"}}>
-          <div style={{width:"60px",height:"60px",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",borderRadius:"18px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px",margin:"0 auto 12px",boxShadow:"0 0 40px rgba(59,130,246,0.3)"}}>🛡️</div>
-          <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>SafeNest</div>
-          <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>FAMILY SAFETY NETWORK</div>
-        </div>
-
-        <div className="card" style={{padding:"28px"}}>
-          <div className="tabs">
-            <button className={`tab ${mode==="login"?"active":""}`} onClick={()=>{setMode("login");setErr("");}}>Log In</button>
-            <button className={`tab ${mode==="register"?"active":""}`} onClick={()=>{setMode("register");setErr("");}}>Register</button>
-          </div>
-
-          {mode==="register" && <>
-            <span className="lbl">I am the</span>
-            <div className="role-grid" style={{marginBottom:"16px"}}>
-              {ROLES.map(r => {
-                const m = ROLE_META[r];
-                const active = role===r;
-                return (
-                  <button key={r} className="role-card" onClick={()=>setRole(r)}
-                    style={{borderColor:active?m.color:"var(--border)",background:active?m.color+"18":"transparent",color:active?m.color:"var(--text3)"}}>
-                    <span style={{fontSize:"24px"}}>{m.emoji}</span>
-                    {m.label}
-                  </button>
-                );
-              })}
-            </div>
-          </>}
-
-          <span className="lbl">Family Code</span>
-          <input className="inp" style={{marginBottom:"8px"}} placeholder='e.g. "johnson2024"' value={code} onChange={e=>setCode(e.target.value)} />
-          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"16px",lineHeight:"1.6",padding:"9px 12px",background:"var(--bg3)",borderRadius:"8px",border:"1px solid var(--border)"}}>
-            📌 All family members must use the <strong style={{color:"var(--accent)"}}>same Family Code</strong> to connect.
-          </div>
-
-          <span className="lbl">Your Name</span>
-          <input className="inp" style={{marginBottom:"14px"}} placeholder="Enter your name" value={name} onChange={e=>setName(e.target.value)} />
-
-          <span className="lbl">Password</span>
-          <input className="inp" style={{marginBottom:"16px"}} type="password" placeholder="Min 4 characters" value={pass}
-            onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} />
-
-          {err && <div style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:"9px",color:"#f87171",fontSize:"12px",fontWeight:"600",padding:"10px 13px",marginBottom:"14px"}}>⚠️ {err}</div>}
-
-          <button className="btn-primary" onClick={submit} disabled={busy}>
-            {busy?"Please wait…":mode==="register"?"Create Account →":"Log In →"}
-          </button>
-
-          <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"var(--text3)"}}>
-            {mode==="login"?"No account? ":"Already registered? "}
-            <button style={{background:"none",border:"none",color:"var(--accent)",fontWeight:"800",cursor:"pointer",fontFamily:"var(--font)",fontSize:"13px"}}
-              onClick={()=>{setMode(mode==="login"?"register":"login");setErr("");}}>
-              {mode==="login"?"Register":"Log In"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+function pickRole(el) {
+  document.querySelectorAll('.ro').forEach(o => o.classList.remove('on'));
+  el.classList.add('on');
+  ST.regRole = el.dataset.role;
+  document.getElementById('r-extra').style.display = ST.regRole === 'rider' ? 'flex' : 'none';
 }
 
-// ── Main App (after login) ────────────────────────────────────────────────────
-function MainApp({ session, onLogout }) {
-  const [tab, setTab] = useState("map");
-  const [members, setMembers] = useState([]);
-  const [myData, setMyData] = useState(null);
-  const [sharing, setSharing] = useState(false);
-  const [pending, setPending] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
+async function doLogin() {
+  clearErrs();
+  const email = (document.getElementById('l-email').value || '').trim();
+  const pass = document.getElementById('l-pass').value || '';
+  let ok = true;
+  if (!isEmail(email)) { fErr('l-email-e'); ok = false; }
+  if (isEmpty(pass)) { fErr('l-pass-e'); ok = false; }
+  if (!ok) return;
+  const btn = document.getElementById('l-btn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:var(--bk);"></div> Signing in...';
+  btn.disabled = true;
+  try {
+    const users = await CLOUD.getUsers();
+    btn.innerHTML = 'Sign In'; btn.disabled = false;
+    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (!user) { fErr('l-email-e', 'No account found with this email — please register first'); showToast('❌ Email not found — register first', 'red'); return; }
+    if (user.password !== pass) { fErr('l-pass-e', 'Incorrect password'); showToast('❌ Incorrect password', 'red'); return; }
+    if (user.banned) { showToast('⛔ Account suspended. Contact support.', 'red'); return; }
+    await CLOUD.saveUser({ ...user, lastLogin: new Date().toISOString() });
+    ST.user = { ...user };
+    enterApp();
+  } catch (e) {
+    btn.innerHTML = 'Sign In'; btn.disabled = false;
+    showToast('Connection error — retrying...', 'orange');
+  }
+}
 
-  const watchRef = useRef(null);
-  const simRef = useRef(null);
-  const simCoordsRef = useRef(null);
-  const activeRef = useRef(false);
+async function doAdminLogin() {
+  clearErrs();
+  const email = (document.getElementById('la-email').value || '').trim();
+  const pass = document.getElementById('la-pass').value || '';
+  let ok = true;
+  if (!isEmail(email)) { fErr('la-email-e'); ok = false; }
+  if (isEmpty(pass)) { fErr('la-pass-e'); ok = false; }
+  if (!ok) return;
+  if (email !== ADMIN_EMAIL || pass !== ADMIN_PASS) {
+    fErr('la-email-e', 'Invalid admin credentials');
+    fErr('la-pass-e', 'Check email and password');
+    showToast('❌ Admin credentials incorrect', 'red');
+    return;
+  }
+  const btn = document.getElementById('la-btn');
+  btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true;
+  // Check if admin already exists in DB
+  const users = await CLOUD.getUsers();
+  let adminUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (!adminUser) {
+    adminUser = { id: 'admin_' + Date.now(), name: 'WasteGo Admin', email, phone: '+233300000000', password: pass, role: 'admin', banned: false, pic: null, wallet: 0, joined: new Date().toLocaleDateString('en-GB',{month:'short',day:'numeric',year:'numeric'}), lastLogin: new Date().toISOString() };
+    await CLOUD.saveUser(adminUser);
+  } else {
+    await CLOUD.saveUser({ ...adminUser, lastLogin: new Date().toISOString() });
+  }
+  ST.user = { ...adminUser, role: 'admin' };
+  btn.innerHTML = '🔐 Admin Sign In'; btn.disabled = false;
+  enterApp();
+}
 
-  const meta = ROLE_META[session.role];
-
-  // ── Load my profile ───────────────────────────────────────────────────────
-  useEffect(() => {
-    const loadProfile = async () => {
-      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-      const u = users[slug(session.name)];
-      if (u) setMyData(u);
+async function doRegister() {
+  clearErrs();
+  const name = (document.getElementById('r-name').value || '').trim();
+  const email = (document.getElementById('r-email').value || '').trim();
+  const phone = (document.getElementById('r-phone').value || '').trim();
+  const pass = document.getElementById('r-pass').value || '';
+  let ok = true;
+  if (name.length < 2) { fErr('r-name-e'); ok = false; }
+  if (!isEmail(email)) { fErr('r-email-e'); ok = false; }
+  if (!isPhone(phone)) { fErr('r-phone-e'); ok = false; }
+  if (pass.length < 6) { fErr('r-pass-e'); ok = false; }
+  if (ST.regRole === 'rider') {
+    const veh = (document.getElementById('r-vehicle')?.value || '').trim();
+    const reg = document.getElementById('r-region')?.value || '';
+    if (!veh) { fErr('r-vehicle-e'); ok = false; }
+    if (!reg) { fErr('r-region-e'); ok = false; }
+  }
+  if (!ok) return;
+  const btn = document.getElementById('r-btn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:var(--bk);"></div> Creating...'; btn.disabled = true;
+  try {
+    const users = await CLOUD.getUsers();
+    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+      fErr('r-email-e', 'Email already registered — please sign in');
+      showToast('Email already exists', 'red');
+      btn.innerHTML = 'Create Account'; btn.disabled = false;
+      return;
+    }
+    const newUser = {
+      id: 'u' + Date.now(), name, email, phone, password: pass,
+      role: ST.regRole, banned: false, pic: null, wallet: 0,
+      vehicle: ST.regRole === 'rider' ? (document.getElementById('r-vehicle')?.value || '') : '',
+      region: ST.regRole === 'rider' ? (document.getElementById('r-region')?.value || '') : '',
+      joined: new Date().toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' }),
+      lastLogin: new Date().toISOString(),
     };
-    loadProfile();
-  }, [session]);
-
-  // ── Poll all members' locations ───────────────────────────────────────────
-  useEffect(() => {
-    const poll = async () => {
-      const locs = await fbGet(`sn3/${session.room}/locs`) || {};
-      const localLocs = LS.get(`${session.room}_locs`) || {};
-      const merged = { ...localLocs, ...locs };
-      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-
-      const list = Object.entries(merged).map(([role, d]) => {
-        const stale = Date.now() - (d.t||0) > 20000;
-        const u = Object.values(users).find(u => u.role === role) || {};
-        return {
-          role, name: d.name||u.name||role,
-          lat: d.lat, lng: d.lng, accuracy: d.accuracy,
-          online: d.online && !stale,
-          avatar: u.avatar||"",
-          t: d.t,
-        };
-      });
-      setMembers(list);
-    };
-    poll();
-    const t = setInterval(poll, 3000);
-    return () => clearInterval(t);
-  }, [session]);
-
-  // ── Push location ─────────────────────────────────────────────────────────
-  const pushLoc = useCallback(async (loc) => {
-    const d = { ...loc, online:true, name:session.name, t:Date.now() };
-    const locs = LS.get(`${session.room}_locs`) || {};
-    locs[session.role] = d;
-    LS.set(`${session.room}_locs`, locs);
-    await fbPatch(`sn3/${session.room}/locs`, { [session.role]: d });
-  }, [session]);
-
-  // ── Stop sharing ──────────────────────────────────────────────────────────
-  const stopSharing = useCallback(() => {
-    activeRef.current = false;
-    if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
-    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
-    const off = { online:false, name:session.name, t:Date.now() };
-    const locs = LS.get(`${session.room}_locs`) || {};
-    locs[session.role] = off;
-    LS.set(`${session.room}_locs`, locs);
-    fbPatch(`sn3/${session.room}/locs`, { [session.role]: off });
-    setSharing(false); setPending(false);
-  }, [session]);
-
-  // ── Start simulated ───────────────────────────────────────────────────────
-  const startSim = useCallback(() => {
-    const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
-    simCoordsRef.current = {...base};
-    pushLoc(base);
-    setSharing(true); setPending(false); activeRef.current = true;
-    simRef.current = setInterval(() => {
-      if (!activeRef.current) return;
-      simCoordsRef.current.lat += (Math.random()-.48)*.001;
-      simCoordsRef.current.lng += (Math.random()-.48)*.001;
-      pushLoc({...simCoordsRef.current});
-    }, 5000);
-  }, [pushLoc]);
-
-  // ── Toggle sharing ────────────────────────────────────────────────────────
-  const toggleSharing = useCallback(() => {
-    if (sharing || pending) { stopSharing(); return; }
-    setPending(true);
-    if (!navigator.geolocation) { startSim(); return; }
-
-    const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
-
-    // watchPosition keeps running forever until cleared — this is the persistent sharing
-    watchRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        clearTimeout(fallback);
-        if (watchRef.current == null) return;
-        const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
-        pushLoc(loc);
-        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); }
-      },
-      () => { clearTimeout(fallback); startSim(); },
-      { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
-    );
-  }, [sharing, pending, stopSharing, startSim]);
-
-  useEffect(() => () => stopSharing(), [stopSharing]);
-
-  const onlineCount = members.filter(m=>m.online).length;
-
-  return (
-    <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
-      {/* ── MAP TAB ─────────────────────────────────────────────────────── */}
-      {tab==="map" && (
-        <div style={{flex:1,position:"relative",overflow:"hidden"}}>
-          <LiveMap members={members} currentUser={session} />
-
-          {/* Header overlay */}
-          <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
-            <div>
-              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
-              <div style={{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"500",marginTop:"1px"}}>
-                {onlineCount} of {members.length||"—"} online
-              </div>
-            </div>
-            <div style={{display:"flex",alignItems:"center",gap:"6px",background:"rgba(7,11,24,0.8)",border:"1px solid var(--border)",borderRadius:"10px",padding:"6px 12px"}}>
-              <div style={{width:"7px",height:"7px",borderRadius:"50%",background:sharing?"var(--green)":pending?"var(--amber)":"var(--text3)",animation:sharing?"pulse 1.5s infinite":"none"}} />
-              <span style={{fontSize:"11px",fontWeight:"700",color:sharing?"var(--green)":pending?"var(--amber)":"var(--text2)",fontFamily:"var(--mono)"}}>
-                {sharing?"LIVE":pending?"STARTING…":"OFF"}
-              </span>
-            </div>
-          </div>
-
-          {/* Share toggle fab */}
-          <div style={{position:"absolute",bottom:"24px",left:"50%",transform:"translateX(-50%)",zIndex:500}}>
-            <div onClick={toggleSharing} className="big-toggle"
-              style={{background:sharing?`linear-gradient(135deg,${meta.color}30,${meta.color}10)`:pending?"rgba(245,158,11,0.1)":"rgba(13,18,37,0.9)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 40px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.5)",backdropFilter:"blur(10px)"}}>
-              {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.3}} />}
-              <span style={{fontSize:"36px"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
-              <span style={{fontSize:"9px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
-                {sharing?"SHARING":pending?"WAIT":"TAP"}
-              </span>
-            </div>
-            <div style={{textAlign:"center",marginTop:"8px",fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",background:"rgba(7,11,24,0.8)",padding:"4px 10px",borderRadius:"6px",border:"1px solid var(--border)"}}>
-              {sharing?"Sharing until you stop":pending?"Getting location…":"Tap to share location"}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── FAMILY TAB ───────────────────────────────────────────────────── */}
-      {tab==="family" && (
-        <div className="page">
-          <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"4px"}}>Family</div>
-          <div style={{fontSize:"12px",color:"var(--text3)",marginBottom:"20px",fontFamily:"var(--mono)"}}>Room: {session.room}</div>
-
-          {members.length === 0 && (
-            <div className="card" style={{padding:"32px",textAlign:"center"}}>
-              <div style={{fontSize:"40px",marginBottom:"12px"}}>👨‍👩‍👦</div>
-              <div style={{color:"var(--text2)",fontWeight:"600"}}>No family members connected yet</div>
-              <div style={{color:"var(--text3)",fontSize:"12px",marginTop:"6px"}}>Others need to register with the same family code: <strong style={{color:"var(--accent)"}}>{session.room}</strong></div>
-            </div>
-          )}
-
-          {ROLES.map(role => {
-            const m = members.find(x=>x.role===role);
-            const meta = ROLE_META[role];
-            const isMe = session.role === role;
-            return (
-              <div key={role} className="member-row" style={{borderColor:m?.online?meta.color+"40":"var(--border)"}}>
-                {/* Avatar */}
-                <div className="member-avatar" style={{background:meta.color+"20",border:`2px solid ${m?.online?meta.color:"var(--border2)"}`}}>
-                  {m?.avatar ? <img src={m.avatar} style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover"}} /> : <span>{meta.emoji}</span>}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-                    <span style={{fontWeight:"800",fontSize:"15px"}}>{m?.name || meta.label}</span>
-                    {isMe && <span style={{fontSize:"9px",background:"var(--accent)20",color:"var(--accent)",border:"1px solid var(--accent)40",borderRadius:"4px",padding:"1px 6px",fontWeight:"700",letterSpacing:"1px"}}>YOU</span>}
-                  </div>
-                  <div style={{fontSize:"11px",color:meta.color,fontWeight:"700",marginTop:"2px"}}>{meta.label}</div>
-                  <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"4px"}}>
-                    {m ? (
-                      m.online ? <>
-                        <div className="dot-live" />
-                        <span style={{fontSize:"10px",color:"var(--green)",fontFamily:"var(--mono)",fontWeight:"700"}}>LIVE</span>
-                        {m.accuracy && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>±{m.accuracy}m</span>}
-                      </> : <>
-                        <div className="dot-off" />
-                        <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>OFFLINE</span>
-                        {m.t && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>· {new Date(m.t).toLocaleTimeString()}</span>}
-                      </>
-                    ) : (
-                      <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>NOT REGISTERED</span>
-                    )}
-                  </div>
-                </div>
-                {m?.online && m.lat && (
-                  <div style={{textAlign:"right",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)"}}>
-                    <div>{m.lat.toFixed(4)}</div>
-                    <div>{m.lng.toFixed(4)}</div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── SHARE TAB ────────────────────────────────────────────────────── */}
-      {tab==="share" && (
-        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
-          <div style={{textAlign:"center",marginBottom:"28px"}}>
-            <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
-            <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
-          </div>
-
-          {/* Big toggle */}
-          <div onClick={toggleSharing} className="big-toggle"
-            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
-            {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
-            <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
-            <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
-              {sharing?"LIVE":pending?"WAIT":"OFF"}
-            </span>
-          </div>
-
-          <div style={{fontSize:"18px",fontWeight:"800",color:sharing?meta.color:pending?"var(--amber)":"var(--text2)",marginBottom:"8px"}}>
-            {sharing?"✅ Location Sharing On":pending?"⏳ Starting…":"Location Off"}
-          </div>
-          <div style={{fontSize:"13px",color:"var(--text3)",textAlign:"center",maxWidth:"260px",lineHeight:"1.6",marginBottom:"28px"}}>
-            {sharing?"Your location is being shared live with your family. It will keep sharing until you tap to stop."
-            :pending?"Requesting location access…"
-            :"Tap the button to start sharing your live location with family."}
-          </div>
-
-          {sharing && (
-            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:"16px"}}>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-                {[
-                  ["STATUS","SHARING LIVE ●"],
-                  ["FAMILY",session.room.toUpperCase()],
-                  ["ROLE",meta.label.toUpperCase()],
-                  ["MODE","PERSISTENT"],
-                ].map(([l,v])=>(
-                  <div key={l} className="card-sm">
-                    <div style={{fontSize:"8px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
-                    <div style={{fontSize:"11px",color:l==="STATUS"?meta.color:"var(--text)",fontWeight:"700",fontFamily:"var(--mono)",marginTop:"3px"}}>{v}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── PROFILE TAB ──────────────────────────────────────────────────── */}
-      {tab==="profile" && (
-        <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />
-      )}
-
-      {/* ── Bottom Nav ───────────────────────────────────────────────────── */}
-      <nav className="nav">
-        {[
-          { id:"map",    icon:"🗺️",  label:"MAP"    },
-          { id:"family", icon:"👨‍👩‍👦", label:"FAMILY" },
-          { id:"share",  icon:"📡",  label:"SHARE"  },
-          { id:"profile",icon:"👤",  label:"ME"     },
-        ].map(n => (
-          <button key={n.id} className={`nav-btn ${tab===n.id?"active":""}`} onClick={()=>setTab(n.id)}>
-            <span className="icon">{n.id==="share" && sharing ? "🟢" : n.icon}</span>
-            <span>{n.label}</span>
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
+    await CLOUD.saveUser(newUser);
+    ST.user = { ...newUser };
+    showToast('✅ Account created!', 'green');
+    btn.innerHTML = 'Create Account'; btn.disabled = false;
+    enterApp();
+  } catch (e) {
+    btn.innerHTML = 'Create Account'; btn.disabled = false;
+    showToast('Registration error — check connection', 'red');
+  }
 }
 
-// ── Profile Tab ───────────────────────────────────────────────────────────────
-function ProfileTab({ session, myData, setMyData, onLogout }) {
-  const [editMode, setEditMode] = useState(false);
-  const [displayName, setDisplayName] = useState(myData?.name||session.name);
-  const [bio, setBio] = useState(myData?.bio||"");
-  const [avatar, setAvatar] = useState(myData?.avatar||"");
-  const [saving, setSaving] = useState(false);
-  const fileRef = useRef(null);
-  const meta = ROLE_META[session.role];
+function enterApp() {
+  document.getElementById('auth').classList.add('out');
+  setTimeout(() => document.getElementById('auth').style.display = 'none', 380);
+  buildNav();
+  updateProfileUI();
+  setGreet();
+  setSyncStatus('synced');
+  setTimeout(() => {
+    if (ST.user.role === 'customer') initMap('cmap', true);
+    else if (ST.user.role === 'rider') { initRiderMap(); updateRiderUI(); }
+    else refreshAdminOverview();
+  }, 300);
+  setTimeout(showInstall, 12000);
+}
 
-  useEffect(() => {
-    if (myData) { setDisplayName(myData.name||session.name); setBio(myData.bio||""); setAvatar(myData.avatar||""); }
-  }, [myData]);
+function logout() { ST.user = null; clearAllInt(); location.reload(); }
 
-  const handleAvatar = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 500000) { alert("Please choose an image under 500KB"); return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => setAvatar(ev.target.result);
-    reader.readAsDataURL(file);
+// ════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════
+const NAVS = {
+  customer: [{ ico:'🏠',lbl:'Home',scr:'s-home'},{ico:'📋',lbl:'History',scr:'s-history'},{ico:'👤',lbl:'Profile',scr:'s-profile'}],
+  rider:    [{ ico:'🛺',lbl:'Dashboard',scr:'s-rider',r:'rider'},{ico:'💵',lbl:'Earnings',scr:'s-earn',r:'rider'},{ico:'👤',lbl:'Profile',scr:'s-profile',r:'rider'}],
+  admin:    [{ ico:'⚙️',lbl:'Admin',scr:'s-admin',r:'admin'},{ico:'👤',lbl:'Profile',scr:'s-profile',r:'admin'}],
+};
+
+function buildNav() {
+  const tabs = NAVS[ST.user.role] || NAVS.customer;
+  const bn = document.getElementById('botnav'); bn.innerHTML = '';
+  tabs.forEach((t, i) => {
+    const b = document.createElement('button'); b.className = 'ntab' + (i===0?' on':'');
+    if (t.r) b.dataset.r = t.r;
+    b.innerHTML = `<span class="ni">${t.ico}</span><span class="nl">${t.lbl}</span>`;
+    b.onclick = () => goTab(t.scr, b);
+    bn.appendChild(b);
+    if (i === 0) goTab(t.scr, b, true);
+  });
+  const rb = document.getElementById('rbadge');
+  rb.textContent = ST.user.role.charAt(0).toUpperCase() + ST.user.role.slice(1);
+  rb.className = 'rbadge ' + ST.user.role;
+}
+
+function goTab(sid, btn, silent=false) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
+  document.getElementById(sid)?.classList.add('on');
+  if (btn) btn.classList.add('on');
+  if (!silent) {
+    if (sid==='s-rider')  { initRiderMap(); updateRiderUI(); }
+    if (sid==='s-earn')   renderEarnTx();
+    if (sid==='s-history') renderCustomerHistory();
+    if (sid==='s-admin')  refreshAdminOverview();
+  }
+}
+
+function goToProfile() {
+  const tabs = document.querySelectorAll('.ntab');
+  goTab('s-profile', tabs[tabs.length - 1]);
+}
+
+// ════════════════════════════════════════════════════════
+//  MAPS
+// ════════════════════════════════════════════════════════
+function mkMap(id, c, z) {
+  if (ST.maps[id]) return ST.maps[id];
+  const m = L.map(id, { zoomControl:true, attributionControl:false, scrollWheelZoom:false });
+  L.tileLayer(TILE, { maxZoom:18 }).addTo(m);
+  m.setView(c || ACCRA, z || 14);
+  ST.maps[id] = m; return m;
+}
+function rIco(color='#00C853') {
+  return L.divIcon({ className:'', html:`<div style="width:26px;height:26px;background:${color};border-radius:50%;border:2px solid #07090A;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 8px ${color}88;">🛺</div>`, iconSize:[26,26], iconAnchor:[13,13] });
+}
+function uIco() {
+  return L.divIcon({ className:'', html:`<div style="width:22px;height:22px;background:#3D8BFF;border-radius:50%;border:2.5px solid #07090A;box-shadow:0 0 10px #3D8BFF88;"></div>`, iconSize:[22,22], iconAnchor:[11,11] });
+}
+function customerIco() {
+  return L.divIcon({ className:'', html:`<div style="width:24px;height:24px;background:#FFD600;border-radius:50%;border:2px solid #07090A;box-shadow:0 0 8px #FFD60088;display:flex;align-items:center;justify-content:center;font-size:12px;">📍</div>`, iconSize:[24,24], iconAnchor:[12,12] });
+}
+
+function spawnNearbyRiders(map, c) {
+  ST.riderMs.forEach(m => m.remove()); ST.riderMs = [];
+  // Show registered online riders from DB (from ST.riders populated on load)
+  const onlineRiders = ST.riders.filter(r => r.isOnline);
+  const count = Math.max(onlineRiders.length, 2); // show at least 2 for UX
+  for (let i = 0; i < Math.min(count, 5); i++) {
+    const m = L.marker([c[0] + (Math.random()-0.5)*0.025, c[1] + (Math.random()-0.5)*0.025], { icon: rIco() }).addTo(map);
+    if (onlineRiders[i]) m.bindPopup(`🛺 ${onlineRiders[i].name}`);
+    ST.riderMs.push(m);
+  }
+  clearInterval(ST.moveInt);
+  ST.moveInt = setInterval(() => {
+    ST.riderMs.forEach(rm => { const ll = rm.getLatLng(); rm.setLatLng([ll.lat+(Math.random()-0.5)*0.0006, ll.lng+(Math.random()-0.5)*0.0006]); });
+  }, 2000);
+}
+
+function initMap(id, geo) {
+  if (ST.maps[id]) return;
+  const c = ST.userLL || ACCRA;
+  const m = mkMap(id, c, 14);
+  L.circle(c, { radius:180, color:'#00C853', fillColor:'#00C853', fillOpacity:.07, weight:1 }).addTo(m);
+  spawnNearbyRiders(m, c);
+  if (geo && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const ll = [pos.coords.latitude, pos.coords.longitude]; ST.userLL = ll;
+      m.setView(ll, 15);
+      if (ST.uMark) ST.uMark.remove();
+      ST.uMark = L.marker(ll, { icon: uIco() }).addTo(m).bindPopup('📍 You');
+      spawnNearbyRiders(m, ll);
+      document.getElementById('cmap-dot').classList.remove('y');
+      document.getElementById('cmap-txt').textContent = 'Location found';
+      document.getElementById('cmap-sub').textContent = `${ll[0].toFixed(4)}, ${ll[1].toFixed(4)}`;
+      document.getElementById('pickup-addr').value = 'Your current location';
+    }, () => {
+      document.getElementById('cmap-dot').classList.add('y');
+      document.getElementById('cmap-txt').textContent = 'Using Accra (GPS denied)';
+    });
+  }
+}
+
+// Tracking map — shows customer location + rider approaching
+function initTrackMap(customerLL, riderLL) {
+  const c = customerLL || ST.userLL || ACCRA;
+  if (!ST.maps['tmap']) {
+    const m = mkMap('tmap', c, 14);
+    // Customer pin
+    L.marker(c, { icon: uIco() }).addTo(m).bindPopup('📍 Your pickup location');
+    ST.maps['tmap']._customerMarker = L.marker(c, { icon: uIco() }).addTo(m);
+    // Rider pin — starts offset, moves toward customer
+    const rStart = riderLL || [c[0]+0.009, c[1]+0.007];
+    ST.maps['tmap']._riderMarker = L.marker(rStart, { icon: rIco() }).addTo(m).bindPopup('🛺 ' + (ST.matchedRider?.name || 'Rider'));
+    clearInterval(ST.trackInt);
+    ST.trackInt = setInterval(() => {
+      const rm = ST.maps['tmap']._riderMarker;
+      if (!rm) return;
+      const ll = rm.getLatLng();
+      const dLat = (c[0] - ll.lat) * 0.09;
+      const dLng = (c[1] - ll.lng) * 0.09;
+      rm.setLatLng([ll.lat + dLat + (Math.random()-0.5)*0.0002, ll.lng + dLng + (Math.random()-0.5)*0.0002]);
+    }, 1500);
+  }
+}
+
+// Rider map — shows rider's location + customer pin
+function initRiderTrackMap(customerLL) {
+  const riderLL = ST.userLL || ACCRA;
+  const map = ST.maps['rmap'];
+  if (!map) return;
+  // Add customer marker
+  if (ST.maps['rmap']._custMark) ST.maps['rmap']._custMark.remove();
+  if (customerLL) {
+    ST.maps['rmap']._custMark = L.marker(customerLL, { icon: customerIco() }).addTo(map).bindPopup('📍 Customer pickup point');
+    map.fitBounds([riderLL, customerLL], { padding: [30, 30] });
+  }
+}
+
+function initRiderMap() {
+  if (ST.maps['rmap']) return;
+  const c = ST.userLL || ACCRA;
+  const m = mkMap('rmap', c, 14);
+  L.marker(c, { icon: rIco() }).addTo(m).bindPopup('📍 Your position');
+  spawnNearbyRiders(m, c);
+  // Try to get real rider GPS
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(pos => {
+      const ll = [pos.coords.latitude, pos.coords.longitude]; ST.userLL = ll;
+      // Update rider's location in DB so customer can see it
+      if (ST.user && ST.user.role === 'rider') {
+        CLOUD.saveUser({ ...ST.user, lastLat: ll[0], lastLng: ll[1] }).catch(() => {});
+      }
+    }, () => {}, { enableHighAccuracy: true, maximumAge: 5000 });
+  }
+}
+
+function clearAllInt() { clearInterval(ST.trackInt); clearInterval(ST.moveInt); clearInterval(ST.pollInt); }
+
+// ════════════════════════════════════════════════════════
+//  PRICING
+// ════════════════════════════════════════════════════════
+function pickSz(el, name, price) {
+  document.querySelectorAll('.sz').forEach(s => s.classList.remove('on'));
+  el.classList.add('on'); ST.size = name; ST.base = price; calcP();
+}
+function pickSur(v) { ST.sur = parseInt(v)||0; calcP(); }
+function calcP() {
+  const tot = ST.base + 7.20 + ST.sur;
+  document.getElementById('p-base').textContent = `GH₵ ${ST.base}.00`;
+  document.getElementById('p-sur').textContent = `GH₵ ${ST.sur}.00`;
+  document.getElementById('p-tot').textContent = `GH₵ ${tot.toFixed(2)}`;
+}
+function selectPay(m) {
+  ST.payMethod = m;
+  document.getElementById('pay-opt-momo').className = 'pay-opt' + (m==='momo' ? ' on-momo' : '');
+  document.getElementById('pay-opt-cash').className = 'pay-opt' + (m==='cash' ? ' on-cash' : '');
+}
+
+// ════════════════════════════════════════════════════════
+//  CUSTOMER PICKUP — POST TO CLOUD, WAIT FOR RIDER
+// ════════════════════════════════════════════════════════
+async function reqPickup() {
+  const addr = document.getElementById('pickup-addr').value || 'Customer location';
+  const total = ST.base + 7.20 + ST.sur;
+  const commission = ST.commissions[ST.size] || 7.00;
+  const riderShare = parseFloat((total - commission).toFixed(2));
+
+  // Load online riders from DB
+  const users = await CLOUD.getUsers();
+  ST.riders = users.filter(u => u.role === 'rider' && !u.banned && u.isOnline);
+
+  if (ST.riders.length === 0) {
+    showToast('⚠ No riders online right now. Try again shortly.', 'orange');
+    return;
+  }
+
+  const btn = document.getElementById('req-btn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:var(--bk);"></div> Posting request...';
+  btn.disabled = true;
+
+  // Post pickup request to cloud
+  const req = {
+    status: 'pending',    // pending → accepted → completed / cancelled
+    customerEmail: ST.user.email,
+    customerName: ST.user.name,
+    customerPhone: ST.user.phone,
+    customerLat: ST.userLL?.[0] || ACCRA[0],
+    customerLng: ST.userLL?.[1] || ACCRA[1],
+    address: addr,
+    size: ST.size,
+    base: ST.base,
+    sur: ST.sur,
+    total,
+    commission,
+    riderShare,
+    payMethod: ST.payMethod,
+    riderEmail: null,
+    riderName: null,
   };
 
-  const save = async () => {
-    setSaving(true);
-    const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-    const key = slug(session.name);
-    if (users[key]) {
-      users[key] = { ...users[key], name:displayName, bio, avatar };
-      await fbSet(`sn3/${session.room}/users`, users);
-      LS.set(`${session.room}_u`, users);
-      setMyData(users[key]);
+  const posted = await CLOUD.postRequest(req);
+  ST.activeRequest = { ...posted };
+
+  btn.innerHTML = '♻ Request Pickup Now'; btn.disabled = false;
+
+  // Go to tracking screen
+  const tabs = document.querySelectorAll('.ntab');
+  goTab('s-track', tabs[0]); tabs.forEach(t => t.classList.remove('on'));
+
+  // Show matching UI
+  showMatchingPanel();
+
+  // Populate rider list in UI
+  renderPendingRiders(ST.riders);
+
+  // Poll for rider acceptance every 4s
+  clearInterval(ST.pollInt);
+  ST.pollInt = setInterval(() => pollForAcceptance(posted.id), 4000);
+}
+
+function showMatchingPanel() {
+  document.getElementById('matching-panel').style.display = 'block';
+  document.getElementById('active-tracking-panel').classList.add('hidden');
+  document.getElementById('mw-title').textContent = 'Looking for riders near you';
+  document.getElementById('mw-sub').textContent = 'Notifying registered riders in your area...';
+  document.getElementById('tsub').textContent = 'Waiting for a rider to accept...';
+}
+
+function renderPendingRiders(riders) {
+  const list = document.getElementById('mw-riders-list');
+  if (!riders.length) { list.innerHTML = '<p style="font-size:.79rem;color:var(--mid);text-align:center;">No riders found in your area</p>'; return; }
+  list.innerHTML = riders.map(r => `
+    <div class="mw-rider-row">
+      <div class="mw-rider-ava">${r.pic ? `<img src="${r.pic}">` : '🛺'}</div>
+      <div style="flex:1;">
+        <p class="mw-rider-nm">${r.name}</p>
+        <p class="mw-rider-meta">${r.region || 'Ghana'} · Tricycle ${r.vehicle || '—'}</p>
+      </div>
+      <span class="mw-rider-status" style="color:var(--g);">Notified</span>
+    </div>
+  `).join('');
+}
+
+async function pollForAcceptance(reqId) {
+  if (!reqId) return;
+  try {
+    const requests = await CLOUD.getRequests();
+    const req = requests.find(r => r.id === reqId);
+    if (!req) return;
+    if (req.status === 'accepted' && req.riderEmail) {
+      clearInterval(ST.pollInt);
+      ST.activeRequest = { ...req };
+      const users = await CLOUD.getUsers();
+      ST.matchedRider = users.find(u => u.email === req.riderEmail) || { name: req.riderName || 'Rider', email: req.riderEmail };
+      onRiderAccepted();
+    } else if (req.status === 'cancelled') {
+      clearInterval(ST.pollInt);
+      showToast('⚠ Request cancelled', 'red');
+      cancelPickup();
     }
-    setSaving(false); setEditMode(false);
-  };
+  } catch (e) {}
+}
 
-  return (
-    <div className="page">
-      <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"20px"}}>My Profile</div>
+function onRiderAccepted() {
+  // Hide matching panel, show active tracking
+  document.getElementById('matching-panel').style.display = 'none';
+  document.getElementById('active-tracking-panel').classList.remove('hidden');
 
-      {/* Avatar + name */}
-      <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"24px"}}>
-        <label className="avatar-upload" style={{marginBottom:"14px"}}>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} />
-          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:meta.color+"20",border:`3px solid ${meta.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"42px",overflow:"hidden",position:"relative"}}>
-            {avatar
-              ? <img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />
-              : <span>{meta.emoji}</span>}
-            <div className="avatar-upload-overlay">📷</div>
-          </div>
-        </label>
-        <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"4px",fontFamily:"var(--mono)"}}>TAP PHOTO TO CHANGE</div>
+  const r = ST.matchedRider;
+  document.getElementById('track-rider-name').textContent = r.name;
+  document.getElementById('track-rider-meta').textContent = `${r.vehicle ? 'Tricycle ' + r.vehicle : 'Rider'}`;
+  if (r.pic) document.getElementById('track-rider-ava').innerHTML = `<img src="${r.pic}" style="width:100%;height:100%;object-fit:cover;">`;
 
-        {editMode ? (
-          <input className="inp" style={{maxWidth:"240px",textAlign:"center",fontSize:"18px",fontWeight:"800"}}
-            value={displayName} onChange={e=>setDisplayName(e.target.value)} />
-        ) : (
-          <div style={{fontSize:"22px",fontWeight:"800"}}>{displayName}</div>
-        )}
+  document.getElementById('tsub').textContent = r.name + ' is on the way!';
+  document.getElementById('tlbl').textContent = 'Rider matched!';
 
-        <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"6px"}}>
-          <span style={{fontSize:"14px"}}>{meta.emoji}</span>
-          <span style={{fontSize:"13px",color:meta.color,fontWeight:"700"}}>{meta.label}</span>
-        </div>
-      </div>
+  // Init tracking map with rider's location
+  const riderLL = r.lastLat ? [r.lastLat, r.lastLng] : null;
+  initTrackMap(ST.userLL, riderLL);
 
-      {/* Info card */}
-      <div className="card" style={{padding:"16px",marginBottom:"12px"}}>
-        <div style={{marginBottom:"14px"}}>
-          <span className="lbl">Bio / Note</span>
-          {editMode
-            ? <textarea className="inp" rows={3} style={{resize:"none"}} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Add a short note about yourself…" />
-            : <div style={{fontSize:"14px",color:bio?"var(--text)":"var(--text3)",lineHeight:"1.6"}}>{bio||"No bio yet. Tap Edit to add one."}</div>
-          }
-        </div>
-        <div>
-          <span className="lbl">Family Room</span>
-          <div style={{fontFamily:"var(--mono)",fontSize:"14px",color:"var(--accent)",fontWeight:"700"}}>📡 {session.room}</div>
-        </div>
-      </div>
+  // Show payment button based on method
+  const req = ST.activeRequest;
+  const wrap = document.getElementById('payment-action-wrap');
+  if (req.payMethod === 'momo') {
+    wrap.innerHTML = `<button class="btn btn-g" style="margin-bottom:9px;" onclick="openMomoPay()">💳 Pay GH₵${req.total.toFixed(2)} with MoMo</button>`;
+  } else {
+    wrap.innerHTML = `<button class="btn btn-orange" style="margin-bottom:9px;" onclick="openCashConfirm()">💵 Confirm Cash Payment</button>`;
+  }
 
-      {/* Stats */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"20px"}}>
-        {[
-          ["ROLE", meta.label, meta.color],
-          ["MEMBER SINCE", myData?.createdAt ? new Date(myData.createdAt).toLocaleDateString() : "—", "var(--text2)"],
-        ].map(([l,v,c])=>(
-          <div key={l} className="card-sm">
-            <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
-            <div style={{fontSize:"13px",color:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
-          </div>
-        ))}
-      </div>
+  showToast(`✅ ${r.name} accepted your request!`, 'green');
+}
 
-      {/* Actions */}
-      {editMode ? (
-        <div style={{display:"flex",gap:"10px"}}>
-          <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEditMode(false)}>Cancel</button>
-          <button className="btn-primary" style={{flex:2}} onClick={save} disabled={saving}>{saving?"Saving…":"Save Changes"}</button>
-        </div>
-      ) : (
-        <button className="btn-primary" style={{marginBottom:"12px"}} onClick={()=>setEditMode(true)}>✏️ Edit Profile</button>
-      )}
+function cancelPickup() {
+  clearInterval(ST.pollInt);
+  clearInterval(ST.trackInt);
+  if (ST.activeRequest?.id) CLOUD.updateRequest(ST.activeRequest.id, { status: 'cancelled' }).catch(() => {});
+  ST.activeRequest = null; ST.matchedRider = null;
+  document.getElementById('matching-panel').style.display = 'block';
+  document.getElementById('active-tracking-panel').classList.add('hidden');
+  document.getElementById('fnotice').classList.add('hidden');
+  document.getElementById('payment-action-wrap').innerHTML = '';
+  goTab('s-home', document.querySelectorAll('.ntab')[0]);
+}
 
-      <button onClick={onLogout} style={{width:"100%",padding:"13px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"11px",color:"#f87171",fontWeight:"800",fontSize:"14px",fontFamily:"var(--font)"}}>
-        Log Out
-      </button>
+function approveFare() { document.getElementById('fnotice').classList.add('hidden'); showToast('✓ Fare approved', 'green'); }
+function declineFare() { document.getElementById('fnotice').classList.add('hidden'); }
+
+// ════════════════════════════════════════════════════════
+//  MOMO PAYMENT
+// ════════════════════════════════════════════════════════
+function openMomoPay() {
+  const req = ST.activeRequest;
+  document.getElementById('pm-total').textContent = `GH₵ ${(req?.total || 35.20).toFixed(2)}`;
+  document.getElementById('pm-num').textContent = ST.user.phone || '—';
+  document.getElementById('pay-modal').classList.add('show');
+}
+function closePay() { document.getElementById('pay-modal').classList.remove('show'); }
+function selM(el) { document.querySelectorAll('.mo').forEach(o => o.classList.remove('sel')); el.classList.add('sel'); }
+
+async function doPay() {
+  const btn = document.getElementById('paybtn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:var(--bk);"></div> Processing...'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 2000));
+  btn.innerHTML = 'Confirm Payment'; btn.disabled = false;
+  closePay();
+  await finishPickup('momo');
+}
+
+// ════════════════════════════════════════════════════════
+//  CASH PAYMENT
+// ════════════════════════════════════════════════════════
+function openCashConfirm() {
+  const req = ST.activeRequest;
+  if (!req) return;
+  const comm = req.commission || ST.commissions[req.size] || 7;
+  const share = parseFloat((req.total - comm).toFixed(2));
+  document.getElementById('cc-amount').textContent = `GH₵ ${req.total.toFixed(2)}`;
+  document.getElementById('cc-size').textContent = `${req.size} Load`;
+  document.getElementById('cc-rider').textContent = `GH₵ ${share.toFixed(2)}`;
+  document.getElementById('cc-comm').textContent = `GH₵ ${comm.toFixed(2)}`;
+  document.getElementById('cash-modal').classList.add('show');
+}
+function closeCash() { document.getElementById('cash-modal').classList.remove('show'); }
+
+async function confirmCash() {
+  closeCash();
+  await finishPickup('cash');
+}
+
+async function finishPickup(method) {
+  const req = ST.activeRequest;
+  if (!req) return;
+  const comm = req.commission || ST.commissions[req.size] || 7;
+  const share = parseFloat((req.total - comm).toFixed(2));
+
+  // Update request status
+  await CLOUD.updateRequest(req.id, { status: 'completed', payMethod: method });
+
+  // Debit rider wallet for cash, credit for momo
+  if (req.riderEmail) {
+    const users = await CLOUD.getUsers();
+    const rider = users.find(u => u.email === req.riderEmail);
+    if (rider) {
+      let newBal;
+      if (method === 'cash') {
+        newBal = Math.max(0, parseFloat(((rider.wallet || 0) - comm).toFixed(2)));
+      } else {
+        newBal = parseFloat(((rider.wallet || 0) + share).toFixed(2));
+      }
+      await CLOUD.saveUser({ ...rider, wallet: newBal });
+    }
+  }
+
+  // Log transaction
+  await CLOUD.addTx({
+    type: 'pickup', size: req.size, total: req.total, commission: comm, riderShare: share,
+    method, address: req.address,
+    customerEmail: req.customerEmail, customerName: req.customerName,
+    riderEmail: req.riderEmail || '—', riderName: req.riderName || ST.matchedRider?.name || '—',
+    status: 'completed',
+  });
+
+  clearAllInt(); ST.activeRequest = null; ST.matchedRider = null;
+  showToast(method === 'momo' ? `✅ MoMo payment of GH₵${req.total.toFixed(2)} confirmed!` : `✅ Cash payment confirmed!`, 'green');
+  renderCustomerHistory();
+  goTab('s-history', document.querySelectorAll('.ntab')[1]);
+}
+
+// ════════════════════════════════════════════════════════
+//  RIDER — TOGGLE ONLINE, LISTEN FOR REQUESTS
+// ════════════════════════════════════════════════════════
+async function toggleOnline() {
+  ST.online = !ST.online;
+  document.getElementById('tog').classList.toggle('on', ST.online);
+  document.getElementById('obar').classList.toggle('on', ST.online);
+  document.getElementById('otxt').textContent = ST.online ? 'You are Online' : 'You are Offline';
+  document.getElementById('rmap-sub').textContent = ST.online ? 'Accepting nearby jobs' : 'Go online to receive requests';
+  document.getElementById('rmap-txt').textContent = ST.online ? 'Online · Accepting jobs' : 'Your location';
+
+  // Update rider online status in DB
+  await CLOUD.saveUser({ ...ST.user, isOnline: ST.online });
+
+  if (ST.online) {
+    showToast('✅ You are now online — waiting for requests', 'green');
+    clearInterval(ST.pollInt);
+    ST.pollInt = setInterval(pollForNewJobs, 5000);
+  } else {
+    clearInterval(ST.pollInt);
+    document.getElementById('jalert').classList.add('hidden');
+  }
+}
+
+async function pollForNewJobs() {
+  if (!ST.online || !ST.user) return;
+  try {
+    const requests = await CLOUD.getRequests();
+    // Find a pending request not already shown
+    const pending = requests.find(r => r.status === 'pending' && !r._shownTo?.includes(ST.user.email));
+    if (pending && !ST.activeRequest) {
+      showIncomingJob(pending);
+    }
+  } catch (e) {}
+}
+
+function showIncomingJob(req) {
+  ST.activeRequest = { ...req };
+  document.getElementById('ja-addr').textContent = `📍 ${req.address}`;
+  document.getElementById('ja-meta').textContent = `${req.size} Load · ${req.payMethod === 'cash' ? '💵 Cash' : '📱 MoMo'}`;
+  const share = req.riderShare || parseFloat((req.total - (req.commission || 7)).toFixed(2));
+  document.getElementById('ja-price').innerHTML = `GH₵ ${req.total.toFixed(2)} <span class="jashare">(your 75%: GH₵${share.toFixed(2)})</span>`;
+  document.getElementById('ja-paymethod').textContent = req.payMethod === 'cash'
+    ? `💵 Cash — GH₵${(req.commission||7).toFixed(2)} commission deducted from your wallet`
+    : `📱 MoMo — GH₵${share.toFixed(2)} credited to wallet after job`;
+  document.getElementById('jalert').classList.remove('hidden');
+
+  // Auto-timeout in 60s
+  let t = 60;
+  const ti = setInterval(() => {
+    t--;
+    const el = document.getElementById('ja-timeout');
+    if (el) el.textContent = `Auto-decline in ${t}s`;
+    if (t <= 0) { clearInterval(ti); declineJob(); }
+  }, 1000);
+  ST._jobTimeout = ti;
+}
+
+async function acceptJob() {
+  clearInterval(ST._jobTimeout);
+  document.getElementById('jalert').classList.add('hidden');
+  const req = ST.activeRequest;
+  if (!req) return;
+
+  // Update request in cloud — rider claimed it
+  await CLOUD.updateRequest(req.id, {
+    status: 'accepted',
+    riderEmail: ST.user.email,
+    riderName: ST.user.name,
+    riderPhone: ST.user.phone,
+    riderLat: ST.userLL?.[0] || ACCRA[0],
+    riderLng: ST.userLL?.[1] || ACCRA[1],
+  });
+
+  document.getElementById('ajcard').classList.remove('hidden');
+  document.getElementById('aj-addr').textContent = `📍 ${req.address}`;
+  document.getElementById('aj-detail').textContent = `${req.size} Load · GH₵${req.total.toFixed(2)}`;
+  const isCash = req.payMethod === 'cash';
+  document.getElementById('aj-paymethod').innerHTML = isCash
+    ? `<span style="color:var(--orange);">💵 Cash — GH₵${(req.commission||7).toFixed(2)} commission auto-deducted from your wallet on completion</span>`
+    : `<span style="color:var(--g);">📱 MoMo — GH₵${req.riderShare.toFixed(2)} credited after job</span>`;
+
+  // Show customer location on rider map
+  const custLL = [req.customerLat || ACCRA[0], req.customerLng || ACCRA[1]];
+  initRiderTrackMap(custLL);
+  document.getElementById('rmap-txt').textContent = 'Customer location shown on map';
+
+  clearInterval(ST.pollInt); // stop listening for more jobs
+  showToast(`✅ Job accepted! Head to ${req.address}`, 'green');
+}
+
+async function declineJob() {
+  clearInterval(ST._jobTimeout);
+  document.getElementById('jalert').classList.add('hidden');
+  ST.activeRequest = null;
+  showToast('Job skipped', 'orange');
+}
+
+function openFare() { document.getElementById('fare-modal').classList.add('show'); }
+function closeFare() { document.getElementById('fare-modal').classList.remove('show'); }
+function fakeUp() { document.getElementById('uzi').textContent = '✅'; document.getElementById('uzt').textContent = 'Photo uploaded!'; }
+function submitFare() {
+  closeFare();
+  document.getElementById('uzi').textContent = '📷'; document.getElementById('uzt').textContent = 'Tap to upload photo';
+  showToast('📸 Fare adjustment request sent to customer', 'green');
+}
+
+async function completeJob() {
+  const req = ST.activeRequest;
+  if (!req) return;
+  const comm = req.commission || ST.commissions[req.size] || 7;
+  const share = parseFloat((req.total - comm).toFixed(2));
+  const isCash = req.payMethod === 'cash';
+
+  // Debit/credit wallet
+  const freshUser = (await CLOUD.getUsers()).find(u => u.email === ST.user.email);
+  const currentBal = freshUser?.wallet || 0;
+  const newBal = isCash
+    ? Math.max(0, parseFloat((currentBal - comm).toFixed(2)))
+    : parseFloat((currentBal + share).toFixed(2));
+
+  await CLOUD.saveUser({ ...ST.user, wallet: newBal, isOnline: true });
+  ST.user.wallet = newBal;
+
+  // Mark request completed
+  await CLOUD.updateRequest(req.id, { status: 'completed' });
+
+  // Log tx
+  await CLOUD.addTx({
+    type: 'pickup', size: req.size, total: req.total, commission: comm, riderShare: share,
+    method: req.payMethod, address: req.address,
+    customerEmail: req.customerEmail, customerName: req.customerName,
+    riderEmail: ST.user.email, riderName: ST.user.name, status: 'completed',
+  });
+
+  document.getElementById('ajcard').classList.add('hidden');
+  ST.activeRequest = null;
+  updateRiderUI();
+  refreshAdminOverview();
+  // Resume listening for jobs
+  clearInterval(ST.pollInt);
+  ST.pollInt = setInterval(pollForNewJobs, 5000);
+
+  showToast(isCash
+    ? `✅ Job complete! GH₵${comm.toFixed(2)} commission deducted`
+    : `✅ Job complete! GH₵${share.toFixed(2)} credited to wallet`, 'green');
+}
+
+// ════════════════════════════════════════════════════════
+//  RIDER WALLET
+// ════════════════════════════════════════════════════════
+let _depAmt = 0;
+function openDeposit() { _depAmt = 0; document.querySelectorAll('.da').forEach(d => d.classList.remove('on')); document.getElementById('custom-dep').value=''; document.getElementById('deposit-modal').classList.add('show'); }
+function closeDeposit() { document.getElementById('deposit-modal').classList.remove('show'); }
+function pickDep(el, amt) { document.querySelectorAll('.da').forEach(d => d.classList.remove('on')); el.classList.add('on'); _depAmt = amt; document.getElementById('custom-dep').value = amt; }
+
+async function doDeposit() {
+  const custom = parseFloat(document.getElementById('custom-dep').value) || 0;
+  const amt = custom > 0 ? custom : _depAmt;
+  if (amt < 5) { showToast('Minimum deposit is GH₵5', 'red'); return; }
+  const btn = document.getElementById('dep-btn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:var(--bk);"></div>'; btn.disabled = true;
+  const freshUser = (await CLOUD.getUsers()).find(u => u.email === ST.user.email);
+  const newBal = parseFloat(((freshUser?.wallet || 0) + amt).toFixed(2));
+  await CLOUD.saveUser({ ...ST.user, wallet: newBal });
+  ST.user.wallet = newBal;
+  await CLOUD.addTx({ type: 'deposit', amount: amt, riderShare: amt, method: 'momo', riderEmail: ST.user.email, riderName: ST.user.name, status: 'completed' });
+  btn.innerHTML = 'Deposit Now'; btn.disabled = false;
+  closeDeposit(); updateRiderUI();
+  showToast(`✅ GH₵${amt.toFixed(2)} deposited`, 'green');
+}
+
+function openWithdraw() {
+  CLOUD.getUsers().then(users => {
+    const u = users.find(x => x.email === ST.user.email);
+    const bal = u?.wallet || 0;
+    document.getElementById('wd-avail').textContent = `GH₵ ${bal.toFixed(2)}`;
+    document.getElementById('wd-amt').value = '';
+    clearErrs();
+    document.getElementById('withdraw-modal').classList.add('show');
+  });
+}
+function closeWithdraw() { document.getElementById('withdraw-modal').classList.remove('show'); }
+
+async function doWithdraw() {
+  const amt = parseFloat(document.getElementById('wd-amt').value) || 0;
+  const users = await CLOUD.getUsers();
+  const freshUser = users.find(u => u.email === ST.user.email);
+  const bal = freshUser?.wallet || 0;
+  clearErrs();
+  if (amt < 5) { fErr('wd-amt-e', 'Minimum withdrawal is GH₵5'); return; }
+  if (amt > bal) { fErr('wd-amt-e', `Insufficient balance (GH₵${bal.toFixed(2)})`); return; }
+  const newBal = parseFloat((bal - amt).toFixed(2));
+  await CLOUD.saveUser({ ...ST.user, wallet: newBal });
+  ST.user.wallet = newBal;
+  await CLOUD.addTx({ type: 'withdraw', amount: amt, riderShare: -amt, method: 'momo', riderEmail: ST.user.email, riderName: ST.user.name, status: 'completed' });
+  closeWithdraw(); updateRiderUI();
+  showToast(`✅ GH₵${amt.toFixed(2)} withdrawn to MoMo`, 'green');
+}
+
+// ════════════════════════════════════════════════════════
+//  RIDER UI REFRESH
+// ════════════════════════════════════════════════════════
+async function updateRiderUI() {
+  if (!ST.user) return;
+  const users = await CLOUD.getUsers();
+  const me = users.find(u => u.email === ST.user.email);
+  if (me) { ST.user = { ...ST.user, ...me }; }
+  const bal = (ST.user.wallet || 0).toFixed(2);
+  document.getElementById('wallet-bal').textContent = `GH₵ ${bal}`;
+  if (document.getElementById('wallet-bal2')) document.getElementById('wallet-bal2').textContent = `GH₵ ${bal}`;
+  const myTx = (await CLOUD.getTx()).filter(t => t.riderEmail === ST.user.email && t.type === 'pickup');
+  const today = new Date().toDateString();
+  const todayEarn = myTx.filter(t => new Date(t.ts).toDateString() === today).reduce((s,t) => s + (t.riderShare||0), 0);
+  const weekEarn = myTx.reduce((s,t) => s + (t.riderShare||0), 0);
+  document.getElementById('earn-today').textContent = `GH₵${Math.max(0,todayEarn).toFixed(0)}`;
+  document.getElementById('earn-week').textContent = `GH₵${Math.max(0,weekEarn).toFixed(0)}`;
+  document.getElementById('earn-jobs').textContent = myTx.length;
+  renderRiderTx(myTx);
+}
+
+async function renderRiderTx(txs) {
+  if (!txs) { txs = (await CLOUD.getTx()).filter(t => t.riderEmail === ST.user?.email); }
+  const el = document.getElementById('rider-tx-list');
+  if (!txs.length) { el.innerHTML = '<div class="empty-state" style="padding:18px;"><span class="es-ico" style="font-size:1.5rem;">📋</span>No transactions yet</div>'; return; }
+  el.innerHTML = txs.slice(0,20).map(t => `
+    <div class="hi">
+      <div class="hiico" style="background:rgba(61,139,255,.08);">${t.type==='deposit'?'↓':t.type==='withdraw'?'↑':'🛺'}</div>
+      <div style="flex:1;"><p class="hit">${t.type==='deposit'?'Deposit':t.type==='withdraw'?'Withdrawal':`${t.size||''} Load`}</p><p class="him">${fmtDate(t.ts)} · ${t.method==='cash'?'Cash':'MoMo'}</p></div>
+      <div style="text-align:right;"><p style="font-weight:800;font-size:.85rem;color:${t.type==='withdraw'?'var(--red)':'var(--g)'};">${t.type==='withdraw'?'-':''}GH₵${Math.abs(t.riderShare||t.amount||0).toFixed(2)}</p>${t.method==='cash'&&t.type==='pickup'?`<p style="font-size:.6rem;color:var(--orange);">-GH₵${(t.commission||0).toFixed(2)} comm.</p>`:''}</div>
     </div>
-  );
+  `).join('');
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────────
-function App() {
-  const [sess, setSess] = useState(() => LS.get("sess"));
-  const login = (s) => setSess(s);
-  const logout = () => { LS.del("sess"); setSess(null); };
-  if (!sess) return <AuthScreen onAuth={login} />;
-  return <MainApp session={sess} onLogout={logout} />;
+async function renderEarnTx() {
+  if (!ST.user) return;
+  const txs = (await CLOUD.getTx()).filter(t => t.riderEmail === ST.user.email);
+  const el = document.getElementById('earn-tx-list');
+  if (!txs.length) { el.innerHTML = '<div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div>'; return; }
+  el.innerHTML = txs.map(t => `
+    <div class="hi">
+      <div class="hiico" style="background:rgba(61,139,255,.08);">${t.type==='deposit'?'↓':t.type==='withdraw'?'↑':'🛺'}</div>
+      <div style="flex:1;"><p class="hit">${t.type==='deposit'?'Deposit':t.type==='withdraw'?'Withdrawal':`${t.size} Pickup`}</p><p class="him">${t.address||''} · ${fmtDate(t.ts)}</p>${t.method==='cash'&&t.type==='pickup'?`<p style="font-size:.61rem;color:var(--orange);">Cash: GH₵${(t.commission||0).toFixed(2)} deducted</p>`:''}</div>
+      <p style="font-weight:800;font-size:.85rem;white-space:nowrap;color:${t.type==='withdraw'?'var(--red)':'var(--g)'};">${t.type==='withdraw'?'-':''}GH₵${Math.abs(t.riderShare||t.amount||0).toFixed(2)}</p>
+    </div>
+  `).join('');
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+// ════════════════════════════════════════════════════════
+//  CUSTOMER HISTORY
+// ════════════════════════════════════════════════════════
+async function renderCustomerHistory() {
+  if (!ST.user) return;
+  const txs = (await CLOUD.getTx()).filter(t => t.type==='pickup' && t.customerEmail===ST.user.email);
+  const list = document.getElementById('history-list');
+  if (!txs.length) { list.innerHTML = '<div class="empty-state"><span class="es-ico">📭</span>No pickups yet</div>'; return; }
+  list.innerHTML = txs.map(t => `
+    <div class="hi">
+      <div class="hiico">${t.method==='cash'?'💵':'📱'}</div>
+      <div style="flex:1;"><p class="hit">${t.address||'Pickup'}</p><p class="him">${t.size} · ${t.method==='cash'?'Cash':'MoMo'} · ${t.riderName||'—'} · ${fmtDate(t.ts)}</p></div>
+      <div style="text-align:right;"><p class="hia">GH₵${(t.total||0).toFixed(2)}</p><span class="badge bg" style="font-size:.57rem;">Done</span></div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════════════════════
+function admTab(id, btn) {
+  document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.adm-pane').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on'); document.getElementById('ap-' + id).classList.add('on');
+  if (id === 'users') renderUsers();
+  if (id === 'messages') renderAdminMsgs();
+  if (id === 'overview') refreshAdminOverview();
+}
+
+async function syncNow() {
+  setSyncStatus('syncing');
+  await refreshAdminOverview();
+  setSyncStatus('synced');
+  showToast('✅ Synced with cloud', 'green');
+}
+
+async function refreshAdminOverview() {
+  const [users, txs] = await Promise.all([CLOUD.getUsers(), CLOUD.getTx()]);
+  const riders = users.filter(u => u.role === 'rider');
+  const pickups = txs.filter(t => t.type === 'pickup');
+  const rev = pickups.reduce((s, t) => s + (t.commission||0), 0);
+  document.getElementById('stat-users').textContent = users.length;
+  document.getElementById('stat-riders').textContent = riders.length;
+  document.getElementById('stat-pickups').textContent = pickups.length;
+  document.getElementById('stat-rev').textContent = `GH₵${rev.toFixed(0)}`;
+  const el = document.getElementById('adm-tx-list');
+  if (!pickups.length) { el.innerHTML = '<div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div>'; return; }
+  el.innerHTML = `<table class="ttbl"><thead><tr><th>Customer</th><th>Rider</th><th>Size</th><th>Fare</th><th>Method</th></tr></thead><tbody>` +
+    pickups.slice(0,15).map(t => `<tr><td>${t.customerName||'—'}</td><td>${t.riderName||'—'}</td><td>${t.size||'—'}</td><td>GH₵${(t.total||0).toFixed(0)}</td><td>${t.method==='cash'?'<span class="badge bo">Cash</span>':'<span class="badge bg">MoMo</span>'}</td></tr>`).join('') +
+    `</tbody></table>`;
+}
+
+function setUF(f, btn) { document.querySelectorAll('.uf-btn').forEach(b => b.classList.remove('on')); btn.classList.add('on'); ST.uFilter = f; renderUsers(); }
+
+async function renderUsers() {
+  const q = (document.getElementById('user-search')?.value || '').toLowerCase();
+  const users = await CLOUD.getUsers();
+  let filtered = users.filter(u => {
+    if (ST.uFilter === 'customer') return u.role === 'customer';
+    if (ST.uFilter === 'rider') return u.role === 'rider';
+    if (ST.uFilter === 'admin') return u.role === 'admin';
+    if (ST.uFilter === 'banned') return u.banned;
+    return true;
+  }).filter(u => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  const list = document.getElementById('user-list');
+  if (!filtered.length) { list.innerHTML = `<div class="empty-state"><span class="es-ico">🔍</span>No users found</div>`; return; }
+  list.innerHTML = filtered.map(u => `
+    <div class="ucard ${u.banned?'banned':''}" id="uc-${u.id}">
+      <div class="u-top">
+        <div class="u-ava" style="background:${u.role==='rider'?'rgba(61,139,255,.12)':u.role==='admin'?'rgba(255,214,0,.1)':'var(--gdim)'};">${u.pic?`<img src="${u.pic}">`:(u.role==='rider'?'🛺':u.role==='admin'?'⚙️':'🏠')}</div>
+        <div style="flex:1;">
+          <p class="u-name">${u.name} ${u.banned?'<span class="badge br" style="font-size:.54rem;">Banned</span>':''}</p>
+          <p class="u-email">${u.email} · ${u.phone||''}</p>
+          <span class="badge ${u.role==='rider'?'bb':u.role==='admin'?'by':'bg'}" style="font-size:.57rem;">${u.role}</span>
+          ${u.role==='rider'?`<span style="font-size:.67rem;color:var(--g);margin-left:8px;">Wallet: GH₵${(u.wallet||0).toFixed(2)} ${u.isOnline?'· 🟢 Online':''}</span>`:''}
+        </div>
+        <span style="font-size:.65rem;color:var(--mid);">${u.joined||''}</span>
+      </div>
+      <div class="u-actions">
+        <button class="u-btn u-msg" onclick="openAdminMsg('${u.id}')">✉ Message</button>
+        ${u.role!=='admin'?`<button class="u-btn u-promote" onclick="promoteUser('${u.id}')">⭐ Make Admin</button>`:'<span class="badge by" style="font-size:.6rem;">Admin</span>'}
+        ${u.banned?`<button class="u-btn u-unban" onclick="banUser('${u.email}',false)">✓ Unban</button>`:`<button class="u-btn u-ban" onclick="banUser('${u.email}',true)">⛔ Ban</button>`}
+        <button class="u-btn u-del" onclick="deleteUser('${u.email}','${u.name}')">🗑 Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function promoteUser(uid) {
+  const users = await CLOUD.getUsers();
+  const u = users.find(x => x.id === uid);
+  if (!u) return;
+  if (!confirm(`Make ${u.name} an Admin? They will have full admin access.`)) return;
+  await CLOUD.saveUser({ ...u, role: 'admin' });
+  renderUsers(); refreshAdminOverview();
+  showToast(`⭐ ${u.name} is now an Admin`, 'green');
+}
+
+async function banUser(email, ban) {
+  const users = await CLOUD.getUsers();
+  const u = users.find(x => x.email === email);
+  if (!u) return;
+  if (ban && !confirm(`Ban ${u.name}? They will not be able to sign in.`)) return;
+  await CLOUD.saveUser({ ...u, banned: ban });
+  renderUsers();
+  showToast(ban ? `⛔ ${u.name} banned` : `✓ ${u.name} unbanned`, ban ? 'red' : 'green');
+}
+
+async function deleteUser(email, name) {
+  if (!confirm(`Permanently delete ${name}? This cannot be undone.`)) return;
+  const data = await CLOUD.read();
+  data.users = (data.users || []).filter(u => u.email !== email);
+  await CLOUD.write(data);
+  renderUsers(); refreshAdminOverview();
+  showToast(`🗑 ${name} deleted`, 'red');
+}
+
+async function openAdminMsg(uid) {
+  const users = await CLOUD.getUsers();
+  const sel = document.getElementById('msg-to');
+  sel.innerHTML = '<option value="">Select user...</option>';
+  users.filter(u => !u.banned).forEach(u => {
+    const o = document.createElement('option'); o.value = u.id;
+    o.textContent = `${u.name} (${u.role})`;
+    if (uid && u.id === uid) o.selected = true;
+    sel.appendChild(o);
+  });
+  document.getElementById('msg-body').value = ''; clearErrs();
+  document.getElementById('adm-msg-modal').classList.add('show');
+}
+function closeAdminMsg() { document.getElementById('adm-msg-modal').classList.remove('show'); }
+
+async function sendAdminMsg() {
+  clearErrs();
+  const toId = document.getElementById('msg-to').value;
+  const body = (document.getElementById('msg-body').value || '').trim();
+  let ok = true;
+  if (!toId) { fErr('msg-to-e'); ok = false; }
+  if (!body) { fErr('msg-body-e'); ok = false; }
+  if (!ok) return;
+  const users = await CLOUD.getUsers();
+  const u = users.find(x => x.id === toId);
+  if (!u) return;
+  await CLOUD.addMsg({ toEmail: u.email, toName: u.name, fromName: 'WasteGo Admin', body, read: false });
+  closeAdminMsg(); renderAdminMsgs();
+  showToast(`✉ Message sent to ${u.name}`, 'green');
+}
+
+async function renderAdminMsgs() {
+  const msgs = await CLOUD.getMsgs();
+  const el = document.getElementById('adm-msg-log');
+  if (!msgs.length) { el.innerHTML = '<div class="empty-state"><span class="es-ico">📭</span>No messages sent yet</div>'; return; }
+  el.innerHTML = msgs.map(m => `<div class="adm-msg-item"><div class="adm-msg-header"><span class="adm-msg-to">To: ${m.toName}</span><span class="adm-msg-time">${fmtDate(m.ts)}</span></div><p class="adm-msg-body">${m.body}</p></div>`).join('');
+}
+
+function saveCfg() {
+  ST.commissions.Small = parseFloat(document.getElementById('cfg-small').value) || 3.75;
+  ST.commissions.Medium = parseFloat(document.getElementById('cfg-medium').value) || 7.00;
+  ST.commissions.Large = parseFloat(document.getElementById('cfg-large').value) || 11.25;
+  ST.commissions.Bulk = parseFloat(document.getElementById('cfg-bulk').value) || 20.00;
+  CLOUD.saveAll({ config: ST.commissions }).then(() => showToast('✅ Config saved', 'green'));
+}
+
+// ════════════════════════════════════════════════════════
+//  PROFILE
+// ════════════════════════════════════════════════════════
+function updateProfileUI() {
+  if (!ST.user) return;
+  const u = ST.user;
+  document.getElementById('pname').textContent = u.name;
+  document.getElementById('pemail').textContent = u.email;
+  document.getElementById('pphone').textContent = u.phone || '';
+  document.getElementById('pmomo').textContent = u.phone || '—';
+  const rl = document.getElementById('prole'); rl.textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1); rl.className = 'prole ' + u.role;
+  const pic = document.getElementById('prof-pic'); const topAva = document.getElementById('topava');
+  if (u.pic) { pic.innerHTML = `<img src="${u.pic}">`; topAva.innerHTML = `<img src="${u.pic}" style="width:100%;height:100%;object-fit:cover;">`; }
+  else { const ico = u.role==='customer'?'🏠':u.role==='rider'?'🛺':'⚙️'; pic.textContent = ico; topAva.textContent = ico; }
+}
+
+function handlePicUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const src = ev.target.result;
+    ST.user.pic = src;
+    await CLOUD.saveUser({ ...ST.user, pic: src });
+    document.getElementById('prof-pic').innerHTML = `<img src="${src}">`;
+    document.getElementById('ep-pic').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    document.getElementById('topava').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;">`;
+    showToast('📷 Profile photo updated', 'green');
+  };
+  reader.readAsDataURL(file);
+}
+
+function openEditProfile() {
+  if (!ST.user) return;
+  document.getElementById('ep-name').value = ST.user.name || '';
+  document.getElementById('ep-email').value = ST.user.email || '';
+  document.getElementById('ep-phone').value = ST.user.phone || '';
+  const ep = document.getElementById('ep-pic');
+  ep.innerHTML = ST.user.pic ? `<img src="${ST.user.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (ST.user.role==='customer'?'🏠':ST.user.role==='rider'?'🛺':'⚙️');
+  clearErrs(); document.getElementById('edit-profile-modal').classList.add('show');
+}
+function closeEditProfile() { document.getElementById('edit-profile-modal').classList.remove('show'); }
+
+async function saveProfile() {
+  clearErrs();
+  const name = (document.getElementById('ep-name').value || '').trim();
+  const email = (document.getElementById('ep-email').value || '').trim();
+  const phone = (document.getElementById('ep-phone').value || '').trim();
+  let ok = true;
+  if (name.length < 2) { fErr('ep-name-e'); ok = false; }
+  if (!isEmail(email)) { fErr('ep-email-e'); ok = false; }
+  if (phone && !isPhone(phone)) { fErr('ep-phone-e'); ok = false; }
+  if (!ok) return;
+  const btn = document.getElementById('ep-save-btn');
+  btn.innerHTML = '<div class="spinner" style="border-top-color:var(--bk);"></div>'; btn.disabled = true;
+  await CLOUD.saveUser({ ...ST.user, name, phone });
+  ST.user.name = name; ST.user.phone = phone;
+  updateProfileUI(); closeEditProfile();
+  btn.innerHTML = 'Save Changes'; btn.disabled = false;
+  showToast('✅ Profile updated', 'green');
+}
+
+// ════════════════════════════════════════════════════════
+//  SUPPORT
+// ════════════════════════════════════════════════════════
+function openSupport() { showSupHome(); document.getElementById('support-modal').classList.add('show'); }
+function closeSupport() { document.getElementById('support-modal').classList.remove('show'); }
+function showSupHome() { ['sup-home','sup-chat','sup-ticket'].forEach((id,i) => document.getElementById(id).style.display = i===0?'block':'none'); }
+function openSupportChat() { document.getElementById('sup-home').style.display='none'; document.getElementById('sup-chat').style.display='block'; }
+function openTicket() { document.getElementById('sup-home').style.display='none'; document.getElementById('sup-ticket').style.display='block'; }
+function sendSupMsg() {
+  const ta = document.getElementById('sup-msg'); const msg = (ta.value||'').trim(); if (!msg) return;
+  const thread = document.getElementById('sup-thread');
+  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  thread.innerHTML += `<div style="align-self:flex-end;"><div class="msg-b sent">${msg}</div><p class="msg-meta" style="text-align:right;">${now}</p></div>`;
+  ta.value = ''; thread.scrollTop = thread.scrollHeight;
+  setTimeout(() => {
+    const replies = ['Thanks! Our team will assist you shortly.','I understand — let me look into this for you.','Noted — we will resolve this within 24 hours.'];
+    thread.innerHTML += `<div style="align-self:flex-start;"><div class="msg-b recv">${replies[Math.floor(Math.random()*replies.length)]}</div><p class="msg-meta">Support · ${now}</p></div>`;
+    thread.scrollTop = thread.scrollHeight;
+  }, 1400);
+}
+function submitTicket() {
+  clearErrs();
+  const sub = document.getElementById('tick-sub').value;
+  const body = (document.getElementById('tick-body').value||'').trim();
+  let ok = true;
+  if (!sub) { fErr('tick-sub-e'); ok = false; }
+  if (body.length < 10) { fErr('tick-body-e'); ok = false; }
+  if (!ok) return;
+  closeSupport(); showToast('✅ Ticket submitted — response within 24h', 'green');
+}
+
+// ════════════════════════════════════════════════════════
+//  INBOX
+// ════════════════════════════════════════════════════════
+async function openInbox() {
+  document.getElementById('inbox-dot').style.display = 'none';
+  const msgs = (await CLOUD.getMsgs()).filter(m => m.toEmail.toLowerCase() === ST.user.email.toLowerCase());
+  const el = document.getElementById('inbox-list');
+  if (!msgs.length) el.innerHTML = '<div class="empty-state"><span class="es-ico">📭</span>No messages</div>';
+  else el.innerHTML = msgs.map(m => `<div class="adm-msg-item"><div class="adm-msg-header"><span class="adm-msg-to" style="color:var(--g);">From: ${m.fromName}</span><span class="adm-msg-time">${fmtDate(m.ts)}</span></div><p class="adm-msg-body">${m.body}</p></div>`).join('');
+  document.getElementById('inbox-modal').classList.add('show');
+}
+function closeInbox() { document.getElementById('inbox-modal').classList.remove('show'); }
+
+// Check for new messages periodically
+async function checkInbox() {
+  if (!ST.user) return;
+  const msgs = (await CLOUD.getMsgs()).filter(m => m.toEmail.toLowerCase() === ST.user.email.toLowerCase() && !m.read);
+  if (msgs.length > 0) document.getElementById('inbox-dot').style.display = 'inline-flex';
+}
+setInterval(checkInbox, 30000);
+
+// ════════════════════════════════════════════════════════
+//  SYNC STATUS
+// ════════════════════════════════════════════════════════
+function setSyncStatus(status) {
+  const bar = document.getElementById('sync-bar');
+  const txt = document.getElementById('sync-txt');
+  if (status === 'hidden') { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+  if (status === 'synced') { bar.classList.remove('err'); txt.textContent = '🌍 Connected to WasteGo Cloud · All users synced'; setTimeout(()=>bar.classList.add('hidden'), 4000); }
+  if (status === 'syncing') { bar.classList.remove('err'); txt.textContent = 'Syncing with WasteGo Cloud...'; }
+  if (status === 'error') { bar.classList.add('err'); txt.textContent = '⚠ Cloud unavailable — using local data'; }
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function fmtDate(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleDateString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e) { return ''; }
+}
+function setGreet() {
+  const h = new Date().getHours();
+  const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const n = ST.user?.name?.split(' ')[0] || '';
+  if (document.getElementById('cgreet')) document.getElementById('cgreet').textContent = g + ' 👋';
+  if (document.getElementById('rgreet')) document.getElementById('rgreet').textContent = `${g}, ${n} 👋`;
+}
+let _toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show' + (type?' '+type:'');
+  clearTimeout(_toastTimer); _toastTimer = setTimeout(()=>t.className='', 3500);
+}
+function showInstall() { document.getElementById('istrip').classList.add('show'); }
+function installApp() { document.getElementById('istrip').classList.remove('show'); alert('📲 Install WasteGo:\n\niOS: Safari → Share → "Add to Home Screen"\nAndroid: Chrome → Menu (⋮) → "Add to Home Screen"'); }
+
+// Offline
+window.addEventListener('offline', () => document.getElementById('offline').classList.remove('hidden'));
+window.addEventListener('online', () => document.getElementById('offline').classList.add('hidden'));
+
+// Backdrop close
+['pay-modal','edit-profile-modal','support-modal','inbox-modal','adm-msg-modal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', e => { if (e.target===e.currentTarget) el.classList.remove('show'); });
+});
+['cash-modal','fare-modal','deposit-modal','withdraw-modal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', e => { if (e.target===e.currentTarget) el.classList.remove('show'); });
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const s = document.getElementById('sup-msg');
+  if (s) s.addEventListener('keydown', e => { if (e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendSupMsg(); } });
+});
 </script>
 </body>
 </html>
