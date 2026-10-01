@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ─── Firebase Realtime Database REST API ──────────────────────────────────────
-const FIREBASE_URL = "https://lantam-cyril-default-rtdb.firebaseio.com";
+const FIREBASE_URL = import.meta.env.VITE_FIREBASE_URL;
 
 const fbGet = async (path) => {
   try {
