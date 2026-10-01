@@ -6,12 +6,16 @@
   <meta name="theme-color" content="#0a0f1e"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <title>SafeNest</title>
+  <title>DackWeb - SafeNest</title>
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-  <!-- Leaflet for real map (no API key needed) -->
+  
+  <!-- Leaflet for real map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     :root {
       --bg: #070b18;
@@ -35,8 +39,8 @@
     html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
     #root { height: 100%; display: flex; flex-direction: column; }
     button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
-    input { font-family: var(--font); outline: none; }
-    input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+    input, textarea { font-family: var(--font); outline: none; }
+    input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 3px; }
@@ -54,15 +58,9 @@
     .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
 
     /* Map */
-    #map { width:100%; height:100%; }
+    #safenest-map { width:100%; height:100%; }
     .leaflet-container { background: #0d1225 !important; }
     .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
-
-    /* Custom marker */
-    .member-marker { position:relative; }
-    .marker-dot { width:16px; height:16px; border-radius:50%; border:2.5px solid white; box-shadow:0 0 12px currentColor; }
-    .marker-pulse { position:absolute; top:-4px; left:-4px; width:24px; height:24px; border-radius:50%; border:2px solid currentColor; animation: ripple 1.8s ease-out infinite; }
-    .marker-label { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(10,15,30,0.9); border:1px solid rgba(255,255,255,0.1); }
 
     /* Nav */
     .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
@@ -70,7 +68,6 @@
     .nav-btn.active { color:var(--accent); }
     .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
     .nav-btn.active .icon { transform:scale(1.1); }
-    .nav-badge { position:absolute; top:6px; right:calc(50% - 16px); background:var(--red); color:white; font-size:9px; font-weight:800; border-radius:99px; padding:1px 5px; min-width:16px; text-align:center; }
 
     /* Cards */
     .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
@@ -78,7 +75,6 @@
 
     /* Member pill */
     .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
-    .member-row:last-child { margin-bottom:0; }
     .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
 
     /* Toggle */
@@ -116,28 +112,30 @@
     /* Role cards */
     .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
     .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
-
-    /* Overlay/modal */
-    .overlay { position:fixed; inset:0; background:rgba(7,11,24,0.85); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:flex-end; }
-    .sheet { background:var(--bg2); border-radius:20px 20px 0 0; border-top:1px solid var(--border); width:100%; padding:20px; max-height:90vh; overflow-y:auto; animation:slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .sheet-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 20px; }
   </style>
 </head>
 <body>
 <div id="root"></div>
 
+<!-- React + Babel (Note: Using Babel in browser is for prototyping only) -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
-// ── Firebase ──────────────────────────────────────────────────────────────────
-const FB = "https://lantam-cyril-default-rtdb.firebaseio.com";
-const fbGet = async (p) => { try { const r = await fetch(`${FB}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
-const fbSet = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
-const fbPatch = async (p, d) => { try { await fetch(`${FB}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+// ── CONFIGURATION ─────────────────────────────────────────────────────────────
+// ⚠️ REPLACE THESE WITH YOUR ACTUAL KEYS
+const CONFIG = {
+  FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
+  CARTO_API_KEY: "https://gcp-us-east1.api.carto.com" // 👈 PASTE YOUR CART API KEY HERE
+};
+
+// ── Firebase API ──────────────────────────────────────────────────────────────
+const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
+const fbSet = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+const fbPatch = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 
 // ── LocalStorage ──────────────────────────────────────────────────────────────
 const LS = {
@@ -146,31 +144,45 @@ const LS = {
   del: (k) => { try { localStorage.removeItem("sn3_"+k); } catch {} },
 };
 
+// ── SECURITY: Password Hashing ────────────────────────────────────────────────
+const hashPass = async (pass) => {
+  try {
+    const msgBuffer = new TextEncoder().encode(pass);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    return btoa(pass); // Fallback for non-HTTPS local testing
+  }
+};
+
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
 const ROLES = ["main","buddy","girlfriend"];
 const ROLE_META = {
-  main:     { emoji:"🧑‍💻", label:"Main",     color:"#f59e0b" },
-  buddy:        { emoji:"😎", label:"Buddy",         color:"#3b82f6" },
-  girlfriend: { emoji:"🥰", label:"Girlfriend",  color:"#ec4899" },
+  main:       { emoji:"🧑‍💻", label:"Main",       color:"#f59e0b" },
+  buddy:      { emoji:"😎",   label:"Buddy",      color:"#3b82f6" },
+  girlfriend: { emoji:"🥰",   label:"Girlfriend", color:"#ec4899" },
 };
 
 // ── Real Map Component (Leaflet) ───────────────────────────────────────────────
-function LiveMap({ members, currentUser }) {
-  const mapRef = useRef(null);
+function LiveMap({ members }) {
   const leafletRef = useRef(null);
   const markersRef = useRef({});
 
   useEffect(() => {
     if (leafletRef.current) return;
     const map = L.map("safenest-map", {
-      center: [9.0, -2.5],
+      center: [9.0, -2.5], // Default center (Ghana)
       zoom: 6,
       zoomControl: false,
       attributionControl: false,
     });
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+
+    // ⚠️ FIX: Appended the API key to the Carto tile URL
+    L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?apiKey=${CONFIG.CARTO_API_KEY}`, {
       maxZoom: 19,
     }).addTo(map);
+
     L.control.zoom({ position:"bottomright" }).addTo(map);
     leafletRef.current = map;
   }, []);
@@ -181,7 +193,6 @@ function LiveMap({ members, currentUser }) {
 
     const onlineMembers = members.filter(m => m.online && m.lat);
 
-    // Remove stale markers
     Object.keys(markersRef.current).forEach(role => {
       if (!onlineMembers.find(m => m.role === role)) {
         map.removeLayer(markersRef.current[role]);
@@ -189,7 +200,6 @@ function LiveMap({ members, currentUser }) {
       }
     });
 
-    // Add/update markers
     onlineMembers.forEach(m => {
       const meta = ROLE_META[m.role];
       const color = meta.color;
@@ -212,7 +222,6 @@ function LiveMap({ members, currentUser }) {
       }
     });
 
-    // Fit map to show all online members
     if (onlineMembers.length > 0) {
       const bounds = onlineMembers.map(m => [m.lat, m.lng]);
       if (onlineMembers.length === 1) {
@@ -229,7 +238,7 @@ function LiveMap({ members, currentUser }) {
 // ── Auth Screen ───────────────────────────────────────────────────────────────
 function AuthScreen({ onAuth }) {
   const [mode,setMode] = useState("login");
-  const [role,setRole] = useState("father");
+  const [role,setRole] = useState("main");
   const [name,setName] = useState("");
   const [code,setCode] = useState("");
   const [pass,setPass] = useState("");
@@ -241,7 +250,9 @@ function AuthScreen({ onAuth }) {
     if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
     if (pass.length < 4) { setErr("Password must be at least 4 characters."); return; }
     setBusy(true);
+    
     const room = slug(code);
+    const hashedPass = await hashPass(pass);
     let users = await fbGet(`sn3/${room}/users`) || LS.get(`${room}_u`) || {};
 
     if (mode === "register") {
@@ -249,17 +260,20 @@ function AuthScreen({ onAuth }) {
         setErr(`A ${role} is already registered. Please log in instead.`); setBusy(false); return;
       }
       if (users[slug(name)]) { setErr("That name is taken in this family."); setBusy(false); return; }
-      const u = { name:name.trim(), role, pass, avatar:"", bio:"", createdAt:Date.now() };
+      
+      const u = { name:name.trim(), role, pass: hashedPass, avatar:"", bio:"", createdAt:Date.now() };
       users[slug(name)] = u;
       await fbSet(`sn3/${room}/users`, users);
       LS.set(`${room}_u`, users);
+      
       const sess = { name:u.name, role, room };
       LS.set("sess", sess); onAuth(sess);
     } else {
       const all = { ...(LS.get(`${room}_u`)||{}), ...users };
       const u = all[slug(name)];
       if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
-      if (u.pass !== pass) { setErr("Incorrect password."); setBusy(false); return; }
+      if (u.pass !== hashedPass) { setErr("Incorrect password."); setBusy(false); return; }
+      
       const sess = { name:u.name, role:u.role, room };
       LS.set("sess", sess); onAuth(sess);
     }
@@ -269,7 +283,6 @@ function AuthScreen({ onAuth }) {
   return (
     <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
       <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
-        {/* Logo */}
         <div style={{textAlign:"center",marginBottom:"32px"}}>
           <div style={{width:"60px",height:"60px",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",borderRadius:"18px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px",margin:"0 auto 12px",boxShadow:"0 0 40px rgba(59,130,246,0.3)"}}>🛡️</div>
           <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>DackWeb😎</div>
@@ -338,7 +351,6 @@ function MainApp({ session, onLogout }) {
   const [myData, setMyData] = useState(null);
   const [sharing, setSharing] = useState(false);
   const [pending, setPending] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
 
   const watchRef = useRef(null);
   const simRef = useRef(null);
@@ -347,7 +359,6 @@ function MainApp({ session, onLogout }) {
 
   const meta = ROLE_META[session.role];
 
-  // ── Load my profile ───────────────────────────────────────────────────────
   useEffect(() => {
     const loadProfile = async () => {
       const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
@@ -357,7 +368,6 @@ function MainApp({ session, onLogout }) {
     loadProfile();
   }, [session]);
 
-  // ── Poll all members' locations ───────────────────────────────────────────
   useEffect(() => {
     const poll = async () => {
       const locs = await fbGet(`sn3/${session.room}/locs`) || {};
@@ -383,7 +393,6 @@ function MainApp({ session, onLogout }) {
     return () => clearInterval(t);
   }, [session]);
 
-  // ── Push location ─────────────────────────────────────────────────────────
   const pushLoc = useCallback(async (loc) => {
     const d = { ...loc, online:true, name:session.name, t:Date.now() };
     const locs = LS.get(`${session.room}_locs`) || {};
@@ -392,7 +401,6 @@ function MainApp({ session, onLogout }) {
     await fbPatch(`sn3/${session.room}/locs`, { [session.role]: d });
   }, [session]);
 
-  // ── Stop sharing ──────────────────────────────────────────────────────────
   const stopSharing = useCallback(() => {
     activeRef.current = false;
     if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
@@ -405,7 +413,6 @@ function MainApp({ session, onLogout }) {
     setSharing(false); setPending(false);
   }, [session]);
 
-  // ── Start simulated ───────────────────────────────────────────────────────
   const startSim = useCallback(() => {
     const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
     simCoordsRef.current = {...base};
@@ -419,7 +426,6 @@ function MainApp({ session, onLogout }) {
     }, 5000);
   }, [pushLoc]);
 
-  // ── Toggle sharing ────────────────────────────────────────────────────────
   const toggleSharing = useCallback(() => {
     if (sharing || pending) { stopSharing(); return; }
     setPending(true);
@@ -427,7 +433,6 @@ function MainApp({ session, onLogout }) {
 
     const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
 
-    // watchPosition keeps running forever until cleared — this is the persistent sharing
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         clearTimeout(fallback);
@@ -447,12 +452,9 @@ function MainApp({ session, onLogout }) {
 
   return (
     <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
-      {/* ── MAP TAB ─────────────────────────────────────────────────────── */}
       {tab==="map" && (
         <div style={{flex:1,position:"relative",overflow:"hidden"}}>
-          <LiveMap members={members} currentUser={session} />
-
-          {/* Header overlay */}
+          <LiveMap members={members} />
           <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
             <div>
               <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
@@ -468,7 +470,6 @@ function MainApp({ session, onLogout }) {
             </div>
           </div>
 
-          {/* Share toggle fab */}
           <div style={{position:"absolute",bottom:"24px",left:"50%",transform:"translateX(-50%)",zIndex:500}}>
             <div onClick={toggleSharing} className="big-toggle"
               style={{background:sharing?`linear-gradient(135deg,${meta.color}30,${meta.color}10)`:pending?"rgba(245,158,11,0.1)":"rgba(13,18,37,0.9)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 40px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.5)",backdropFilter:"blur(10px)"}}>
@@ -485,7 +486,6 @@ function MainApp({ session, onLogout }) {
         </div>
       )}
 
-      {/* ── FAMILY TAB ───────────────────────────────────────────────────── */}
       {tab==="family" && (
         <div className="page">
           <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"4px"}}>Family</div>
@@ -505,7 +505,6 @@ function MainApp({ session, onLogout }) {
             const isMe = session.role === role;
             return (
               <div key={role} className="member-row" style={{borderColor:m?.online?meta.color+"40":"var(--border)"}}>
-                {/* Avatar */}
                 <div className="member-avatar" style={{background:meta.color+"20",border:`2px solid ${m?.online?meta.color:"var(--border2)"}`}}>
                   {m?.avatar ? <img src={m.avatar} style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover"}} /> : <span>{meta.emoji}</span>}
                 </div>
@@ -543,7 +542,6 @@ function MainApp({ session, onLogout }) {
         </div>
       )}
 
-      {/* ── SHARE TAB ────────────────────────────────────────────────────── */}
       {tab==="share" && (
         <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
           <div style={{textAlign:"center",marginBottom:"28px"}}>
@@ -551,7 +549,6 @@ function MainApp({ session, onLogout }) {
             <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
           </div>
 
-          {/* Big toggle */}
           <div onClick={toggleSharing} className="big-toggle"
             style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
             {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
@@ -590,12 +587,10 @@ function MainApp({ session, onLogout }) {
         </div>
       )}
 
-      {/* ── PROFILE TAB ──────────────────────────────────────────────────── */}
       {tab==="profile" && (
         <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />
       )}
 
-      {/* ── Bottom Nav ───────────────────────────────────────────────────── */}
       <nav className="nav">
         {[
           { id:"map",    icon:"🗺️",  label:"MAP"    },
@@ -613,7 +608,6 @@ function MainApp({ session, onLogout }) {
   );
 }
 
-// ── Profile Tab ───────────────────────────────────────────────────────────────
 function ProfileTab({ session, myData, setMyData, onLogout }) {
   const [editMode, setEditMode] = useState(false);
   const [displayName, setDisplayName] = useState(myData?.name||session.name);
@@ -652,8 +646,6 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
   return (
     <div className="page">
       <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"20px"}}>My Profile</div>
-
-      {/* Avatar + name */}
       <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"24px"}}>
         <label className="avatar-upload" style={{marginBottom:"14px"}}>
           <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} />
@@ -679,7 +671,6 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
         </div>
       </div>
 
-      {/* Info card */}
       <div className="card" style={{padding:"16px",marginBottom:"12px"}}>
         <div style={{marginBottom:"14px"}}>
           <span className="lbl">Bio / Note</span>
@@ -694,7 +685,6 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
         </div>
       </div>
 
-      {/* Stats */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"20px"}}>
         {[
           ["ROLE", meta.label, meta.color],
@@ -707,7 +697,6 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
         ))}
       </div>
 
-      {/* Actions */}
       {editMode ? (
         <div style={{display:"flex",gap:"10px"}}>
           <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEditMode(false)}>Cancel</button>
@@ -724,7 +713,6 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
   );
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────────
 function App() {
   const [sess, setSess] = useState(() => LS.get("sess"));
   const login = (s) => setSess(s);
