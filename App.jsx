@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ─── Firebase Realtime Database REST API (no SDK needed) ──────────────────────
+// ─── Firebase Realtime Database REST API ──────────────────────────────────────
 const FIREBASE_URL = "https://lantam-cyril-default-rtdb.firebaseio.com";
 
 const fbGet = async (path) => {
   try {
     const r = await fetch(`${FIREBASE_URL}/${path}.json`);
     return r.ok ? await r.json() : null;
-  } catch { return null; }
+  } catch (e) { 
+    console.error("FB Get Error:", e);
+    return null; 
+  }
 };
 
 const fbSet = async (path, data) => {
@@ -16,7 +19,9 @@ const fbSet = async (path, data) => {
       method: "PUT", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-  } catch {}
+  } catch (e) { 
+    console.error("FB Set Error:", e); 
+  }
 };
 
 // ─── localStorage (same-device fallback + session storage) ───────────────────
@@ -24,6 +29,19 @@ const LS = {
   get: (k) => { try { return JSON.parse(localStorage.getItem(`sn_${k}`)); } catch { return null; } },
   set: (k, v) => { try { localStorage.setItem(`sn_${k}`, JSON.stringify(v)); } catch {} },
   del: (k) => { try { localStorage.removeItem(`sn_${k}`); } catch {} },
+};
+
+// ─── SECURITY: Basic Password Hashing (Use bcrypt on backend for production) ──
+const hashPass = async (pass) => {
+  try {
+    const msgBuffer = new TextEncoder().encode(pass);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    // Fallback for non-HTTPS environments (like local network testing)
+    return btoa(pass); 
+  }
 };
 
 const ROLES = { FATHER: "father", SON: "son" };
@@ -79,7 +97,7 @@ function Radar({ sonLoc, sonOnline, sonName }) {
 
       ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R-1,0,Math.PI*2); ctx.clip();
 
-      // Father
+      // Father (Center of radar)
       ctx.beginPath(); ctx.arc(cx,cy,7*dpr,0,Math.PI*2); ctx.fillStyle="#f59e0b"; ctx.fill();
       ctx.beginPath(); ctx.arc(cx,cy,13*dpr,0,Math.PI*2); ctx.strokeStyle="#f59e0b50"; ctx.lineWidth=2; ctx.stroke();
 
@@ -129,25 +147,35 @@ function Auth({ onAuth }) {
     if (pass.length < 4) { setErr("Password needs 4+ characters."); return; }
     setBusy(true);
     const room = slug(code);
+    const hashedPass = await hashPass(pass);
 
     // Load users from Firebase, fallback to LS
     let users = await fbGet(`sn/${room}/users`) || LS.get(`${room}_u`) || {};
 
     if (mode === "register") {
       if (Object.values(users).find(u => u.role === role)) { setErr(`A ${role} is already registered in this family.`); setBusy(false); return; }
-      if (users[slug(name)]) { setErr("Name already taken in this family."); setBusy(false); return; }
-      const u = { name: name.trim(), role, pass, at: Date.now() };
-      users[slug(name)] = u;
+      // Prevent name collision by appending a short random string if needed
+      let userId = slug(name);
+      if (users[userId]) {
+        userId = `${userId}_${Math.floor(Math.random() * 1000)}`;
+      }
+      
+      const u = { name: name.trim(), role, pass: hashedPass, at: Date.now() };
+      users[userId] = u;
       await fbSet(`sn/${room}/users`, users);
       LS.set(`${room}_u`, users);
+      
       const sess = { name: u.name, role, room };
       LS.set("sess", sess); onAuth(sess);
     } else {
       const local = LS.get(`${room}_u`) || {};
       const all = { ...local, ...users };
-      const u = all[slug(name)];
+      // Find user by name (slug)
+      const u = Object.values(all).find(user => user.name === name.trim());
+      
       if (!u) { setErr("Account not found — register first."); setBusy(false); return; }
-      if (u.pass !== pass) { setErr("Wrong password."); setBusy(false); return; }
+      if (u.pass !== hashedPass) { setErr("Wrong password."); setBusy(false); return; }
+      
       const sess = { name: u.name, role: u.role, room };
       LS.set("sess", sess); onAuth(sess);
     }
@@ -233,6 +261,12 @@ function Son({ user, onLogout }) {
   }, [user]);
 
   const startSim = useCallback(() => {
+    // FIX: Clear any active GPS watch to prevent conflict
+    if (watchId.current != null) { 
+      navigator.geolocation.clearWatch(watchId.current); 
+      watchId.current = null; 
+    }
+    
     const base = { lat: 40.7580 + (Math.random()-.5)*.02, lng: -73.9855 + (Math.random()-.5)*.02, accuracy: 18 };
     simCoords.current = { ...base };
     setCoords({ ...base });
@@ -334,23 +368,52 @@ function Son({ user, onLogout }) {
 function Father({ user, onLogout }) {
   const [son, setSon] = useState(null);
   const [mapLoc, setMapLoc] = useState(null);
+  const [dadLoc, setDadLoc] = useState(null); // FIX: Track father's own location
+
+  // FIX: Get Father's own location to calculate relative distance
+  useEffect(() => {
+    if (navigator.geolocation) {
+      const watcher = navigator.geolocation.watchPosition(
+        (pos) => setDadLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        (err) => console.warn("Father GPS error:", err),
+        { enableHighAccuracy: true }
+      );
+      return () => navigator.geolocation.clearWatch(watcher);
+    }
+  }, []);
 
   useEffect(() => {
     const poll = async () => {
       let d = await fbGet(`sn/${user.room}/loc`);
       if (!d) d = LS.get(`${user.room}_loc`);
       if (!d) return;
+      
       const stale = Date.now() - (d.t||0) > 18000;
       const data = { ...d, online: d.online && !stale };
       setSon(data);
-      if (data.online && data.lat) {
-        setMapLoc({ x: Math.max(-1,Math.min(1,(data.lng+73.9855)*80)), y: Math.max(-1,Math.min(1,-(data.lat-40.758)*80)) });
-      } else setMapLoc(null);
+
+      // FIX: Calculate relative position only if both locations exist
+      if (data.online && data.lat && data.lng && dadLoc) {
+        const dLat = data.lat - dadLoc.lat;
+        const dLng = data.lng - dadLoc.lng;
+        
+        // SCALE determines how much of the radar the distance covers.
+        // 1 degree lat is ~111km. A scale of 5000 means 1 degree = 5000 pixels.
+        // Adjust this number to make the radar more or less sensitive.
+        const SCALE = 5000; 
+        
+        setMapLoc({ 
+          x: Math.max(-1, Math.min(1, dLng * SCALE)), 
+          y: Math.max(-1, Math.min(1, -(dLat * SCALE))) 
+        });
+      } else {
+        setMapLoc(null);
+      }
     };
     poll();
     const t = setInterval(poll, 2500);
     return () => clearInterval(t);
-  }, [user.room]);
+  }, [user.room, dadLoc]); // Added dadLoc to dependencies
 
   const online = son?.online;
   const sonName = son?.name || "Son";
