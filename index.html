@@ -9,38 +9,23 @@
   <meta name="mobile-web-app-capable" content="yes"/>
   <title>DackWeb - SafeNest</title>
   
-  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json"/>
   
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   
-  <!-- Leaflet for real map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <!-- CryptoJS for Password Hashing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
   <style>
     :root {
-      --bg: #070b18;
-      --bg2: #0d1225;
-      --bg3: #111828;
-      --border: #1e2d4a;
-      --border2: #243352;
-      --accent: #3b82f6;
-      --accent2: #06b6d4;
-      --green: #10b981;
-      --amber: #f59e0b;
-      --pink: #ec4899;
-      --red: #ef4444;
-      --text: #f1f5f9;
-      --text2: #94a3b8;
-      --text3: #475569;
-      --font: 'Syne', sans-serif;
-      --mono: 'JetBrains Mono', monospace;
+      --bg: #070b18; --bg2: #0d1225; --bg3: #111828;
+      --border: #1e2d4a; --border2: #243352;
+      --accent: #3b82f6; --accent2: #06b6d4;
+      --green: #10b981; --amber: #f59e0b; --pink: #ec4899; --red: #ef4444;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #475569;
+      --font: 'Syne', sans-serif; --mono: 'JetBrains Mono', monospace;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
@@ -49,12 +34,10 @@
     input, textarea { font-family: var(--font); outline: none; }
     input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-    /* Animations */
     @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
     @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
     @keyframes spin { to { transform:rotate(360deg); } }
@@ -64,62 +47,49 @@
     .fade-in { animation: fadeIn 0.3s ease forwards; }
     .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
 
-    /* Map */
     #safenest-map { width:100%; height:100%; }
     .leaflet-container { background: #0d1225 !important; }
     .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
-    /* Custom Locate Button */
     .locate-btn { position:absolute; bottom:120px; right:16px; z-index:500; background:var(--bg2); border:1px solid var(--border); border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
     .locate-btn:active { background:var(--bg3); }
 
-    /* Nav */
     .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
     .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; background:none; color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0.5px; transition:color 0.2s; position:relative; }
     .nav-btn.active { color:var(--accent); }
     .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
     .nav-btn.active .icon { transform:scale(1.1); }
 
-    /* Cards */
     .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
     .card-sm { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px; }
 
-    /* Member pill */
     .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
     .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
 
-    /* Toggle */
     .big-toggle { width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; }
     .toggle-ripple { position:absolute; inset:-8px; border-radius:50%; animation: ripple 2s ease-out infinite; }
 
-    /* Inputs */
     .inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:14px; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
     .inp::placeholder { color:var(--text3); }
     .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
 
-    /* Btn */
     .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:white; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
     .btn-primary:disabled { opacity:0.4; cursor:default; }
     .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
 
-    /* Status dot */
     .dot-live { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; display:inline-block; }
     .dot-off { width:7px; height:7px; border-radius:50%; background:var(--text3); display:inline-block; }
 
-    /* Page */
     .page { flex:1; overflow-y:auto; padding:16px; animation:fadeIn 0.25s ease; }
 
-    /* Profile avatar upload */
     .avatar-upload { position:relative; display:inline-block; cursor:pointer; }
     .avatar-upload input { display:none; }
     .avatar-upload-overlay { position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; opacity:0; transition:opacity 0.2s; }
     .avatar-upload:hover .avatar-upload-overlay { opacity:1; }
 
-    /* Tabs */
     .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
     .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
     .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; }
 
-    /* Role cards */
     .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
     .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
   </style>
@@ -127,7 +97,6 @@
 <body>
 <div id="root"></div>
 
-<!-- React + Babel -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -135,27 +104,22 @@
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useRef, useCallback } = React;
 
-// ── CONFIGURATION ─────────────────────────────────────────────────────────────
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  MAP_PROVIDER: "osm" // 'osm' or 'esri'
+  MAP_PROVIDER: "osm"
 };
 
-// ── Firebase API ──────────────────────────────────────────────────────────────
 const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
 const fbSet = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 const fbPatch = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 
-// ── LocalStorage ──────────────────────────────────────────────────────────────
 const LS = {
   get: (k) => { try { return JSON.parse(localStorage.getItem("sn3_"+k)); } catch { return null; } },
   set: (k,v) => { try { localStorage.setItem("sn3_"+k, JSON.stringify(v)); } catch {} },
   del: (k) => { try { localStorage.removeItem("sn3_"+k); } catch {} },
 };
 
-// ── SECURITY: Password Hashing ────────────────────────────────────────────────
 const hashPass = (pass) => CryptoJS.SHA256(pass).toString();
-
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
 const ROLES = ["main","buddy","girlfriend"];
 const ROLE_META = {
@@ -164,35 +128,24 @@ const ROLE_META = {
   girlfriend: { emoji:"🥰",   label:"Girlfriend", color:"#ec4899" },
 };
 
-// ── Real Map Component (Leaflet) ───────────────────────────────────────────────
-function LiveMap({ members, myRole }) {
+function LiveMap({ members }) {
   const leafletRef = useRef(null);
   const markersRef = useRef({});
 
   useEffect(() => {
     if (leafletRef.current) return;
     const map = L.map("safenest-map", {
-      center: [9.0, -2.5],
-      zoom: 6,
-      zoomControl: true, // ✅ ENABLED ZOOM BUTTONS ON MAP
-      attributionControl: false,
+      center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
     });
 
-    let tileUrl = "";
-    let attribution = "";
+    let tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+    let attribution = '&copy; OpenStreetMap contributors';
     if (CONFIG.MAP_PROVIDER === 'esri') {
       tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
       attribution = 'Tiles &copy; Esri';
-    } else {
-      tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
     }
 
-    L.tileLayer(tileUrl, {
-      maxZoom: 19, // ✅ ALLOWS DEEP ZOOMING
-      attribution: attribution
-    }).addTo(map);
-
+    L.tileLayer(tileUrl, { maxZoom: 19, attribution }).addTo(map);
     leafletRef.current = map;
   }, []);
 
@@ -234,17 +187,13 @@ function LiveMap({ members, myRole }) {
     if (onlineMembers.length > 0) {
       const bounds = onlineMembers.map(m => [m.lat, m.lng]);
       if (onlineMembers.length === 1) {
-        // Only fit bounds if the map isn't already zoomed in
-        if (map.getZoom() < 10) {
-          map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
-        }
+        if (map.getZoom() < 10) map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
       } else {
         map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:14 });
       }
     }
   }, [members]);
 
-  // Function to center on the user's own location
   const locateMe = () => {
     const map = leafletRef.current;
     if (!map) return;
@@ -254,14 +203,11 @@ function LiveMap({ members, myRole }) {
   return (
     <>
       <div id="safenest-map" style={{width:"100%",height:"100%"}} />
-      <button className="locate-btn" onClick={locateMe} title="Center on my location">
-        📍
-      </button>
+      <button className="locate-btn" onClick={locateMe} title="Center on my location">📍</button>
     </>
   );
 }
 
-// ── Auth Screen ───────────────────────────────────────────────────────────────
 function AuthScreen({ onAuth }) {
   const [mode,setMode] = useState("login");
   const [role,setRole] = useState("main");
@@ -370,7 +316,6 @@ function AuthScreen({ onAuth }) {
   );
 }
 
-// ── Main App (after login) ────────────────────────────────────────────────────
 function MainApp({ session, onLogout }) {
   const [tab, setTab] = useState("map");
   const [members, setMembers] = useState([]);
@@ -394,22 +339,26 @@ function MainApp({ session, onLogout }) {
     loadProfile();
   }, [session]);
 
+  // ✅ FIXED: Poll now builds list from registered users, so they show up even if offline
   useEffect(() => {
     const poll = async () => {
+      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
       const locs = await fbGet(`sn3/${session.room}/locs`) || {};
       const localLocs = LS.get(`${session.room}_locs`) || {};
-      const merged = { ...localLocs, ...locs };
-      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+      const mergedLocs = { ...localLocs, ...locs };
 
-      const list = Object.entries(merged).map(([role, d]) => {
-        const stale = Date.now() - (d.t||0) > 20000;
-        const u = Object.values(users).find(u => u.role === role) || {};
+      const list = Object.values(users).map(u => {
+        const loc = mergedLocs[u.role] || {};
+        const stale = Date.now() - (loc.t || 0) > 20000;
         return {
-          role, name: d.name||u.name||role,
-          lat: d.lat, lng: d.lng, accuracy: d.accuracy,
-          online: d.online && !stale,
-          avatar: u.avatar||"",
-          t: d.t,
+          role: u.role,
+          name: u.name,
+          avatar: u.avatar || "",
+          lat: loc.lat,
+          lng: loc.lng,
+          accuracy: loc.accuracy,
+          online: !!(loc.online && !stale),
+          t: loc.t
         };
       });
       setMembers(list);
@@ -480,7 +429,7 @@ function MainApp({ session, onLogout }) {
     <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
       {tab==="map" && (
         <div style={{flex:1,position:"relative",overflow:"hidden"}}>
-          <LiveMap members={members} myRole={session.role} />
+          <LiveMap members={members} />
           <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
             <div>
               <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
@@ -569,14 +518,14 @@ function MainApp({ session, onLogout }) {
       )}
 
       {tab==="share" && (
-        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
-          <div style={{textAlign:"center",marginBottom:"28px"}}>
-            <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
+        <div className="page" style={{display:"flex",flexDirection:"column",alignItemsircle:"center",justifyContent:"center",minHeight:"calc( at100vh - 120px)"}}>
+          <div style={{text Align:"center",marginBottom:"28px"}}>
+            <div style={{fontSize:"22px",fontWeight:"800",color:meta40.color}}>{session.name}</div>
             <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
           </div>
 
           <div onClick={toggleSharing} className="big-toggle"
-            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
+            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(c% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
             {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
             <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
             <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
@@ -747,7 +696,6 @@ function App() {
   return <MainApp session={sess} onLogout={logout} />;
 }
 
-// ── Register Service Worker ───────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
