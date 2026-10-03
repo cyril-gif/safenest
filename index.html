@@ -6,7 +6,11 @@
   <meta name="theme-color" content="#0a0f1e"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
   <title>DackWeb - SafeNest</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json"/>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -63,9 +67,10 @@
     /* Map */
     #safenest-map { width:100%; height:100%; }
     .leaflet-container { background: #0d1225 !important; }
-    /* This filter makes the standard OpenStreetMap look dark and modern. 
-       If you want normal colors, delete the line below. */
     .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
+    /* Custom Locate Button */
+    .locate-btn { position:absolute; bottom:120px; right:16px; z-index:500; background:var(--bg2); border:1px solid var(--border); border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    .locate-btn:active { background:var(--bg3); }
 
     /* Nav */
     .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
@@ -133,10 +138,7 @@ const { useState, useEffect, useRef, useCallback } = React;
 // ── CONFIGURATION ─────────────────────────────────────────────────────────────
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  // Map Provider: 'osm' or 'esri'
-  // 'osm'  = OpenStreetMap (No API key needed, standard streets)
-  // 'esri' = Esri World Imagery (No API key needed, satellite view)
-  MAP_PROVIDER: "osm"
+  MAP_PROVIDER: "osm" // 'osm' or 'esri'
 };
 
 // ── Firebase API ──────────────────────────────────────────────────────────────
@@ -163,7 +165,7 @@ const ROLE_META = {
 };
 
 // ── Real Map Component (Leaflet) ───────────────────────────────────────────────
-function LiveMap({ members }) {
+function LiveMap({ members, myRole }) {
   const leafletRef = useRef(null);
   const markersRef = useRef({});
 
@@ -172,30 +174,25 @@ function LiveMap({ members }) {
     const map = L.map("safenest-map", {
       center: [9.0, -2.5],
       zoom: 6,
-      zoomControl: false,
+      zoomControl: true, // ✅ ENABLED ZOOM BUTTONS ON MAP
       attributionControl: false,
     });
 
-    // ✅ FIXED: Using free map providers that don't need an API key
     let tileUrl = "";
     let attribution = "";
-
     if (CONFIG.MAP_PROVIDER === 'esri') {
-      // Esri Satellite Imagery
       tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
       attribution = 'Tiles &copy; Esri';
     } else {
-      // OpenStreetMap (Default)
       tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
       attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
     }
 
     L.tileLayer(tileUrl, {
-      maxZoom: 19,
+      maxZoom: 19, // ✅ ALLOWS DEEP ZOOMING
       attribution: attribution
     }).addTo(map);
 
-    L.control.zoom({ position:"bottomright" }).addTo(map);
     leafletRef.current = map;
   }, []);
 
@@ -237,14 +234,31 @@ function LiveMap({ members }) {
     if (onlineMembers.length > 0) {
       const bounds = onlineMembers.map(m => [m.lat, m.lng]);
       if (onlineMembers.length === 1) {
-        map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
+        // Only fit bounds if the map isn't already zoomed in
+        if (map.getZoom() < 10) {
+          map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
+        }
       } else {
         map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:14 });
       }
     }
   }, [members]);
 
-  return <div id="safenest-map" style={{width:"100%",height:"100%"}} />;
+  // Function to center on the user's own location
+  const locateMe = () => {
+    const map = leafletRef.current;
+    if (!map) return;
+    map.locate({ setView: true, maxZoom: 16 });
+  };
+
+  return (
+    <>
+      <div id="safenest-map" style={{width:"100%",height:"100%"}} />
+      <button className="locate-btn" onClick={locateMe} title="Center on my location">
+        📍
+      </button>
+    </>
+  );
 }
 
 // ── Auth Screen ───────────────────────────────────────────────────────────────
@@ -466,7 +480,7 @@ function MainApp({ session, onLogout }) {
     <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
       {tab==="map" && (
         <div style={{flex:1,position:"relative",overflow:"hidden"}}>
-          <LiveMap members={members} />
+          <LiveMap members={members} myRole={session.role} />
           <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
             <div>
               <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
@@ -731,6 +745,13 @@ function App() {
   const logout = () => { LS.del("sess"); setSess(null); };
   if (!sess) return <AuthScreen onAuth={login} />;
   return <MainApp session={sess} onLogout={logout} />;
+}
+
+// ── Register Service Worker ───────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+  });
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
