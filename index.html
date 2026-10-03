@@ -645,8 +645,8 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
             {avatar
               ? <img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />
               : <span>{meta.emoji}</span>}
-            <div className="avatardiv-upload-overlay">>
-📷</          </div>
+            <div className="avatar-upload-overlay">📷</div>
+          </div>
         </label>
         <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"4px",fontFamily:"var(--mono)"}}>TAP PHOTO TO CHANGE</div>
 
@@ -711,12 +711,6 @@ function App() {
   const logout = () => { LS.del("sess"); setSess(null); };
   if (!sess) return <AuthScreen onAuth={login} />;
   return <MainApp session={sess} onLogout={logout} />;
-}
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
-  });
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
