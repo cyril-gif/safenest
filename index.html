@@ -1,1 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#f59e0b"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <title>PascalLinks - Build, Connect, Grow</title>
+  
+  <link rel="manifest" href="manifest.json"/>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
+  <style>
+    :root {
+      --bg: #070b18; --bg2: #0d1225; --bg3: #111828;
+      --border: #1e2d4a; --border2: #243352;
+      --accent: #f59e0b; --accent2: #fbbf24;
+      --green: #10b981; --amber: #f59e0b; --red: #ef4444;
+      --text: #f1f5f9; --text2: #94a3b8; --text3: #475569;
+      --font: 'Syne', sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+    #root { height: 100%; display: flex; flex-direction: column; }
+    button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+    input, textarea { font-family: var(--font); outline: none; }
+    input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important; }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes ripple { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.4); opacity:0; } }
+
+    .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+    #pascallinks-map { width:100%; height:100%; }
+    .leaflet-container { background: #0d1225 !important; }
+    
+    .locate-btn { position:absolute; bottom:120px; right:16px; z-index:500; background:var(--bg2); border:1px solid var(--border); border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    .locate-btn:active { background:var(--bg3); }
+
+    .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
+    .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; background:none; color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0.5px; transition:color 0.2s; position:relative; }
+    .nav-btn.active { color:var(--accent); }
+    .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
+    .nav-btn.active .icon { transform:scale(1.1); }
+
+    .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
+    .card-sm { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px; }
+
+    .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
+    .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+
+    .big-toggle { width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; }
+    .toggle-ripple { position:absolute; inset:-8px; border-radius:50%; animation: ripple 2s ease-out infinite; }
+
+    .inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:14px; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
+    .inp::placeholder { color:var(--text3); }
+    .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
+
+    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:#000; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
+    .btn-primary:disabled { opacity:0.4; cursor:default; }
+    .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
+
+    .dot-live { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; display:inline-block; }
+    .dot-off { width:7px; height:7px; border-radius:50%; background:var(--text3); display:inline-block; }
+
+    .page { flex:1; overflow-y:auto; padding:16px; animation:fadeIn 0.25s ease; }
+
+    .avatar-upload { position:relative; display:inline-block; cursor:pointer; }
+    .avatar-upload input { display:none; }
+    .avatar-upload-overlay { position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; opacity:0; transition:opacity 0.2s; }
+    .avatar-upload:hover .avatar-upload-overlay { opacity:1; }
+
+    .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
+    .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
+    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; }
+
+    .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+    .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const CONFIG = {
+  FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
+  MAP_PROVIDER: "esri"
+};
+
+const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
+const fbSet = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+const fbPatch = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
+
+const LS = {
+  get: (k) => { try { return JSON.parse(localStorage.getItem("pl_"+k)); } catch { return null; } },
+  set: (k,v) => { try { localStorage.setItem("pl_"+k, JSON.stringify(v)); } catch {} },
+  del: (k) => { try { localStorage.removeItem("pl_"+k); } catch {} },
+};
+
+const hashPass = (pass) => CryptoJS.SHA256(pass).toString();
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
+const ROLES = ["main","buddy","girlfriend"];
+const ROLE_META = {
+  main:       { emoji:"🧑‍💻", label:"Main",       color:"#f59e0b" },
+  buddy:      { emoji:"😎",   label:"Buddy",      color:"#3b82f6" },
+  girlfriend: { emoji:"🥰",   label:"Girlfriend", color:"#ec4899" },
+};
+
+function LiveMap({ members }) {
+  const leafletRef = useRef(null);
+  const markersRef = useRef({});
+
+  useEffect(() => {
+    if (leafletRef.current) return;
+    const map = L.map("pascallinks-map", {
+      center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
+    });
+
+    let tileUrl = "";
+    let attribution = "";
+    
+    if (CONFIG.MAP_PROVIDER === 'esri') {
+      tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+      attribution = 'Tiles &copy; Esri';
+    } else {
+      tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+      attribution = '&copy; OpenStreetMap';
+    }
+
+    L.tileLayer(tileUrl, { maxZoom: 19, attribution }).addTo(map);
+    leafletRef.current = map;
+  }, []);
+
+  useEffect(() => {
+    const map = leafletRef.current;
+    if (!map) return;
+
+    const onlineMembers = members.filter(m => m.online && m.lat);
+
+    Object.keys(markersRef.current).forEach(role => {
+      if (!onlineMembers.find(m => m.role === role)) {
+        map.removeLayer(markersRef.current[role]);
+        delete markersRef.current[role];
+      }
+    });
+
+    onlineMembers.forEach(m => {
+      const meta = ROLE_META[m.role];
+      const color = meta.color;
+      const label = m.name || meta.label;
+
+      const iconHtml = `
+        <div style="position:relative;width:24px;height:24px;">
+          <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${color};animation:ripple 1.8s ease-out infinite;opacity:0.6;"></div>
+          <div style="width:24px;height:24px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 16px ${color}80;"></div>
+          <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};padding:2px 7px;border-radius:5px;background:rgba(7,11,24,0.92);border:1px solid ${color}40;">${label.toUpperCase()}</div>
+        </div>`;
+
+      const icon = L.divIcon({ html: iconHtml, className:"", iconSize:[24,24], iconAnchor:[12,12] });
+
+      if (markersRef.current[m.role]) {
+        markersRef.current[m.role].setLatLng([m.lat, m.lng]);
+        markersRef.current[m.role].setIcon(icon);
+      } else {
+        markersRef.current[m.role] = L.marker([m.lat, m.lng], { icon }).addTo(map);
+      }
+    });
+
+    if (onlineMembers.length > 0) {
+      const bounds = onlineMembers.map(m => [m.lat, m.lng]);
+      if (onlineMembers.length === 1) {
+        if (map.getZoom() < 10) map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 16, { animate: true });
+      } else {
+        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:15 });
+      }
+    }
+  }, [members]);
+
+  const locateMe = () => {
+    const map = leafletRef.current;
+    if (!map) return;
+    map.locate({ setView: true, maxZoom: 18 });
+  };
+
+  return (
+    <>
+      <div id="pascallinks-map" style={{width:"100%",height:"100%"}} />
+      <button className="locate-btn" onClick={locateMe} title="Center on my location">📍</button>
+    </>
+  );
+}
+
+function AuthScreen({ onAuth }) {
+  const [mode,setMode] = useState("login");
+  const [role,setRole] = useState("main");
+  const [name,setName] = useState("");
+  const [code,setCode] = useState("");
+  const [pass,setPass] = useState("");
+  const [err,setErr] = useState("");
+  const [busy,setBusy] = useState(false);
+
+  const submit = async () => {
+    setErr("");
+    if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
+    if (pass.length < 4) { setErr("Password must be at least 4 characters."); return; }
+    setBusy(true);
+    
+    const room = slug(code);
+    const hashedPass = hashPass(pass);
+    let users = await fbGet(`pl/${room}/users`) || LS.get(`${room}_u`) || {};
+
+    if (mode === "register") {
+      if (Object.values(users).find(u => u.role === role)) {
+        setErr(`A ${role} is already registered. Please log in instead.`); setBusy(false); return;
+      }
+      if (users[slug(name)]) { setErr("That name is taken in this family."); setBusy(false); return; }
+      
+      const u = { name:name.trim(), role, pass: hashedPass, avatar:"", bio:"", createdAt:Date.now() };
+      users[slug(name)] = u;
+      await fbSet(`pl/${room}/users`, users);
+      LS.set(`${room}_u`, users);
+      
+      const sess = { name:u.name, role, room };
+      LS.set("sess", sess); onAuth(sess);
+    } else {
+      const all = { ...(LS.get(`${room}_u`)||{}), ...users };
+      const u = all[slug(name)];
+      if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
+      if (u.pass !== hashedPass) { setErr("Incorrect password."); setBusy(false); return; }
+      
+      const sess = { name:u.name, role:u.role, room };
+      LS.set("sess", sess); onAuth(sess);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
+      <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
+        <div style={{textAlign:"center",marginBottom:"32px"}}>
+          <img src="./logo.png" alt="PascalLinks" style={{width:"100px",height:"100px",objectFit:"contain",margin:"0 auto 8px",display:"block",filter:"drop-shadow(0 0 20px rgba(245,158,11,0.3))"}} />
+          <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>PascalLinks</div>
+          <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>BUILD • CONNECT • GROW</div>
+        </div>
+
+        <div className="card" style={{padding:"28px"}}>
+          <div className="tabs">
+            <button className={`tab ${mode==="login"?"active":""}`} onClick={()=>{setMode("login");setErr("");}}>Log In</button>
+            <button className={`tab ${mode==="register"?"active":""}`} onClick={()=>{setMode("register");setErr("");}}>Register</button>
+          </div>
+
+          {mode==="register" && <>
+            <span className="lbl">I am the</span>
+            <div className="role-grid" style={{marginBottom:"16px"}}>
+              {ROLES.map(r => {
+                const m = ROLE_META[r];
+                const active = role===r;
+                return (
+                  <button key={r} className="role-card" onClick={()=>setRole(r)}
+                    style={{borderColor:active?m.color:"var(--border)",background:active?m.color+"18":"transparent",color:active?m.color:"var(--text3)"}}>
+                    <span style={{fontSize:"24px"}}>{m.emoji}</span>
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </>}
+
+          <span className="lbl">Unique Code</span>
+          <input className="inp" style={{marginBottom:"8px"}} placeholder='e.g. "johnson2024"' value={code} onChange={e=>setCode(e.target.value)} />
+          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"16px",lineHeight:"1.6",padding:"9px 12px",background:"var(--bg3)",borderRadius:"8px",border:"1px solid var(--border)"}}>
+            📌 All members must use the <strong style={{color:"var(--accent)"}}>same Unique Code</strong> to connect.
+          </div>
+
+          <span className="lbl">Your Name</span>
+          <input className="inp" style={{marginBottom:"14px"}} placeholder="Enter your name" value={name} onChange={e=>setName(e.target.value)} />
+
+          <span className="lbl">Password</span>
+          <input className="inp" style={{marginBottom:"16px"}} type="password" placeholder="Min 4 characters" value={pass}
+            onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} />
+
+          {err && <div style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:"9px",color:"#f87171",fontSize:"12px",fontWeight:"600",padding:"10px 13px",marginBottom:"14px"}}>⚠️ {err}</div>}
+
+          <button className="btn-primary" onClick={submit} disabled={busy}>
+            {busy?"Please wait…":mode==="register"?"Create Account →":"Log In →"}
+          </button>
+
+          <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"var(--text3)"}}>
+            {mode==="login"?"No account? ":"Already registered? "}
+            <button style={{background:"none",border:"none",color:"var(--accent)",fontWeight:"800",cursor:"pointer",fontFamily:"var(--font)",fontSize:"13px"}}
+              onClick={()=>{setMode(mode==="login"?"register":"login");setErr("");}}>
+              {mode==="login"?"Register":"Log In"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MainApp({ session, onLogout }) {
+  const [tab, setTab] = useState("map");
+  const [members, setMembers] = useState([]);
+  const [myData, setMyData] = useState(null);
+  const [sharing, setSharing] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  const watchRef = useRef(null);
+  const simRef = useRef(null);
+  const simCoordsRef = useRef(null);
+  const activeRef = useRef(false);
+
+  const meta = ROLE_META[session.role];
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+      const u = users[slug(session.name)];
+      if (u) setMyData(u);
+    };
+    loadProfile();
+  }, [session]);
+
+  useEffect(() => {
+    const poll = async () => {
+      const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+      const locs = await fbGet(`pl/${session.room}/locs`) || {};
+      const localLocs = LS.get(`${session.room}_locs`) || {};
+      const mergedLocs = { ...localLocs, ...locs };
+
+      const list = Object.values(users).map(u => {
+        const loc = mergedLocs[u.role] || {};
+        const stale = Date.now() - (loc.t || 0) > 20000;
+        return {
+          role: u.role,
+          name: u.name,
+          avatar: u.avatar || "",
+          lat: loc.lat,
+          lng: loc.lng,
+          accuracy: loc.accuracy,
+          online: !!(loc.online && !stale),
+          t: loc.t
+        };
+      });
+      setMembers(list);
+    };
+    poll();
+    const t = setInterval(poll, 3000);
+    return () => clearInterval(t);
+  }, [session]);
+
+  const pushLoc = useCallback(async (loc) => {
+    const d = { ...loc, online:true, name:session.name, t:Date.now() };
+    const locs = LS.get(`${session.room}_locs`) || {};
+    locs[session.role] = d;
+    LS.set(`${session.room}_locs`, locs);
+    await fbPatch(`pl/${session.room}/locs`, { [session.role]: d });
+  }, [session]);
+
+  const stopSharing = useCallback(() => {
+    activeRef.current = false;
+    if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
+    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
+    const off = { online:false, name:session.name, t:Date.now() };
+    const locs = LS.get(`${session.room}_locs`) || {};
+    locs[session.role] = off;
+    LS.set(`${session.room}_locs`, locs);
+    fbPatch(`pl/${session.room}/locs`, { [session.role]: off });
+    LS.set("is_sharing", false);
+    setSharing(false); setPending(false);
+  }, [session]);
+
+  const startSim = useCallback(() => {
+    const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
+    simCoordsRef.current = {...base};
+    pushLoc(base);
+    setSharing(true); setPending(false); activeRef.current = true;
+    LS.set("is_sharing", true);
+    simRef.current = setInterval(() => {
+      if (!activeRef.current) return;
+      simCoordsRef.current.lat += (Math.random()-.48)*.001;
+      simCoordsRef.current.lng += (Math.random()-.48)*.001;
+      pushLoc({...simCoordsRef.current});
+    }, 5000);
+  }, [pushLoc]);
+
+  const startSharing = useCallback(() => {
+    if (watchRef.current != null) return;
+    setPending(true);
+    if (!navigator.geolocation) { startSim(); return; }
+
+    const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
+
+    watchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        clearTimeout(fallback);
+        if (watchRef.current == null) return;
+        const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
+        pushLoc(loc);
+        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); LS.set("is_sharing", true); }
+      },
+      () => { clearTimeout(fallback); startSim(); },
+      { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
+    );
+  }, [startSim, pushLoc]);
+
+  const toggleSharing = useCallback(() => {
+    if (sharing || pending) { stopSharing(); return; }
+    startSharing();
+  }, [sharing, pending, stopSharing, startSharing]);
+
+  useEffect(() => {
+    if (LS.get("is_sharing") === true) {
+      startSharing();
+    }
+  }, [startSharing]);
+
+  useEffect(() => () => {
+    if (watchRef.current != null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; }
+    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
+  }, []);
+
+  const onlineCount = members.filter(m=>m.online).length;
+
+  return (
+    <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
+      {tab==="map" && (
+        <div style={{flex:1,position:"relative",overflow:"hidden"}}>
+          <LiveMap members={members} />
+          <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
+            <div>
+              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>PascalLinks</div>
+              <div style={{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"500",marginTop:"1px"}}>
+                {onlineCount} of {members.length||"—"} online
+              </div>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:"6px",background:"rgba(7,11,24,0.8)",border:"1px solid var(--border)",borderRadius:"10px",padding:"6px 12px"}}>
+              <div style={{width:"7px",height:"7px",borderRadius:"50%",background:sharing?"var(--green)":pending?"var(--amber)":"var(--text3)",animation:sharing?"pulse 1.5s infinite":"none"}} />
+              <span style={{fontSize:"11px",fontWeight:"700",color:sharing?"var(--green)":pending?"var(--amber)":"var(--text2)",fontFamily:"var(--mono)"}}>
+                {sharing?"LIVE":pending?"STARTING…":"OFF"}
+              </span>
+            </div>
+          </div>
+
+          <div style={{position:"absolute",bottom:"24px",left:"50%",transform:"translateX(-50%)",zIndex:500}}>
+            <div onClick={toggleSharing} className="big-toggle"
+              style={{background:sharing?`linear-gradient(135deg,${meta.color}30,${meta.color}10)`:pending?"rgba(245,158,11,0.1)":"rgba(13,18,37,0.9)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 40px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.5)",backdropFilter:"blur(10px)"}}>
+              {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.3}} />}
+              <span style={{fontSize:"36px"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
+              <span style={{fontSize:"9px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
+                {sharing?"SHARING":pending?"WAIT":"TAP"}
+              </span>
+            </div>
+            <div style={{textAlign:"center",marginTop:"8px",fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",background:"rgba(7,11,24,0.8)",padding:"4px 10px",borderRadius:"6px",border:"1px solid var(--border)"}}>
+              {sharing?"Sharing until you stop":pending?"Getting location…":"Tap to share location"}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==="family" && (
+        <div className="page">
+          <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"4px"}}>Family</div>
+          <div style={{fontSize:"12px",color:"var(--text3)",marginBottom:"20px",fontFamily:"var(--mono)"}}>Room: {session.room}</div>
+
+          {members.length === 0 && (
+            <div className="card" style={{padding:"32px",textAlign:"center"}}>
+              <div style={{fontSize:"40px",marginBottom:"12px"}}>👨‍👩‍👦</div>
+              <div style={{color:"var(--text2)",fontWeight:"600"}}>No family members connected yet</div>
+              <div style={{color:"var(--text3)",fontSize:"12px",marginTop:"6px"}}>Others need to register with the same family code: <strong style={{color:"var(--accent)"}}>{session.room}</strong></div>
+            </div>
+          )}
+
+          {ROLES.map(role => {
+            const m = members.find(x=>x.role===role);
+            const meta = ROLE_META[role];
+            const isMe = session.role === role;
+            return (
+              <div key={role} className="member-row" style={{borderColor:m?.online?meta.color+"40":"var(--border)"}}>
+                <div className="member-avatar" style={{background:meta.color+"20",border:`2px solid ${m?.online?meta.color:"var(--border2)"}`}}>
+                  {m?.avatar ? <img src={m.avatar} style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover"}} /> : <span>{meta.emoji}</span>}
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                    <span style={{fontWeight:"800",fontSize:"15px"}}>{m?.name || meta.label}</span>
+                    {isMe && <span style={{fontSize:"9px",background:"var(--accent)20",color:"var(--accent)",border:"1px solid var(--accent)40",borderRadius:"4px",padding:"1px 6px",fontWeight:"700",letterSpacing:"1px"}}>YOU</span>}
+                  </div>
+                  <div style={{fontSize:"11px",color:meta.color,fontWeight:"700",marginTop:"2px"}}>{meta.label}</div>
+                  <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"4px"}}>
+                    {m ? (
+                      m.online ? <>
+                        <div className="dot-live" />
+                        <span style={{fontSize:"10px",color:"var(--green)",fontFamily:"var(--mono)",fontWeight:"700"}}>LIVE</span>
+                        {m.accuracy && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>±{m.accuracy}m</span>}
+                      </> : <>
+                        <div className="dot-off" />
+                        <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>OFFLINE</span>
+                        {m.t && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>· {new Date(m.t).toLocaleTimeString()}</span>}
+                      </>
+                    ) : (
+                      <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>NOT REGISTERED</span>
+                    )}
+                  </div>
+                </div>
+                {m?.online && m.lat && (
+                  <div style={{textAlign:"right",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)"}}>
+                    <div>{m.lat.toFixed(4)}</div>
+                    <div>{m.lng.toFixed(4)}</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {tab==="share" && (
+        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
+          <div style={{textAlign:"center",marginBottom:"28px"}}>
+            <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
+            <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
+          </div>
+
+          <div onClick={toggleSharing} className="big-toggle"
+            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
+            {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
+            <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
+            <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
+              {sharing?"LIVE":pending?"WAIT":"OFF"}
+            </span>
+          </div>
+
+          <div style={{fontSize:"18px",fontWeight:"800",color:sharing?meta.color:pending?"var(--amber)":"var(--text2)",marginBottom:"8px"}}>
+            {sharing?"✅ Location Sharing On":pending?"⏳ Starting…":"Location Off"}
+          </div>
+          <div style={{fontSize:"13px",color:"var(--text3)",textAlign:"center",maxWidth:"260px",lineHeight:"1.6",marginBottom:"28px"}}>
+            {sharing?"Your location is being shared live with your family. It will keep sharing until you tap to stop."
+            :pending?"Requesting location access…"
+            :"Tap the button to start sharing your live location with family."}
+          </div>
+
+          {sharing && (
+            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:"16px"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
+                {[
+                  ["STATUS","SHARING LIVE ●"],
+                  ["FAMILY",session.room.toUpperCase()],
+                  ["ROLE",meta.label.toUpperCase()],
+                  ["MODE","PERSISTENT"],
+                ].map(([l,v])=>(
+                  <div key={l} className="card-sm">
+                    <div style={{fontSize:"8px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
+                    <div style={{fontSize:"11px",color:l==="STATUS"?meta.color:"var(--text)",fontWeight:"700",fontFamily:"var(--mono)",marginTop:"3px"}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab==="profile" && (
+        <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />
+      )}
+
+      <nav className="nav">
+        {[
+          { id:"map",    icon:"🗺️",  label:"MAP"    },
+          { id:"family", icon:"👨‍👩‍👦", label:"FAMILY" },
+          { id:"share",  icon:"📡",  label:"SHARE"  },
+          { id:"profile",icon:"👤",  label:"ME"     },
+        ].map(n => (
+          <button key={n.id} className={`nav-btn ${tab===n.id?"active":""}`} onClick={()=>setTab(n.id)}>
+            <span className="icon">{n.id==="share" && sharing ? "🟢" : n.icon}</span>
+            <span>{n.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+function ProfileTab({ session, myData, setMyData, onLogout }) {
+  const [editMode, setEditMode] = useState(false);
+  const [displayName, setDisplayName] = useState(myData?.name||session.name);
+  const [bio, setBio] = useState(myData?.bio||"");
+  const [avatar, setAvatar] = useState(myData?.avatar||"");
+  const [saving, setSaving] = useState(false);
+  const fileRef = useRef(null);
+  const meta = ROLE_META[session.role];
+
+  useEffect(() => {
+    if (myData) { setDisplayName(myData.name||session.name); setBio(myData.bio||""); setAvatar(myData.avatar||""); }
+  }, [myData]);
+
+  const handleAvatar = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500000) { alert("Please choose an image under 500KB"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => setAvatar(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+    const key = slug(session.name);
+    if (users[key]) {
+      users[key] = { ...users[key], name:displayName, bio, avatar };
+      await fbSet(`pl/${session.room}/users`, users);
+      LS.set(`${session.room}_u`, users);
+      setMyData(users[key]);
+    }
+    setSaving(false); setEditMode(false);
+  };
+
+  return (
+    <div className="page">
+      <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"20px"}}>My Profile</div>
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"24px"}}>
+        <label className="avatar-upload" style={{marginBottom:"14px"}}>
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} />
+          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:meta.color+"20",border:`3px solid ${meta.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"42px",overflow:"hidden",position:"relative"}}>
+            {avatar
+              ? <img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />
+              : <span>{meta.emoji}</span>}
+            <div className="avatardiv-upload-overlay">>
+📷</          </div>
+        </label>
+        <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"4px",fontFamily:"var(--mono)"}}>TAP PHOTO TO CHANGE</div>
+
+        {editMode ? (
+          <input className="inp" style={{maxWidth:"240px",textAlign:"center",fontSize:"18px",fontWeight:"800"}}
+            value={displayName} onChange={e=>setDisplayName(e.target.value)} />
+        ) : (
+          <div style={{fontSize:"22px",fontWeight:"800"}}>{displayName}</div>
+        )}
+
+        <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"6px"}}>
+          <span style={{fontSize:"14px"}}>{meta.emoji}</span>
+          <span style={{fontSize:"13px",color:meta.color,fontWeight:"700"}}>{meta.label}</span>
+        </div>
+      </div>
+
+      <div className="card" style={{padding:"16px",marginBottom:"12px"}}>
+        <div style={{marginBottom:"14px"}}>
+          <span className="lbl">Bio / Note</span>
+          {editMode
+            ? <textarea className="inp" rows={3} style={{resize:"none"}} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Add a short note about yourself…" />
+            : <div style={{fontSize:"14px",color:bio?"var(--text)":"var(--text3)",lineHeight:"1.6"}}>{bio||"No bio yet. Tap Edit to add one."}</div>
+          }
+        </div>
+        <div>
+          <span className="lbl">Family Room</span>
+          <div style={{fontFamily:"var(--mono)",fontSize:"14px",color:"var(--accent)",fontWeight:"700"}}>📡 {session.room}</div>
+        </div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"20px"}}>
+        {[
+          ["ROLE", meta.label, meta.color],
+          ["MEMBER SINCE", myData?.createdAt ? new Date(myData.createdAt).toLocaleDateString() : "—", "var(--text2)"],
+        ].map(([l,v,c])=>(
+          <div key={l} className="card-sm">
+            <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
+            <div style={{fontSize:"13px",color:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
+          </div>
+        ))}
+      </div>
+
+      {editMode ? (
+        <div style={{display:"flex",gap:"10px"}}>
+          <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEditMode(false)}>Cancel</button>
+          <button className="btn-primary" style={{flex:2}} onClick={save} disabled={saving}>{saving?"Saving…":"Save Changes"}</button>
+        </div>
+      ) : (
+        <button className="btn-primary" style={{marginBottom:"12px"}} onClick={()=>setEditMode(true)}>✏️ Edit Profile</button>
+      )}
+
+      <button onClick={onLogout} style={{width:"100%",padding:"13px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"11px",color:"#f87171",fontWeight:"800",fontSize:"14px",fontFamily:"var(--font)"}}>
+        Log Out
+      </button>
+    </div>
+  );
+}
+
+function App() {
+  const [sess, setSess] = useState(() => LS.get("sess"));
+  const login = (s) => setSess(s);
+  const logout = () => { LS.del("sess"); setSess(null); };
+  if (!sess) return <AuthScreen onAuth={login} />;
+  return <MainApp session={sess} onLogout={logout} />;
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
