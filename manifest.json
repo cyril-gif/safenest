@@ -4,7 +4,7 @@
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#070b18",
-  "theme_color": "#070b18",
+  "theme_color": "#f59e0b",
   "description": "PascalLinks - Build, Connect, Grow",
   "icons": [
     {
