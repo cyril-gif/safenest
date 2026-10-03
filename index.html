@@ -45,9 +45,11 @@
 
     .fade-in { animation: fadeIn 0.3s ease forwards; }
 
-    #safenest-map { width:100%; height:100%; }
+    #pascallinks-map { width:100%; height:100%; }
     .leaflet-container { background: #0d1225 !important; }
-    .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
+    /* REMOVED THE DARK FILTER SO SATELLITE LOOKS NATURAL */
+    /* .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); } */
+    
     .locate-btn { position:absolute; bottom:120px; right:16px; z-index:500; background:var(--bg2); border:1px solid var(--border); border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
     .locate-btn:active { background:var(--bg3); }
 
@@ -104,7 +106,8 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  MAP_PROVIDER: "osm"
+  // CHANGED TO ESRI FOR SATELLITE VIEW
+  MAP_PROVIDER: "esri" 
 };
 
 const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
@@ -136,11 +139,17 @@ function LiveMap({ members }) {
       center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
     });
 
-    let tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-    let attribution = '&copy; OpenStreetMap';
+    let tileUrl = "";
+    let attribution = "";
+    
     if (CONFIG.MAP_PROVIDER === 'esri') {
+      // ESRI SATELLITE IMAGERY
       tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
       attribution = 'Tiles &copy; Esri';
+    } else {
+      // OPENSTREETMAP FALLBACK
+      tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+      attribution = '&copy; OpenStreetMap';
     }
 
     L.tileLayer(tileUrl, { maxZoom: 19, attribution }).addTo(map);
@@ -185,9 +194,9 @@ function LiveMap({ members }) {
     if (onlineMembers.length > 0) {
       const bounds = onlineMembers.map(m => [m.lat, m.lng]);
       if (onlineMembers.length === 1) {
-        if (map.getZoom() < 10) map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 14, { animate: true });
+        if (map.getZoom() < 10) map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 16, { animate: true });
       } else {
-        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:14 });
+        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:15 });
       }
     }
   }, [members]);
@@ -195,7 +204,7 @@ function LiveMap({ members }) {
   const locateMe = () => {
     const map = leafletRef.current;
     if (!map) return;
-    map.locate({ setView: true, maxZoom: 16 });
+    map.locate({ setView: true, maxZoom: 18 });
   };
 
   return (
@@ -401,7 +410,7 @@ function MainApp({ session, onLogout }) {
   }, [pushLoc]);
 
   const startSharing = useCallback(() => {
-    if (watchRef.current != null) return; // Already running
+    if (watchRef.current != null) return;
     setPending(true);
     if (!navigator.geolocation) { startSim(); return; }
 
@@ -425,7 +434,6 @@ function MainApp({ session, onLogout }) {
     startSharing();
   }, [sharing, pending, stopSharing, startSharing]);
 
-  // Auto-resume sharing if it was left ON
   useEffect(() => {
     if (LS.get("is_sharing") === true) {
       startSharing();
@@ -433,7 +441,6 @@ function MainApp({ session, onLogout }) {
   }, [startSharing]);
 
   useEffect(() => () => {
-    // Cleanup only on unmount (not on tab switch)
     if (watchRef.current != null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; }
     if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
   }, []);
@@ -558,16 +565,17 @@ function MainApp({ session, onLogout }) {
           </div>
 
           {sharing && (
-            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:"16px"}}>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-                {[
-                  ["STATUS","SHARING LIVE ●"],
-                  ["FAMILY",session.room.toUpperCase()],
-                  ["ROLE",meta.label.toUpperCase()],
-                  ["MODE","PERSISTENT"],
-                ].map(([l,v])=>(
-                  <div key={l} className="card-sm">
-                    <div style={{fontSize:"8px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
+            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:">
+16px"}}>
+              <div style={{display           :"grid",gridTemplateColumns:"1fr < 1fr",gap:"8px"}}>
+div                {[
+                  ["STATUS","SHARING style LIVE ●"],
+                  ["F={{AMILY",session.room.toUpperCase()],
+                  ["ROfontLE",meta.label.toUpperCase()],
+                  ["SizeMODE","PERSISTENT"],
+                ].map(([:"l,v])=>(
+                  <div key={l13} className="card-sm">
+                    <div style={{fontpxSize:"8px",color:"var(--",text3)",fontFamily:"var(--monocolor)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
                     <div style={{fontSize:"11px",color:l==="STATUS"?meta.color:"var(--text)",fontWeight:"700",fontFamily:"var(--mono)",marginTop:"3px"}}>{v}</div>
                   </div>
                 ))}
@@ -681,8 +689,7 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
           ["MEMBER SINCE", myData?.createdAt ? new Date(myData.createdAt).toLocaleDateString() : "—", "var(--text2)"],
         ].map(([l,v,c])=>(
           <div key={l} className="card-sm">
-            <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
-            <div style={{fontSize:"13px",color:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
+            <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
           </div>
         ))}
       </div>
