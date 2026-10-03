@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <meta name="theme-color" content="#0a0f1e"/>
+  <meta name="theme-color" content="#f59e0b"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="mobile-web-app-capable" content="yes"/>
-  <title>DackWeb - SafeNest</title>
+  <title>PascalLinks - Build, Connect, Grow</title>
   
   <link rel="manifest" href="manifest.json"/>
   
@@ -22,8 +22,8 @@
     :root {
       --bg: #070b18; --bg2: #0d1225; --bg3: #111828;
       --border: #1e2d4a; --border2: #243352;
-      --accent: #3b82f6; --accent2: #06b6d4;
-      --green: #10b981; --amber: #f59e0b; --pink: #ec4899; --red: #ef4444;
+      --accent: #f59e0b; --accent2: #fbbf24;
+      --green: #10b981; --amber: #f59e0b; --red: #ef4444;
       --text: #f1f5f9; --text2: #94a3b8; --text3: #475569;
       --font: 'Syne', sans-serif; --mono: 'JetBrains Mono', monospace;
     }
@@ -32,7 +32,7 @@
     #root { height: 100%; display: flex; flex-direction: column; }
     button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
     input, textarea { font-family: var(--font); outline: none; }
-    input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+    input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important; }
 
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -42,10 +42,8 @@
     @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
     @keyframes spin { to { transform:rotate(360deg); } }
     @keyframes ripple { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.4); opacity:0; } }
-    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
     .fade-in { animation: fadeIn 0.3s ease forwards; }
-    .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
 
     #safenest-map { width:100%; height:100%; }
     .leaflet-container { background: #0d1225 !important; }
@@ -72,7 +70,7 @@
     .inp::placeholder { color:var(--text3); }
     .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
 
-    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:white; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
+    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:#000; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
     .btn-primary:disabled { opacity:0.4; cursor:default; }
     .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
 
@@ -88,7 +86,7 @@
 
     .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
     .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
-    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; }
+    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; }
 
     .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
     .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
@@ -114,9 +112,9 @@ const fbSet = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.j
 const fbPatch = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
 
 const LS = {
-  get: (k) => { try { return JSON.parse(localStorage.getItem("sn3_"+k)); } catch { return null; } },
-  set: (k,v) => { try { localStorage.setItem("sn3_"+k, JSON.stringify(v)); } catch {} },
-  del: (k) => { try { localStorage.removeItem("sn3_"+k); } catch {} },
+  get: (k) => { try { return JSON.parse(localStorage.getItem("pl_"+k)); } catch { return null; } },
+  set: (k,v) => { try { localStorage.setItem("pl_"+k, JSON.stringify(v)); } catch {} },
+  del: (k) => { try { localStorage.removeItem("pl_"+k); } catch {} },
 };
 
 const hashPass = (pass) => CryptoJS.SHA256(pass).toString();
@@ -134,12 +132,12 @@ function LiveMap({ members }) {
 
   useEffect(() => {
     if (leafletRef.current) return;
-    const map = L.map("safenest-map", {
+    const map = L.map("pascallinks-map", {
       center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
     });
 
     let tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-    let attribution = '&copy; OpenStreetMap contributors';
+    let attribution = '&copy; OpenStreetMap';
     if (CONFIG.MAP_PROVIDER === 'esri') {
       tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
       attribution = 'Tiles &copy; Esri';
@@ -202,7 +200,7 @@ function LiveMap({ members }) {
 
   return (
     <>
-      <div id="safenest-map" style={{width:"100%",height:"100%"}} />
+      <div id="pascallinks-map" style={{width:"100%",height:"100%"}} />
       <button className="locate-btn" onClick={locateMe} title="Center on my location">📍</button>
     </>
   );
@@ -225,7 +223,7 @@ function AuthScreen({ onAuth }) {
     
     const room = slug(code);
     const hashedPass = hashPass(pass);
-    let users = await fbGet(`sn3/${room}/users`) || LS.get(`${room}_u`) || {};
+    let users = await fbGet(`pl/${room}/users`) || LS.get(`${room}_u`) || {};
 
     if (mode === "register") {
       if (Object.values(users).find(u => u.role === role)) {
@@ -235,7 +233,7 @@ function AuthScreen({ onAuth }) {
       
       const u = { name:name.trim(), role, pass: hashedPass, avatar:"", bio:"", createdAt:Date.now() };
       users[slug(name)] = u;
-      await fbSet(`sn3/${room}/users`, users);
+      await fbSet(`pl/${room}/users`, users);
       LS.set(`${room}_u`, users);
       
       const sess = { name:u.name, role, room };
@@ -256,9 +254,9 @@ function AuthScreen({ onAuth }) {
     <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
       <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
         <div style={{textAlign:"center",marginBottom:"32px"}}>
-          <div style={{width:"60px",height:"60px",background:"linear-gradient(135deg,#3b82f6,#06b6d4)",borderRadius:"18px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px",margin:"0 auto 12px",boxShadow:"0 0 40px rgba(59,130,246,0.3)"}}>🛡️</div>
-          <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>DackWeb😎</div>
-          <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>PASCAL SAFETY NETWORK</div>
+          <img src="./logo.png" alt="PascalLinks" style={{width:"100px",height:"100px",objectFit:"contain",margin:"0 auto 8px",display:"block",filter:"drop-shadow(0 0 20px rgba(245,158,11,0.3))"}} />
+          <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>PascalLinks</div>
+          <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>BUILD • CONNECT • GROW</div>
         </div>
 
         <div className="card" style={{padding:"28px"}}>
@@ -332,18 +330,17 @@ function MainApp({ session, onLogout }) {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+      const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
       const u = users[slug(session.name)];
       if (u) setMyData(u);
     };
     loadProfile();
   }, [session]);
 
-  // ✅ FIXED: Poll now builds list from registered users, so they show up even if offline
   useEffect(() => {
     const poll = async () => {
-      const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-      const locs = await fbGet(`sn3/${session.room}/locs`) || {};
+      const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+      const locs = await fbGet(`pl/${session.room}/locs`) || {};
       const localLocs = LS.get(`${session.room}_locs`) || {};
       const mergedLocs = { ...localLocs, ...locs };
 
@@ -373,7 +370,7 @@ function MainApp({ session, onLogout }) {
     const locs = LS.get(`${session.room}_locs`) || {};
     locs[session.role] = d;
     LS.set(`${session.room}_locs`, locs);
-    await fbPatch(`sn3/${session.room}/locs`, { [session.role]: d });
+    await fbPatch(`pl/${session.room}/locs`, { [session.role]: d });
   }, [session]);
 
   const stopSharing = useCallback(() => {
@@ -384,7 +381,8 @@ function MainApp({ session, onLogout }) {
     const locs = LS.get(`${session.room}_locs`) || {};
     locs[session.role] = off;
     LS.set(`${session.room}_locs`, locs);
-    fbPatch(`sn3/${session.room}/locs`, { [session.role]: off });
+    fbPatch(`pl/${session.room}/locs`, { [session.role]: off });
+    LS.set("is_sharing", false);
     setSharing(false); setPending(false);
   }, [session]);
 
@@ -393,6 +391,7 @@ function MainApp({ session, onLogout }) {
     simCoordsRef.current = {...base};
     pushLoc(base);
     setSharing(true); setPending(false); activeRef.current = true;
+    LS.set("is_sharing", true);
     simRef.current = setInterval(() => {
       if (!activeRef.current) return;
       simCoordsRef.current.lat += (Math.random()-.48)*.001;
@@ -401,8 +400,8 @@ function MainApp({ session, onLogout }) {
     }, 5000);
   }, [pushLoc]);
 
-  const toggleSharing = useCallback(() => {
-    if (sharing || pending) { stopSharing(); return; }
+  const startSharing = useCallback(() => {
+    if (watchRef.current != null) return; // Already running
     setPending(true);
     if (!navigator.geolocation) { startSim(); return; }
 
@@ -414,14 +413,30 @@ function MainApp({ session, onLogout }) {
         if (watchRef.current == null) return;
         const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
         pushLoc(loc);
-        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); }
+        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); LS.set("is_sharing", true); }
       },
       () => { clearTimeout(fallback); startSim(); },
       { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
     );
-  }, [sharing, pending, stopSharing, startSim, pushLoc]);
+  }, [startSim, pushLoc]);
 
-  useEffect(() => () => stopSharing(), [stopSharing]);
+  const toggleSharing = useCallback(() => {
+    if (sharing || pending) { stopSharing(); return; }
+    startSharing();
+  }, [sharing, pending, stopSharing, startSharing]);
+
+  // Auto-resume sharing if it was left ON
+  useEffect(() => {
+    if (LS.get("is_sharing") === true) {
+      startSharing();
+    }
+  }, [startSharing]);
+
+  useEffect(() => () => {
+    // Cleanup only on unmount (not on tab switch)
+    if (watchRef.current != null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; }
+    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
+  }, []);
 
   const onlineCount = members.filter(m=>m.online).length;
 
@@ -432,7 +447,7 @@ function MainApp({ session, onLogout }) {
           <LiveMap members={members} />
           <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
             <div>
-              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>SafeNest</div>
+              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>PascalLinks</div>
               <div style={{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"500",marginTop:"1px"}}>
                 {onlineCount} of {members.length||"—"} online
               </div>
@@ -518,14 +533,14 @@ function MainApp({ session, onLogout }) {
       )}
 
       {tab==="share" && (
-        <div className="page" style={{display:"flex",flexDirection:"column",alignItemsircle:"center",justifyContent:"center",minHeight:"calc( at100vh - 120px)"}}>
-          <div style={{text Align:"center",marginBottom:"28px"}}>
-            <div style={{fontSize:"22px",fontWeight:"800",color:meta40.color}}>{session.name}</div>
+        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
+          <div style={{textAlign:"center",marginBottom:"28px"}}>
+            <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
             <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
           </div>
 
           <div onClick={toggleSharing} className="big-toggle"
-            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(c% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
+            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
             {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
             <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
             <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
@@ -607,11 +622,11 @@ function ProfileTab({ session, myData, setMyData, onLogout }) {
 
   const save = async () => {
     setSaving(true);
-    const users = await fbGet(`sn3/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
+    const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
     const key = slug(session.name);
     if (users[key]) {
       users[key] = { ...users[key], name:displayName, bio, avatar };
-      await fbSet(`sn3/${session.room}/users`, users);
+      await fbSet(`pl/${session.room}/users`, users);
       LS.set(`${session.room}_u`, users);
       setMyData(users[key]);
     }
