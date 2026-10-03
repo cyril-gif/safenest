@@ -104,7 +104,7 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  MAP_PROVIDER: "esri"
+  MAP_PROVIDER: "esri" 
 };
 
 const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
