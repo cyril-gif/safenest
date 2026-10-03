@@ -63,6 +63,8 @@
     /* Map */
     #safenest-map { width:100%; height:100%; }
     .leaflet-container { background: #0d1225 !important; }
+    /* This filter makes the standard OpenStreetMap look dark and modern. 
+       If you want normal colors, delete the line below. */
     .leaflet-tile { filter: brightness(0.85) saturate(0.7) hue-rotate(200deg); }
 
     /* Nav */
@@ -131,7 +133,10 @@ const { useState, useEffect, useRef, useCallback } = React;
 // ── CONFIGURATION ─────────────────────────────────────────────────────────────
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  CARTO_API_KEY: "eyJhbGciOiJIUzI1NiJ9.eyJhIjoiYWNfOGo2ZDkwbTIiLCJqdGkiOiI0YjY1Mjc2MjcwNmVkMWE1NDhhNjZhZjhjM2FhZWI4NiJ9.l2wqCWsaic5O-45luvo1M3n5efwBS9dIghbrdUWkXqA" // 👈 PASTE YOUR KEY BETWEEN THE QUOTES
+  // Map Provider: 'osm' or 'esri'
+  // 'osm'  = OpenStreetMap (No API key needed, standard streets)
+  // 'esri' = Esri World Imagery (No API key needed, satellite view)
+  MAP_PROVIDER: "osm"
 };
 
 // ── Firebase API ──────────────────────────────────────────────────────────────
@@ -171,9 +176,23 @@ function LiveMap({ members }) {
       attributionControl: false,
     });
 
-    // ✅ FIXED: Appended the API key to the Carto tile URL
-    L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?apiKey=${CONFIG.CARTO_API_KEY}`, {
+    // ✅ FIXED: Using free map providers that don't need an API key
+    let tileUrl = "";
+    let attribution = "";
+
+    if (CONFIG.MAP_PROVIDER === 'esri') {
+      // Esri Satellite Imagery
+      tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+      attribution = 'Tiles &copy; Esri';
+    } else {
+      // OpenStreetMap (Default)
+      tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+    }
+
+    L.tileLayer(tileUrl, {
       maxZoom: 19,
+      attribution: attribution
     }).addTo(map);
 
     L.control.zoom({ position:"bottomright" }).addTo(map);
