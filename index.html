@@ -104,7 +104,8 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  MAP_PROVIDER: "esri" 
+  // Using Google Maps hybrid tiles (unofficial but free, gives high-res satellite + street labels)
+  MAP_TILE_URL: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" 
 };
 
 const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
@@ -136,18 +137,13 @@ function LiveMap({ members }) {
       center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
     });
 
-    let tileUrl = "";
-    let attribution = "";
-    
-    if (CONFIG.MAP_PROVIDER === 'esri') {
-      tileUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-      attribution = 'Tiles &copy; Esri';
-    } else {
-      tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-      attribution = '&copy; OpenStreetMap';
-    }
+    // High-resolution hybrid tiles with deep zoom support
+    L.tileLayer(CONFIG.MAP_TILE_URL, { 
+      maxZoom: 22, 
+      maxNativeZoom: 21,
+      attribution: 'Map data &copy; Google'
+    }).addTo(map);
 
-    L.tileLayer(tileUrl, { maxZoom: 19, attribution }).addTo(map);
     leafletRef.current = map;
   }, []);
 
