@@ -1,715 +1,1644 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <meta name="theme-color" content="#f59e0b"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <title>PascalLinks - Build, Connect, Grow</title>
-  
-  <link rel="manifest" href="manifest.json"/>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-  
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Momo Ledger — The book, done right</title>
 
-  <style>
-    :root {
-      --bg: #070b18; --bg2: #0d1225; --bg3: #111828;
-      --border: #1e2d4a; --border2: #243352;
-      --accent: #f59e0b; --accent2: #fbbf24;
-      --green: #10b981; --amber: #f59e0b; --red: #ef4444;
-      --text: #f1f5f9; --text2: #94a3b8; --text3: #475569;
-      --font: 'Syne', sans-serif; --mono: 'JetBrains Mono', monospace;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
-    #root { height: 100%; display: flex; flex-direction: column; }
-    button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
-    input, textarea { font-family: var(--font); outline: none; }
-    input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.15) !important; }
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0f766e" />
+<meta name="description" content="Offline-first ledger for mobile money agents. Log transactions, track float, know your daily profit." />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Momo Ledger" />
 
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+<style>
+  :root{
+    --primary:#0f766e; --primary-dark:#115e59; --primary-light:#ccfbf1;
+    --accent:#f59e0b; --bg:#f1f5f9; --card:#ffffff;
+    --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
+    --danger:#dc2626; --success:#16a34a; --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); font-size:15px; line-height:1.5;
+  }
+  body.app-mode{padding-bottom:80px;padding-top:env(safe-area-inset-top)}
+  .app{max-width:640px;margin:0 auto;padding:0 14px}
 
-    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.4); opacity:0.6; } }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    @keyframes ripple { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.4); opacity:0; } }
+  /* ============ LANDING ============ */
+  #landingScreen{min-height:100vh;background:var(--bg)}
 
-    .fade-in { animation: fadeIn 0.3s ease forwards; }
+  .hero{
+    background:linear-gradient(160deg,#0f766e 0%,#115e59 55%,#134e4a 100%);
+    color:#fff; padding:52px 20px 60px; position:relative; overflow:hidden;
+  }
+  .hero::before{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(255,255,255,.13), transparent 42%),
+      radial-gradient(circle at 92% 82%, rgba(245,158,11,.20), transparent 48%);
+  }
+  .hero-inner{max-width:640px;margin:0 auto;position:relative;text-align:center}
+  .brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:30px}
+  .brand-mark{
+    width:44px;height:44px;border-radius:12px;
+    background:rgba(255,255,255,.15);display:grid;place-items:center;font-size:22px;
+    border:1px solid rgba(255,255,255,.22);
+  }
+  .brand-name{font-weight:700;font-size:16px;letter-spacing:.3px}
+  .hero h1{
+    font-size:33px;line-height:1.14;font-weight:800;letter-spacing:-.6px;
+    margin-bottom:14px;
+  }
+  .hero .lede{
+    font-size:15.5px;line-height:1.55;opacity:.92;margin-bottom:28px;
+  }
+  .hero-cta{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+  .hero-cta .btn{padding:15px 20px;font-size:15px;border-radius:12px}
+  .hero-cta .btn.ghost{
+    background:rgba(255,255,255,.12);color:#fff;
+    border:1.5px solid rgba(255,255,255,.25);
+  }
+  .hero-cta .btn.ghost:active{background:rgba(255,255,255,.22)}
+  .hero-badges{
+    display:flex;flex-wrap:wrap;gap:7px;justify-content:center;font-size:12px;
+  }
+  .hero-badges span{
+    background:rgba(255,255,255,.1);padding:6px 12px;border-radius:20px;
+    border:1px solid rgba(255,255,255,.16);white-space:nowrap;
+  }
 
-    #pascallinks-map { width:100%; height:100%; }
-    .leaflet-container { background: #0d1225 !important; }
-    
-    .locate-btn { position:absolute; bottom:120px; right:16px; z-index:500; background:var(--bg2); border:1px solid var(--border); border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
-    .locate-btn:active { background:var(--bg3); }
+  .section-inner{max-width:640px;margin:0 auto;padding:0 20px}
 
-    .nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:4px 0 max(4px, env(safe-area-inset-bottom)); flex-shrink:0; }
-    .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; background:none; color:var(--text3); font-size:10px; font-weight:700; letter-spacing:0.5px; transition:color 0.2s; position:relative; }
-    .nav-btn.active { color:var(--accent); }
-    .nav-btn .icon { font-size:20px; transition:transform 0.2s; }
-    .nav-btn.active .icon { transform:scale(1.1); }
+  .features{padding:52px 0 40px}
+  .features h2{
+    font-size:21px;font-weight:700;letter-spacing:-.3px;margin-bottom:22px;
+    text-align:center;color:var(--text);
+  }
+  .feature-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  .feature{
+    background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  .f-ico{
+    width:40px;height:40px;border-radius:11px;background:var(--primary-light);
+    display:grid;place-items:center;font-size:19px;margin-bottom:12px;
+  }
+  .feature h3{font-size:15px;font-weight:700;margin-bottom:5px}
+  .feature p{font-size:13px;color:var(--muted);line-height:1.5}
 
-    .card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; }
-    .card-sm { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:12px; }
+  .steps{padding:12px 0 48px}
+  .steps h2{
+    font-size:21px;font-weight:700;letter-spacing:-.3px;margin-bottom:16px;
+    text-align:center;
+  }
+  .step{
+    display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);
+  }
+  .step:last-child{border-bottom:none}
+  .step-num{
+    flex-shrink:0;width:32px;height:32px;border-radius:50%;
+    background:var(--primary);color:#fff;font-weight:700;font-size:14px;
+    display:grid;place-items:center;
+  }
+  .step-body h3{font-size:15px;font-weight:700;margin-bottom:3px}
+  .step-body p{font-size:13px;color:var(--muted);line-height:1.5}
 
-    .member-row { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:8px; transition:all 0.2s; }
-    .member-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border2); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .cta-final{padding:0 20px 40px}
+  .cta-final .card-cta{
+    max-width:640px;margin:0 auto;
+    background:linear-gradient(160deg,#0f766e,#115e59);
+    border-radius:18px;padding:30px 22px;text-align:center;color:#fff;
+    box-shadow:0 10px 30px rgba(15,118,110,.25);
+    position:relative;overflow:hidden;
+  }
+  .card-cta::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at 85% 15%, rgba(245,158,11,.25), transparent 55%);
+  }
+  .card-cta h3{
+    font-size:20px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px;
+    position:relative;
+  }
+  .card-cta p{font-size:13px;opacity:.92;margin-bottom:20px;line-height:1.5;position:relative}
+  .card-cta .btn{background:#fff;color:var(--primary-dark);position:relative}
+  .card-cta .btn:active{background:#f1f5f9}
 
-    .big-toggle { width:120px; height:120px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent; user-select:none; position:relative; }
-    .toggle-ripple { position:absolute; inset:-8px; border-radius:50%; animation: ripple 2s ease-out infinite; }
+  footer.landing-footer{
+    padding:0 20px 40px;text-align:center;color:var(--muted);font-size:12px;
+    line-height:1.65;max-width:520px;margin:0 auto;
+  }
 
-    .inp { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:11px 14px; font-size:14px; font-family:var(--font); transition:border-color 0.2s, box-shadow 0.2s; }
-    .inp::placeholder { color:var(--text3); }
-    .lbl { font-size:10px; font-weight:700; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; display:block; }
+  /* Header */
+  header.app-header{
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff; padding:18px 16px; position:sticky; top:0; z-index:20;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+  }
+  header.app-header .wrap{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+  header.app-header h1{font-size:17px;font-weight:600}
+  header.app-header .sub{font-size:12px;opacity:.85}
+  header.app-header .avatar{
+    width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);
+    display:grid;place-items:center;font-weight:700;font-size:14px;
+  }
 
-    .btn-primary { width:100%; padding:13px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; border-radius:11px; color:#000; font-weight:800; font-size:14px; cursor:pointer; font-family:var(--font); letter-spacing:0.5px; transition:opacity 0.2s; }
-    .btn-primary:disabled { opacity:0.4; cursor:default; }
-    .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:12px; font-weight:700; padding:6px 14px; }
+  /* Cards */
+  .card{
+    background:var(--card); border-radius:var(--radius); padding:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.05); margin-bottom:14px;
+    border:1px solid var(--border);
+  }
+  .card h2{font-size:14px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
 
-    .dot-live { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; display:inline-block; }
-    .dot-off { width:7px; height:7px; border-radius:50%; background:var(--text3); display:inline-block; }
+  /* Dashboard stats */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{background:var(--card);border-radius:var(--radius);padding:14px;border:1px solid var(--border)}
+  .stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .stat .value{font-size:19px;font-weight:700;margin-top:4px}
+  .stat.green .value{color:var(--success)}
+  .stat.red .value{color:var(--danger)}
+  .stat.blue .value{color:var(--primary)}
 
-    .page { flex:1; overflow-y:auto; padding:16px; animation:fadeIn 0.25s ease; }
+  /* Floats */
+  .float-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+  .float-row:last-child{border-bottom:none}
+  .float-row .net{display:flex;align-items:center;gap:8px;font-weight:500}
+  .net-dot{width:9px;height:9px;border-radius:50%}
+  .dot-MTN{background:#ffcc00}
+  .dot-Telecel{background:#e30613}
+  .dot-AirtelTigo{background:#0057b8}
+  .float-row .amt{font-weight:600;font-variant-numeric:tabular-nums}
 
-    .avatar-upload { position:relative; display:inline-block; cursor:pointer; }
-    .avatar-upload input { display:none; }
-    .avatar-upload-overlay { position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; opacity:0; transition:opacity 0.2s; }
-    .avatar-upload:hover .avatar-upload-overlay { opacity:1; }
+  /* Quick actions */
+  .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .quick button{
+    background:var(--primary-light);color:var(--primary-dark);border:none;
+    border-radius:12px;padding:12px 4px;font-size:11px;font-weight:600;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+  }
+  .quick button:active{transform:scale(.96)}
+  .quick .ico{font-size:18px}
 
-    .tabs { display:flex; background:var(--bg3); border-radius:10px; padding:3px; border:1px solid var(--border); margin-bottom:20px; }
-    .tab { flex:1; padding:9px; border-radius:8px; border:none; font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.18s; background:transparent; color:var(--text3); }
-    .tab.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#000; }
+  /* Forms */
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#334155}
+  input,select{
+    width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;
+    font-size:15px;font-family:inherit;background:#fff;color:var(--text);outline:none;
+    transition:border-color .15s;
+  }
+  input:focus,select:focus{border-color:var(--primary)}
+  input[type="date"],input[type="time"]{-webkit-appearance:none;appearance:none}
+  .field{margin-bottom:14px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-    .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
-    .role-card { padding:14px 8px; border-radius:12px; border:2px solid var(--border); background:transparent; color:var(--text3); font-weight:800; font-size:13px; cursor:pointer; font-family:var(--font); transition:all 0.18s; display:flex; flex-direction:column; align-items:center; gap:4px; }
-  </style>
+  /* Toggle buttons */
+  .toggle{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .toggle.two{grid-template-columns:1fr 1fr}
+  .toggle button{
+    padding:11px 6px;border:1.5px solid var(--border);background:#fff;border-radius:10px;
+    font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;
+  }
+  .toggle button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .toggle button:active{transform:scale(.97)}
+
+  /* Buttons */
+  .btn{
+    width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:600;
+    cursor:pointer;background:var(--primary);color:#fff;transition:background .15s;
+    font-family:inherit;
+  }
+  .btn:active{background:var(--primary-dark)}
+  .btn.ghost{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+  .btn.danger{background:#fff;color:var(--danger);border:1.5px solid #fecaca}
+  .btn.link{
+    background:none;color:var(--primary);font-size:13px;padding:8px;
+    text-decoration:underline;width:auto;
+  }
+
+  /* Nav */
+  nav.app-nav{
+    position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);
+    display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom);
+  }
+  nav.app-nav .inner{max-width:640px;margin:0 auto;width:100%;display:flex}
+  nav.app-nav button{
+    flex:1;background:none;border:none;padding:9px 2px 7px;cursor:pointer;color:var(--muted);
+    font-size:10px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  nav.app-nav button.active{color:var(--primary)}
+  nav.app-nav .ico{font-size:19px}
+
+  /* Lists */
+  .list-item{
+    display:flex;justify-content:space-between;align-items:center;padding:12px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .list-item:last-child{border-bottom:none}
+  .list-item .main{flex:1;min-width:0}
+  .list-item .title{font-weight:600;font-size:14px}
+  .list-item .meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .list-item .amt{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap;margin-left:10px}
+  .amt.pos{color:var(--success)}
+  .amt.neg{color:var(--danger)}
+  .tag{
+    display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;
+    background:var(--primary-light);color:var(--primary-dark);font-weight:700;margin-right:5px;
+  }
+  .tag.date-tag{background:#e2e8f0;color:#334155}
+  .tag.past-tag{background:#fef3c7;color:#92400e}
+  .day-header{
+    font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.5px;padding:14px 0 6px;
+  }
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#0f172a;color:#fff;padding:11px 18px;border-radius:30px;font-size:13px;
+    font-weight:500;opacity:0;transition:all .3s;z-index:100;pointer-events:none;
+    max-width:90%;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.error{background:var(--danger)}
+  .toast.success{background:var(--success)}
+
+  /* Setup screen */
+  #setupScreen{max-width:480px;margin:0 auto;padding:24px 18px 60px}
+  #setupScreen .logo{
+    width:64px;height:64px;border-radius:18px;background:var(--primary);
+    display:grid;place-items:center;font-size:30px;margin:20px auto 16px;color:#fff;
+  }
+  #setupScreen h2{text-align:center;font-size:21px;margin-bottom:6px}
+  #setupScreen p.lead{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
+  #setupScreen .back-wrap{text-align:center;margin-top:14px}
+
+  .section-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:22px 0 10px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* Date chip */
+  .date-chip{
+    display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;
+    background:var(--primary-light);color:var(--primary-dark);
+    font-size:12px;font-weight:600;margin-bottom:14px;
+  }
+  .date-chip .ico{font-size:14px}
+
+  /* Rate editor */
+  .rate-header{
+    display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;
+    font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.4px;padding-bottom:6px;border-bottom:1px solid var(--border);
+    margin-bottom:4px;
+  }
+  .rate-header .hdr-net{grid-column:1}
+  .rate-row{
+    display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;align-items:center;
+    padding:9px 0;border-bottom:1px solid var(--border);
+  }
+  .rate-row:last-child{border-bottom:none}
+  .rate-row .rate-label{font-size:13px;font-weight:600;color:#334155}
+  .rate-input-wrap{position:relative}
+  .rate-input-wrap input{
+    padding:9px 26px 9px 10px;font-size:14px;font-variant-numeric:tabular-nums;
+  }
+  .rate-input-wrap::after{
+    content:'%';position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    font-size:12px;color:var(--muted);pointer-events:none;
+  }
+  .rate-net-toggle{margin-bottom:16px}
+  .rate-live{
+    font-size:11px;color:var(--muted);padding:10px 0 0;
+    border-top:1px dashed var(--border);margin-top:8px;
+  }
+  .rate-live b{color:var(--primary-dark);font-variant-numeric:tabular-nums}
+
+  /* Install banner */
+  .install-banner{
+    position:fixed;left:50%;bottom:86px;transform:translateX(-50%);
+    background:#0f172a;color:#fff;border-radius:14px;padding:12px 14px;
+    display:flex;align-items:center;gap:10px;z-index:40;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    max-width:calc(100% - 28px);width:420px;
+  }
+  .install-banner .ib-info{flex:1;min-width:0}
+  .install-banner .ib-title{font-size:13px;font-weight:700}
+  .install-banner .ib-sub{font-size:11px;opacity:.75;margin-top:1px}
+  .install-banner button{
+    background:var(--primary);color:#fff;border:none;padding:8px 14px;border-radius:9px;
+    font-size:12px;font-weight:700;cursor:pointer;
+  }
+  .install-banner .ib-x{
+    background:transparent;color:#94a3b8;padding:8px;font-size:14px;
+  }
+
+  /* Update prompt */
+  .update-banner{
+    position:fixed;left:50%;bottom:86px;transform:translateX(-50%);
+    background:var(--primary-dark);color:#fff;border-radius:14px;padding:12px 14px;
+    display:flex;align-items:center;gap:10px;z-index:41;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    max-width:calc(100% - 28px);width:420px;
+  }
+  .update-banner .ib-info{flex:1;min-width:0}
+  .update-banner .ib-title{font-size:13px;font-weight:700}
+  .update-banner .ib-sub{font-size:11px;opacity:.85;margin-top:1px}
+  .update-banner button{
+    background:#fff;color:var(--primary-dark);border:none;padding:8px 14px;border-radius:9px;
+    font-size:12px;font-weight:700;cursor:pointer;
+  }
+
+  /* Landing: tablet and up */
+  @media (min-width:700px){
+    .hero{padding:80px 20px 90px}
+    .hero h1{font-size:46px}
+    .hero .lede{font-size:18px;max-width:520px;margin-left:auto;margin-right:auto}
+    .hero-cta{flex-direction:row;justify-content:center}
+    .hero-cta .btn{width:auto;padding:15px 26px}
+    .features h2,.steps h2{font-size:26px}
+    .feature-grid{grid-template-columns:1fr 1fr}
+    .card-cta{padding:40px 30px}
+    .card-cta h3{font-size:24px}
+  }
+  @media (min-width:960px){
+    .feature-grid{grid-template-columns:1fr 1fr 1fr}
+  }
+</style>
 </head>
 <body>
-<div id="root"></div>
 
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- ================= LANDING ================= -->
+<div id="landingScreen">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="brand">
+        <div class="brand-mark">📒</div>
+        <div class="brand-name">Momo Ledger</div>
+      </div>
+      <h1>Replace the paper book.</h1>
+      <p class="lede">
+        A fast, offline-first record book for mobile money agents.
+        Log every transaction, track your float per network, and know
+        your daily profit — right from your phone.
+      </p>
+      <div class="hero-cta">
+        <button class="btn" onclick="showSetup()">Get started — it's free</button>
+      </div>
+      <div class="hero-badges">
+        <span>⚡ Works offline</span>
+        <span>🔒 Data stays on your phone</span>
+        <span>📊 Daily reports</span>
+      </div>
+    </div>
+  </section>
 
-<script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef, useCallback } = React;
-
-const CONFIG = {
-  FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  // Using Google Maps hybrid tiles (unofficial but free, gives high-res satellite + street labels)
-  MAP_TILE_URL: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" 
-};
-
-const fbGet = async (p) => { try { const r = await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`); return r.ok ? r.json() : null; } catch { return null; } };
-const fbSet = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
-const fbPatch = async (p, d) => { try { await fetch(`${CONFIG.FIREBASE_URL}/${p}.json`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(d) }); } catch {} };
-
-const LS = {
-  get: (k) => { try { return JSON.parse(localStorage.getItem("pl_"+k)); } catch { return null; } },
-  set: (k,v) => { try { localStorage.setItem("pl_"+k, JSON.stringify(v)); } catch {} },
-  del: (k) => { try { localStorage.removeItem("pl_"+k); } catch {} },
-};
-
-const hashPass = (pass) => CryptoJS.SHA256(pass).toString();
-const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,16);
-const ROLES = ["main","buddy","girlfriend"];
-const ROLE_META = {
-  main:       { emoji:"🧑‍💻", label:"Main",       color:"#f59e0b" },
-  buddy:      { emoji:"😎",   label:"Buddy",      color:"#3b82f6" },
-  girlfriend: { emoji:"🥰",   label:"Girlfriend", color:"#ec4899" },
-};
-
-function LiveMap({ members }) {
-  const leafletRef = useRef(null);
-  const markersRef = useRef({});
-
-  useEffect(() => {
-    if (leafletRef.current) return;
-    const map = L.map("pascallinks-map", {
-      center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
-    });
-
-    // High-resolution hybrid tiles with deep zoom support
-    L.tileLayer(CONFIG.MAP_TILE_URL, { 
-      maxZoom: 22, 
-      maxNativeZoom: 21,
-      attribution: 'Map data &copy; Google'
-    }).addTo(map);
-
-    leafletRef.current = map;
-  }, []);
-
-  useEffect(() => {
-    const map = leafletRef.current;
-    if (!map) return;
-
-    const onlineMembers = members.filter(m => m.online && m.lat);
-
-    Object.keys(markersRef.current).forEach(role => {
-      if (!onlineMembers.find(m => m.role === role)) {
-        map.removeLayer(markersRef.current[role]);
-        delete markersRef.current[role];
-      }
-    });
-
-    onlineMembers.forEach(m => {
-      const meta = ROLE_META[m.role];
-      const color = meta.color;
-      const label = m.name || meta.label;
-
-      const iconHtml = `
-        <div style="position:relative;width:24px;height:24px;">
-          <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${color};animation:ripple 1.8s ease-out infinite;opacity:0.6;"></div>
-          <div style="width:24px;height:24px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 0 16px ${color}80;"></div>
-          <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${color};padding:2px 7px;border-radius:5px;background:rgba(7,11,24,0.92);border:1px solid ${color}40;">${label.toUpperCase()}</div>
-        </div>`;
-
-      const icon = L.divIcon({ html: iconHtml, className:"", iconSize:[24,24], iconAnchor:[12,12] });
-
-      if (markersRef.current[m.role]) {
-        markersRef.current[m.role].setLatLng([m.lat, m.lng]);
-        markersRef.current[m.role].setIcon(icon);
-      } else {
-        markersRef.current[m.role] = L.marker([m.lat, m.lng], { icon }).addTo(map);
-      }
-    });
-
-    if (onlineMembers.length > 0) {
-      const bounds = onlineMembers.map(m => [m.lat, m.lng]);
-      if (onlineMembers.length === 1) {
-        if (map.getZoom() < 10) map.setView([onlineMembers[0].lat, onlineMembers[0].lng], 16, { animate: true });
-      } else {
-        map.fitBounds(bounds, { padding:[50,50], animate:true, maxZoom:15 });
-      }
-    }
-  }, [members]);
-
-  const locateMe = () => {
-    const map = leafletRef.current;
-    if (!map) return;
-    map.locate({ setView: true, maxZoom: 18 });
-  };
-
-  return (
-    <>
-      <div id="pascallinks-map" style={{width:"100%",height:"100%"}} />
-      <button className="locate-btn" onClick={locateMe} title="Center on my location">📍</button>
-    </>
-  );
-}
-
-function AuthScreen({ onAuth }) {
-  const [mode,setMode] = useState("login");
-  const [role,setRole] = useState("main");
-  const [name,setName] = useState("");
-  const [code,setCode] = useState("");
-  const [pass,setPass] = useState("");
-  const [err,setErr] = useState("");
-  const [busy,setBusy] = useState(false);
-
-  const submit = async () => {
-    setErr("");
-    if (!name.trim()||!pass.trim()||!code.trim()) { setErr("Please fill in all fields."); return; }
-    if (pass.length < 4) { setErr("Password must be at least 4 characters."); return; }
-    setBusy(true);
-    
-    const room = slug(code);
-    const hashedPass = hashPass(pass);
-    let users = await fbGet(`pl/${room}/users`) || LS.get(`${room}_u`) || {};
-
-    if (mode === "register") {
-      if (Object.values(users).find(u => u.role === role)) {
-        setErr(`A ${role} is already registered. Please log in instead.`); setBusy(false); return;
-      }
-      if (users[slug(name)]) { setErr("That name is taken in this family."); setBusy(false); return; }
-      
-      const u = { name:name.trim(), role, pass: hashedPass, avatar:"", bio:"", createdAt:Date.now() };
-      users[slug(name)] = u;
-      await fbSet(`pl/${room}/users`, users);
-      LS.set(`${room}_u`, users);
-      
-      const sess = { name:u.name, role, room };
-      LS.set("sess", sess); onAuth(sess);
-    } else {
-      const all = { ...(LS.get(`${room}_u`)||{}), ...users };
-      const u = all[slug(name)];
-      if (!u) { setErr("Account not found. Please register first."); setBusy(false); return; }
-      if (u.pass !== hashedPass) { setErr("Incorrect password."); setBusy(false); return; }
-      
-      const sess = { name:u.name, role:u.role, room };
-      LS.set("sess", sess); onAuth(sess);
-    }
-    setBusy(false);
-  };
-
-  return (
-    <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",overflow:"auto"}}>
-      <div className="fade-in" style={{width:"100%",maxWidth:"400px"}}>
-        <div style={{textAlign:"center",marginBottom:"32px"}}>
-          <img src="./logo.png" alt="PascalLinks" style={{width:"100px",height:"100px",objectFit:"contain",margin:"0 auto 8px",display:"block",filter:"drop-shadow(0 0 20px rgba(245,158,11,0.3))"}} />
-          <div style={{fontSize:"28px",fontWeight:"800",letterSpacing:"-0.5px"}}>PascalLinks</div>
-          <div style={{fontSize:"11px",color:"var(--text3)",fontWeight:"700",letterSpacing:"3px",marginTop:"4px"}}>BUILD • CONNECT • GROW</div>
+  <section class="features">
+    <div class="section-inner">
+      <h2>Everything the book does — but faster</h2>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="f-ico">📝</div>
+          <h3>Log a transaction in seconds</h3>
+          <p>Deposit, withdrawal, airtime, or bill. Float balances update automatically.</p>
         </div>
-
-        <div className="card" style={{padding:"28px"}}>
-          <div className="tabs">
-            <button className={`tab ${mode==="login"?"active":""}`} onClick={()=>{setMode("login");setErr("");}}>Log In</button>
-            <button className={`tab ${mode==="register"?"active":""}`} onClick={()=>{setMode("register");setErr("");}}>Register</button>
-          </div>
-
-          {mode==="register" && <>
-            <span className="lbl">I am the</span>
-            <div className="role-grid" style={{marginBottom:"16px"}}>
-              {ROLES.map(r => {
-                const m = ROLE_META[r];
-                const active = role===r;
-                return (
-                  <button key={r} className="role-card" onClick={()=>setRole(r)}
-                    style={{borderColor:active?m.color:"var(--border)",background:active?m.color+"18":"transparent",color:active?m.color:"var(--text3)"}}>
-                    <span style={{fontSize:"24px"}}>{m.emoji}</span>
-                    {m.label}
-                  </button>
-                );
-              })}
-            </div>
-          </>}
-
-          <span className="lbl">Unique Code</span>
-          <input className="inp" style={{marginBottom:"8px"}} placeholder='e.g. "johnson2024"' value={code} onChange={e=>setCode(e.target.value)} />
-          <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"16px",lineHeight:"1.6",padding:"9px 12px",background:"var(--bg3)",borderRadius:"8px",border:"1px solid var(--border)"}}>
-            📌 All members must use the <strong style={{color:"var(--accent)"}}>same Unique Code</strong> to connect.
-          </div>
-
-          <span className="lbl">Your Name</span>
-          <input className="inp" style={{marginBottom:"14px"}} placeholder="Enter your name" value={name} onChange={e=>setName(e.target.value)} />
-
-          <span className="lbl">Password</span>
-          <input className="inp" style={{marginBottom:"16px"}} type="password" placeholder="Min 4 characters" value={pass}
-            onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} />
-
-          {err && <div style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:"9px",color:"#f87171",fontSize:"12px",fontWeight:"600",padding:"10px 13px",marginBottom:"14px"}}>⚠️ {err}</div>}
-
-          <button className="btn-primary" onClick={submit} disabled={busy}>
-            {busy?"Please wait…":mode==="register"?"Create Account →":"Log In →"}
-          </button>
-
-          <div style={{textAlign:"center",marginTop:"16px",fontSize:"13px",color:"var(--text3)"}}>
-            {mode==="login"?"No account? ":"Already registered? "}
-            <button style={{background:"none",border:"none",color:"var(--accent)",fontWeight:"800",cursor:"pointer",fontFamily:"var(--font)",fontSize:"13px"}}
-              onClick={()=>{setMode(mode==="login"?"register":"login");setErr("");}}>
-              {mode==="login"?"Register":"Log In"}
-            </button>
-          </div>
+        <div class="feature">
+          <div class="f-ico">📅</div>
+          <h3>Backdate when you need to</h3>
+          <p>Forgot to log one yesterday? Set the date and time — the ledger sorts it out.</p>
+        </div>
+        <div class="feature">
+          <div class="f-ico">💧</div>
+          <h3>Track float per network</h3>
+          <p>Cash on hand, MTN, Telecel, AirtelTigo — all in one view, always accurate.</p>
+        </div>
+        <div class="feature">
+          <div class="f-ico">⚙️</div>
+          <h3>Your own commission rates</h3>
+          <p>Set fee and commission percentages per network. Auto-fills every new transaction.</p>
+        </div>
+        <div class="feature">
+          <div class="f-ico">💰</div>
+          <h3>Daily commission report</h3>
+          <p>See how much you made today — commission, fees, and transaction count.</p>
+        </div>
+        <div class="feature">
+          <div class="f-ico">📤</div>
+          <h3>Export to Excel anytime</h3>
+          <p>Download all transactions as a CSV for bookkeeping or sharing.</p>
         </div>
       </div>
     </div>
-  );
-}
+  </section>
 
-function MainApp({ session, onLogout }) {
-  const [tab, setTab] = useState("map");
-  const [members, setMembers] = useState([]);
-  const [myData, setMyData] = useState(null);
-  const [sharing, setSharing] = useState(false);
-  const [pending, setPending] = useState(false);
+  <section class="steps">
+    <div class="section-inner">
+      <h2>How it works</h2>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Set up your starting float</h3>
+          <p>Enter your cash and e-money balances once. Takes under a minute.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Log every transaction</h3>
+          <p>Pick the network and type, enter amount and phone number. Save.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>See your day at a glance</h3>
+          <p>Commission earned, cash in/out, and current float — always up to date.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  const watchRef = useRef(null);
-  const simRef = useRef(null);
-  const simCoordsRef = useRef(null);
-  const activeRef = useRef(false);
+  <section class="cta-final">
+    <div class="card-cta">
+      <h3>Ready to ditch the book?</h3>
+      <p>Free, offline, and made for agents. Set up in under a minute.</p>
+      <button class="btn" onclick="showSetup()">Get started</button>
+    </div>
+  </section>
 
-  const meta = ROLE_META[session.role];
+  <footer class="landing-footer">
+    <p>
+      Momo Ledger is a supplementary record-keeping tool.
+      It does not replace your official mobile money platform.
+      Always confirm transactions on the telco's system.
+    </p>
+  </footer>
+</div>
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-      const u = users[slug(session.name)];
-      if (u) setMyData(u);
-    };
-    loadProfile();
-  }, [session]);
+<!-- ================= SETUP ================= -->
+<div id="setupScreen" hidden>
+  <div class="logo">📒</div>
+  <h2>Set up your ledger</h2>
+  <p class="lead">Takes under a minute. You can change these anytime.</p>
 
-  useEffect(() => {
-    const poll = async () => {
-      const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-      const locs = await fbGet(`pl/${session.room}/locs`) || {};
-      const localLocs = LS.get(`${session.room}_locs`) || {};
-      const mergedLocs = { ...localLocs, ...locs };
+  <div class="card">
+    <div class="field">
+      <label>Your name / business name</label>
+      <input id="setupName" placeholder="e.g. Kwame Mobile Money" />
+    </div>
+    <div class="field">
+      <label>Phone number</label>
+      <input id="setupPhone" inputmode="tel" placeholder="e.g. 024 000 0000" />
+    </div>
 
-      const list = Object.values(users).map(u => {
-        const loc = mergedLocs[u.role] || {};
-        const stale = Date.now() - (loc.t || 0) > 20000;
-        return {
-          role: u.role,
-          name: u.name,
-          avatar: u.avatar || "",
-          lat: loc.lat,
-          lng: loc.lng,
-          accuracy: loc.accuracy,
-          online: !!(loc.online && !stale),
-          t: loc.t
-        };
-      });
-      setMembers(list);
-    };
-    poll();
-    const t = setInterval(poll, 3000);
-    return () => clearInterval(t);
-  }, [session]);
+    <div class="section-title">Starting balances (optional)</div>
+    <div class="field">
+      <label>Cash at hand</label>
+      <input id="setupCash" inputmode="decimal" type="number" step="0.01" placeholder="0.00" />
+    </div>
+    <div class="field">
+      <label>MTN e-money</label>
+      <input id="setupMTN" inputmode="decimal" type="number" step="0.01" placeholder="0.00" />
+    </div>
+    <div class="field">
+      <label>Telecel e-money</label>
+      <input id="setupTelecel" inputmode="decimal" type="number" step="0.01" placeholder="0.00" />
+    </div>
+    <div class="field">
+      <label>AirtelTigo e-money</label>
+      <input id="setupAirtelTigo" inputmode="decimal" type="number" step="0.01" placeholder="0.00" />
+    </div>
 
-  const pushLoc = useCallback(async (loc) => {
-    const d = { ...loc, online:true, name:session.name, t:Date.now() };
-    const locs = LS.get(`${session.room}_locs`) || {};
-    locs[session.role] = d;
-    LS.set(`${session.room}_locs`, locs);
-    await fbPatch(`pl/${session.room}/locs`, { [session.role]: d });
-  }, [session]);
+    <button class="btn" onclick="completeSetup()">Create my ledger</button>
 
-  const stopSharing = useCallback(() => {
-    activeRef.current = false;
-    if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
-    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
-    const off = { online:false, name:session.name, t:Date.now() };
-    const locs = LS.get(`${session.room}_locs`) || {};
-    locs[session.role] = off;
-    LS.set(`${session.room}_locs`, locs);
-    fbPatch(`pl/${session.room}/locs`, { [session.role]: off });
-    LS.set("is_sharing", false);
-    setSharing(false); setPending(false);
-  }, [session]);
+    <div class="back-wrap">
+      <button class="btn link" onclick="showLanding()">← Back to home</button>
+    </div>
+  </div>
+</div>
 
-  const startSim = useCallback(() => {
-    const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
-    simCoordsRef.current = {...base};
-    pushLoc(base);
-    setSharing(true); setPending(false); activeRef.current = true;
-    LS.set("is_sharing", true);
-    simRef.current = setInterval(() => {
-      if (!activeRef.current) return;
-      simCoordsRef.current.lat += (Math.random()-.48)*.001;
-      simCoordsRef.current.lng += (Math.random()-.48)*.001;
-      pushLoc({...simCoordsRef.current});
-    }, 5000);
-  }, [pushLoc]);
+<!-- ================= MAIN APP ================= -->
+<div id="mainApp" hidden>
+  <header class="app-header">
+    <div class="wrap">
+      <div>
+        <h1 id="headerName">Momo Ledger</h1>
+        <div class="sub" id="headerPhone"></div>
+      </div>
+      <div class="avatar" id="headerAvatar">A</div>
+    </div>
+  </header>
 
-  const startSharing = useCallback(() => {
-    if (watchRef.current != null) return;
-    setPending(true);
-    if (!navigator.geolocation) { startSim(); return; }
+  <div class="app">
 
-    const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
+    <!-- Dashboard -->
+    <section id="tab-dashboard" class="tab">
+      <div style="height:16px"></div>
+      <div class="stats">
+        <div class="stat green">
+          <div class="label">Today's commission</div>
+          <div class="value" id="dashCommission">GHS 0.00</div>
+        </div>
+        <div class="stat blue">
+          <div class="label">Transactions today</div>
+          <div class="value" id="dashCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Cash in today</div>
+          <div class="value" id="dashIn">GHS 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="label">Cash out today</div>
+          <div class="value" id="dashOut">GHS 0.00</div>
+        </div>
+      </div>
 
-    watchRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        clearTimeout(fallback);
-        if (watchRef.current == null) return;
-        const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
-        pushLoc(loc);
-        if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); LS.set("is_sharing", true); }
-      },
-      () => { clearTimeout(fallback); startSim(); },
-      { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
-    );
-  }, [startSim, pushLoc]);
+      <div class="card" style="margin-top:14px">
+        <h2>Quick actions</h2>
+        <div class="quick">
+          <button onclick="quickAction('deposit')"><span class="ico">💰</span>Deposit</button>
+          <button onclick="quickAction('withdrawal')"><span class="ico">🏧</span>Withdraw</button>
+          <button onclick="quickAction('airtime')"><span class="ico">📱</span>Airtime</button>
+          <button onclick="quickAction('bill')"><span class="ico">🧾</span>Bill</button>
+        </div>
+      </div>
 
-  const toggleSharing = useCallback(() => {
-    if (sharing || pending) { stopSharing(); return; }
-    startSharing();
-  }, [sharing, pending, stopSharing, startSharing]);
+      <div class="card">
+        <h2>Float balances</h2>
+        <div class="float-row">
+          <div class="net"><span class="net-dot" style="background:#16a34a"></span>Cash at hand</div>
+          <div class="amt" id="floatCash">GHS 0.00</div>
+        </div>
+        <div class="float-row">
+          <div class="net"><span class="net-dot dot-MTN"></span>MTN e-money</div>
+          <div class="amt" id="floatMTN">GHS 0.00</div>
+        </div>
+        <div class="float-row">
+          <div class="net"><span class="net-dot dot-Telecel"></span>Telecel e-money</div>
+          <div class="amt" id="floatTelecel">GHS 0.00</div>
+        </div>
+        <div class="float-row">
+          <div class="net"><span class="net-dot dot-AirtelTigo"></span>AirtelTigo e-money</div>
+          <div class="amt" id="floatAirtelTigo">GHS 0.00</div>
+        </div>
+      </div>
 
-  useEffect(() => {
-    if (LS.get("is_sharing") === true) {
-      startSharing();
-    }
-  }, [startSharing]);
+      <div class="card">
+        <h2>Recent activity</h2>
+        <div id="dashRecent"></div>
+      </div>
+    </section>
 
-  useEffect(() => () => {
-    if (watchRef.current != null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; }
-    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
-  }, []);
+    <!-- New transaction -->
+    <section id="tab-new" class="tab" hidden>
+      <div style="height:16px"></div>
+      <form id="txForm" class="card" onsubmit="saveTransaction(event)">
+        <h2>New transaction</h2>
 
-  const onlineCount = members.filter(m=>m.online).length;
+        <div class="field">
+          <label>Network</label>
+          <div class="toggle" id="networkToggle">
+            <button type="button" data-net="MTN" class="active">MTN</button>
+            <button type="button" data-net="Telecel">Telecel</button>
+            <button type="button" data-net="AirtelTigo">AirtelTigo</button>
+          </div>
+        </div>
 
-  return (
-    <div style={{height:"100%",display:"flex",flexDirection:"column"}}>
-      {tab==="map" && (
-        <div style={{flex:1,position:"relative",overflow:"hidden"}}>
-          <LiveMap members={members} />
-          <div style={{position:"absolute",top:0,left:0,right:0,padding:"14px 16px",background:"linear-gradient(to bottom,rgba(7,11,24,0.95),transparent)",zIndex:500,display:"flex",alignItems:"center",justifyContent:"space-between",pointerEvents:"none"}}>
+        <div class="field">
+          <label>Transaction type</label>
+          <div class="toggle two" id="typeToggle">
+            <button type="button" data-type="deposit" class="active">Deposit (Cash In)</button>
+            <button type="button" data-type="withdrawal">Withdrawal (Cash Out)</button>
+            <button type="button" data-type="airtime">Airtime</button>
+            <button type="button" data-type="bill">Bill Payment</button>
+          </div>
+        </div>
+
+        <!-- DATE + TIME -->
+        <div class="field">
+          <label>Date of transaction</label>
+          <div class="row">
             <div>
-              <div style={{fontSize:"18px",fontWeight:"800",letterSpacing:"-0.3px"}}>PascalLinks</div>
-              <div style={{fontSize:"11px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"500",marginTop:"1px"}}>
-                {onlineCount} of {members.length||"—"} online
-              </div>
+              <input id="txDate" type="date" required />
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:"6px",background:"rgba(7,11,24,0.8)",border:"1px solid var(--border)",borderRadius:"10px",padding:"6px 12px"}}>
-              <div style={{width:"7px",height:"7px",borderRadius:"50%",background:sharing?"var(--green)":pending?"var(--amber)":"var(--text3)",animation:sharing?"pulse 1.5s infinite":"none"}} />
-              <span style={{fontSize:"11px",fontWeight:"700",color:sharing?"var(--green)":pending?"var(--amber)":"var(--text2)",fontFamily:"var(--mono)"}}>
-                {sharing?"LIVE":pending?"STARTING…":"OFF"}
-              </span>
+            <div>
+              <input id="txTime" type="time" required />
             </div>
           </div>
-
-          <div style={{position:"absolute",bottom:"24px",left:"50%",transform:"translateX(-50%)",zIndex:500}}>
-            <div onClick={toggleSharing} className="big-toggle"
-              style={{background:sharing?`linear-gradient(135deg,${meta.color}30,${meta.color}10)`:pending?"rgba(245,158,11,0.1)":"rgba(13,18,37,0.9)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 40px ${meta.color}50`:"0 8px 32px rgba(0,0,0,0.5)",backdropFilter:"blur(10px)"}}>
-              {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.3}} />}
-              <span style={{fontSize:"36px"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
-              <span style={{fontSize:"9px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
-                {sharing?"SHARING":pending?"WAIT":"TAP"}
-              </span>
-            </div>
-            <div style={{textAlign:"center",marginTop:"8px",fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)",background:"rgba(7,11,24,0.8)",padding:"4px 10px",borderRadius:"6px",border:"1px solid var(--border)"}}>
-              {sharing?"Sharing until you stop":pending?"Getting location…":"Tap to share location"}
-            </div>
+          <div class="date-chip" id="dateChip" style="margin-top:10px;margin-bottom:0">
+            <span class="ico">📅</span>
+            <span id="dateChipText">Today</span>
           </div>
         </div>
-      )}
 
-      {tab==="family" && (
-        <div className="page">
-          <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"4px"}}>Family</div>
-          <div style={{fontSize:"12px",color:"var(--text3)",marginBottom:"20px",fontFamily:"var(--mono)"}}>Room: {session.room}</div>
-
-          {members.length === 0 && (
-            <div className="card" style={{padding:"32px",textAlign:"center"}}>
-              <div style={{fontSize:"40px",marginBottom:"12px"}}>👨‍👩‍👦</div>
-              <div style={{color:"var(--text2)",fontWeight:"600"}}>No family members connected yet</div>
-              <div style={{color:"var(--text3)",fontSize:"12px",marginTop:"6px"}}>Others need to register with the same family code: <strong style={{color:"var(--accent)"}}>{session.room}</strong></div>
-            </div>
-          )}
-
-          {ROLES.map(role => {
-            const m = members.find(x=>x.role===role);
-            const meta = ROLE_META[role];
-            const isMe = session.role === role;
-            return (
-              <div key={role} className="member-row" style={{borderColor:m?.online?meta.color+"40":"var(--border)"}}>
-                <div className="member-avatar" style={{background:meta.color+"20",border:`2px solid ${m?.online?meta.color:"var(--border2)"}`}}>
-                  {m?.avatar ? <img src={m.avatar} style={{width:"100%",height:"100%",borderRadius:"50%",objectFit:"cover"}} /> : <span>{meta.emoji}</span>}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-                    <span style={{fontWeight:"800",fontSize:"15px"}}>{m?.name || meta.label}</span>
-                    {isMe && <span style={{fontSize:"9px",background:"var(--accent)20",color:"var(--accent)",border:"1px solid var(--accent)40",borderRadius:"4px",padding:"1px 6px",fontWeight:"700",letterSpacing:"1px"}}>YOU</span>}
-                  </div>
-                  <div style={{fontSize:"11px",color:meta.color,fontWeight:"700",marginTop:"2px"}}>{meta.label}</div>
-                  <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"4px"}}>
-                    {m ? (
-                      m.online ? <>
-                        <div className="dot-live" />
-                        <span style={{fontSize:"10px",color:"var(--green)",fontFamily:"var(--mono)",fontWeight:"700"}}>LIVE</span>
-                        {m.accuracy && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>±{m.accuracy}m</span>}
-                      </> : <>
-                        <div className="dot-off" />
-                        <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>OFFLINE</span>
-                        {m.t && <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>· {new Date(m.t).toLocaleTimeString()}</span>}
-                      </>
-                    ) : (
-                      <span style={{fontSize:"10px",color:"var(--text3)",fontFamily:"var(--mono)"}}>NOT REGISTERED</span>
-                    )}
-                  </div>
-                </div>
-                {m?.online && m.lat && (
-                  <div style={{textAlign:"right",fontFamily:"var(--mono)",fontSize:"9px",color:"var(--text3)"}}>
-                    <div>{m.lat.toFixed(4)}</div>
-                    <div>{m.lng.toFixed(4)}</div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <div class="field">
+          <label>Customer phone</label>
+          <input id="txPhone" inputmode="tel" placeholder="e.g. 024 000 0000" required />
         </div>
-      )}
 
-      {tab==="share" && (
-        <div className="page" style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"calc(100vh - 120px)"}}>
-          <div style={{textAlign:"center",marginBottom:"28px"}}>
-            <div style={{fontSize:"22px",fontWeight:"800",color:meta.color}}>{session.name}</div>
-            <div style={{fontSize:"12px",color:"var(--text3)",marginTop:"4px"}}>{meta.emoji} {meta.label}</div>
-          </div>
-
-          <div onClick={toggleSharing} className="big-toggle"
-            style={{width:"160px",height:"160px",background:sharing?`radial-gradient(circle at 40% 40%,${meta.color}20,var(--bg))`:pending?"rgba(245,158,11,0.05)":"var(--bg2)",border:`3px solid ${sharing?meta.color:pending?"var(--amber)":"var(--border2)"}`,boxShadow:sharing?`0 0 60px ${meta.color}40`:"none",marginBottom:"20px"}}>
-            {sharing && <div className="toggle-ripple" style={{borderColor:meta.color,opacity:0.25}} />}
-            <span style={{fontSize:"52px",animation:pending?"spin 1s linear infinite":"none",display:"inline-block"}}>{sharing?"📡":pending?"⏳":"📴"}</span>
-            <span style={{fontSize:"10px",fontWeight:"800",letterSpacing:"2px",color:sharing?meta.color:pending?"var(--amber)":"var(--text3)"}}>
-              {sharing?"LIVE":pending?"WAIT":"OFF"}
-            </span>
-          </div>
-
-          <div style={{fontSize:"18px",fontWeight:"800",color:sharing?meta.color:pending?"var(--amber)":"var(--text2)",marginBottom:"8px"}}>
-            {sharing?"✅ Location Sharing On":pending?"⏳ Starting…":"Location Off"}
-          </div>
-          <div style={{fontSize:"13px",color:"var(--text3)",textAlign:"center",maxWidth:"260px",lineHeight:"1.6",marginBottom:"28px"}}>
-            {sharing?"Your location is being shared live with your family. It will keep sharing until you tap to stop."
-            :pending?"Requesting location access…"
-            :"Tap the button to start sharing your live location with family."}
-          </div>
-
-          {sharing && (
-            <div className="card fade-in" style={{width:"100%",maxWidth:"320px",padding:"16px"}}>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-                {[
-                  ["STATUS","SHARING LIVE ●"],
-                  ["FAMILY",session.room.toUpperCase()],
-                  ["ROLE",meta.label.toUpperCase()],
-                  ["MODE","PERSISTENT"],
-                ].map(([l,v])=>(
-                  <div key={l} className="card-sm">
-                    <div style={{fontSize:"8px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
-                    <div style={{fontSize:"11px",color:l==="STATUS"?meta.color:"var(--text)",fontWeight:"700",fontFamily:"var(--mono)",marginTop:"3px"}}>{v}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        <div class="field">
+          <label>Customer name <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="txName" placeholder="e.g. Ama Mensah" />
         </div>
-      )}
 
-      {tab==="profile" && (
-        <ProfileTab session={session} myData={myData} setMyData={setMyData} onLogout={onLogout} />
-      )}
+        <div class="field">
+          <label>Amount</label>
+          <input id="txAmount" inputmode="decimal" type="number" step="0.01" min="0" placeholder="0.00" required />
+        </div>
 
-      <nav className="nav">
-        {[
-          { id:"map",    icon:"🗺️",  label:"MAP"    },
-          { id:"family", icon:"👨‍👩‍👦", label:"FAMILY" },
-          { id:"share",  icon:"📡",  label:"SHARE"  },
-          { id:"profile",icon:"👤",  label:"ME"     },
-        ].map(n => (
-          <button key={n.id} className={`nav-btn ${tab===n.id?"active":""}`} onClick={()=>setTab(n.id)}>
-            <span className="icon">{n.id==="share" && sharing ? "🟢" : n.icon}</span>
-            <span>{n.label}</span>
-          </button>
-        ))}
-      </nav>
+        <div class="row">
+          <div class="field">
+            <label>Fee charged</label>
+            <input id="txFee" inputmode="decimal" type="number" step="0.01" min="0" placeholder="0.00" value="0" />
+          </div>
+          <div class="field">
+            <label>Commission</label>
+            <input id="txCommission" inputmode="decimal" type="number" step="0.01" min="0" placeholder="0.00" value="0" />
+          </div>
+        </div>
+
+        <p class="hint" id="rateHint" style="margin-top:-8px;margin-bottom:14px"></p>
+
+        <div class="field">
+          <label>Note <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="txNote" placeholder="e.g. sent to sister" />
+        </div>
+
+        <button type="submit" class="btn">Save transaction</button>
+        <p class="hint">Fee and commission are auto-filled from your rates but you can override them.</p>
+      </form>
+    </section>
+
+    <!-- Customers -->
+    <section id="tab-customers" class="tab" hidden>
+      <div style="height:16px"></div>
+      <div class="card">
+        <h2>Customers</h2>
+        <input id="custSearch" placeholder="Search by name or phone..." oninput="renderCustomers()" />
+      </div>
+      <div class="card">
+        <div id="customerList"></div>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section id="tab-history" class="tab" hidden>
+      <div style="height:16px"></div>
+      <div class="card">
+        <h2>Filter</h2>
+        <div class="field" style="margin-bottom:0">
+          <label>Date range</label>
+          <select id="histFilter" onchange="renderHistory()">
+            <option value="today">Today</option>
+            <option value="week">Last 7 days</option>
+            <option value="month">Last 30 days</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="tab-settings" class="tab" hidden>
+      <div style="height:16px"></div>
+      <div class="card">
+        <h2>Agent details</h2>
+        <div class="field">
+          <label>Name</label>
+          <input id="setName" />
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input id="setPhone" inputmode="tel" />
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>Currency</label>
+          <input id="setCurrency" />
+        </div>
+      </div>
+
+      <!-- NEW: Rates editor -->
+      <div class="card">
+        <h2>Fee &amp; commission rates</h2>
+        <p class="hint" style="margin-top:-6px;margin-bottom:12px">
+          Set your actual percentages per network. These auto-fill the fee and commission fields on every new transaction.
+        </p>
+
+        <div class="toggle rate-net-toggle" id="rateNetworkToggle">
+          <button type="button" data-net="MTN" class="active">MTN</button>
+          <button type="button" data-net="Telecel">Telecel</button>
+          <button type="button" data-net="AirtelTigo">AirtelTigo</button>
+        </div>
+
+        <div class="rate-header">
+          <div>Type</div>
+          <div>Fee&nbsp;%</div>
+          <div>Comm&nbsp;%</div>
+        </div>
+
+        <div id="rateEditor"></div>
+
+        <div class="rate-live" id="rateLive">
+          On a <b>GHS 100.00</b> withdrawal, you'd charge <b>GHS 0.00</b> and earn <b>GHS 0.00</b>.
+        </div>
+
+        <div style="margin-top:14px">
+          <button class="btn" onclick="saveRates()">Save rates</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Adjust float balances</h2>
+        <p class="hint" style="margin-top:-6px;margin-bottom:12px">Use this when you top up cash or e-money outside a customer transaction.</p>
+        <div class="field">
+          <label>Cash at hand</label>
+          <input id="setCash" inputmode="decimal" type="number" step="0.01" />
+        </div>
+        <div class="field">
+          <label>MTN e-money</label>
+          <input id="setMTN" inputmode="decimal" type="number" step="0.01" />
+        </div>
+        <div class="field">
+          <label>Telecel e-money</label>
+          <input id="setTelecel" inputmode="decimal" type="number" step="0.01" />
+        </div>
+        <div class="field">
+          <label>AirtelTigo e-money</label>
+          <input id="setAirtelTigo" inputmode="decimal" type="number" step="0.01" />
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>App</h2>
+        <div class="field">
+          <button class="btn ghost" onclick="installApp()">Install app</button>
+          <p class="hint">Add Momo Ledger to your home screen for quick, offline access.</p>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <button class="btn ghost" onclick="checkForUpdates(true)">Check for updates</button>
+          <p class="hint" id="versionHint">You're on the latest version.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Data</h2>
+        <div class="field">
+          <button class="btn ghost" onclick="saveSettings()">Save changes</button>
+        </div>
+        <div class="field">
+          <button class="btn ghost" onclick="exportCSV()">Export transactions (CSV)</button>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <button class="btn danger" onclick="resetAll()">Reset all data</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>About</h2>
+        <p style="font-size:13px;color:var(--muted)">
+          This ledger is a supplementary record-keeping tool. It does not replace your
+          official mobile money platform. Always confirm transactions on the telco's
+          system. No mobile money PINs should ever be entered here.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <nav class="app-nav">
+    <div class="inner">
+      <button data-tab="dashboard" class="active"><span class="ico">🏠</span>Home</button>
+      <button data-tab="new"><span class="ico">➕</span>New</button>
+      <button data-tab="customers"><span class="ico">👥</span>Customers</button>
+      <button data-tab="history"><span class="ico">📜</span>History</button>
+      <button data-tab="settings"><span class="ico">⚙️</span>Settings</button>
     </div>
-  );
+  </nav>
+
+  <div id="installBanner" class="install-banner" hidden>
+    <div class="ib-info">
+      <div class="ib-title">Install Momo Ledger</div>
+      <div class="ib-sub">Add to home screen for offline access</div>
+    </div>
+    <button onclick="installApp()">Install</button>
+    <button class="ib-x" onclick="dismissInstall()">✕</button>
+  </div>
+
+  <div id="updateBanner" class="update-banner" hidden>
+    <div class="ib-info">
+      <div class="ib-title">New version available</div>
+      <div class="ib-sub">Reload to get the latest updates</div>
+    </div>
+    <button onclick="applyUpdate()">Reload</button>
+  </div>
+</div>
+
+<script>
+/* ================= Storage ================= */
+const STORE_KEY = 'agentLedger_v1';
+
+const NETWORKS = ['MTN', 'Telecel', 'AirtelTigo'];
+const TX_TYPES = [
+  { key:'deposit',    label:'Deposit' },
+  { key:'withdrawal', label:'Withdrawal' },
+  { key:'airtime',    label:'Airtime' },
+  { key:'bill',       label:'Bill Payment' }
+];
+
+// Default rates are just a starting point — user overrides them in Settings
+function defaultRates(){
+  const out = {};
+  NETWORKS.forEach(net => {
+    out[net] = {
+      deposit:    { fee: 0, commission: 0.5 },
+      withdrawal: { fee: 1, commission: 1.0 },
+      airtime:    { fee: 0, commission: 5.0 },
+      bill:       { fee: 0, commission: 1.0 }
+    };
+  });
+  return out;
 }
 
-function ProfileTab({ session, myData, setMyData, onLogout }) {
-  const [editMode, setEditMode] = useState(false);
-  const [displayName, setDisplayName] = useState(myData?.name||session.name);
-  const [bio, setBio] = useState(myData?.bio||"");
-  const [avatar, setAvatar] = useState(myData?.avatar||"");
-  const [saving, setSaving] = useState(false);
-  const fileRef = useRef(null);
-  const meta = ROLE_META[session.role];
-
-  useEffect(() => {
-    if (myData) { setDisplayName(myData.name||session.name); setBio(myData.bio||""); setAvatar(myData.avatar||""); }
-  }, [myData]);
-
-  const handleAvatar = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 500000) { alert("Please choose an image under 500KB"); return; }
-    const reader = new FileReader();
-    reader.onload = (ev) => setAvatar(ev.target.result);
-    reader.readAsDataURL(file);
+function defaultDB(){
+  return {
+    agent:null,
+    settings:{ currency:'GHS' },
+    customers:[],
+    transactions:[],
+    floats:{ cash:0, eMoney:{ MTN:0, Telecel:0, AirtelTigo:0 } },
+    rates: defaultRates()
   };
+}
 
-  const save = async () => {
-    setSaving(true);
-    const users = await fbGet(`pl/${session.room}/users`) || LS.get(`${session.room}_u`) || {};
-    const key = slug(session.name);
-    if (users[key]) {
-      users[key] = { ...users[key], name:displayName, bio, avatar };
-      await fbSet(`pl/${session.room}/users`, users);
-      LS.set(`${session.room}_u`, users);
-      setMyData(users[key]);
+let db = defaultDB();
+
+// Deep-merge rates so saved data survives new networks/types being added
+function mergeRates(defaults, saved){
+  const out = {};
+  NETWORKS.forEach(net => {
+    out[net] = {};
+    TX_TYPES.forEach(t => {
+      const d = defaults[net][t.key];
+      const s = (saved && saved[net] && saved[net][t.key]) || {};
+      out[net][t.key] = {
+        fee: (typeof s.fee === 'number') ? s.fee : d.fee,
+        commission: (typeof s.commission === 'number') ? s.commission : d.commission
+      };
+    });
+  });
+  return out;
+}
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      db = Object.assign(defaultDB(), parsed);
+      db.floats = Object.assign({ cash:0, eMoney:{MTN:0,Telecel:0,AirtelTigo:0} }, db.floats || {});
+      db.floats.eMoney = Object.assign({MTN:0,Telecel:0,AirtelTigo:0}, db.floats.eMoney || {});
+      db.rates = mergeRates(defaultRates(), parsed.rates);
     }
-    setSaving(false); setEditMode(false);
+  }catch(e){ console.warn('Load failed', e); }
+}
+
+function saveDB(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }
+  catch(e){ toast('Could not save data','error'); }
+}
+
+/* ================= Helpers ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+const money = n => (db.settings.currency || 'GHS') + ' ' + Number(n||0).toFixed(2);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function nowDateStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function nowTimeStr(){
+  const d = new Date();
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function dateKeyFromDate(d){
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+}
+function todayKey(){ return dateKeyFromDate(new Date()); }
+
+function formatDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined,{ weekday:'short', day:'numeric', month:'short', year:'numeric' });
+}
+function formatTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleTimeString(undefined,{ hour:'2-digit', minute:'2-digit' });
+}
+function isToday(iso){
+  return todayKey() === dateKeyFromDate(new Date(iso));
+}
+
+function toast(msg, type='info'){
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type==='error'?'error':type==='success'?'success':'');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),300); }, 2400);
+}
+
+function relativeDayLabel(ymd){
+  if(!ymd) return '';
+  const today = todayKey();
+  if(ymd === today) return 'Today';
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  if(ymd === dateKeyFromDate(y)) return 'Yesterday';
+  const d = new Date(ymd + 'T00:00:00');
+  return d.toLocaleDateString(undefined,{ weekday:'long', day:'numeric', month:'short', year:'numeric' });
+}
+
+function getRate(network, type){
+  const r = db.rates && db.rates[network] && db.rates[network][type];
+  if(r) return r;
+  return { fee: 0, commission: 0 };
+}
+
+/* ================= Screen switching ================= */
+function hideAllScreens(){
+  $('#landingScreen').hidden = true;
+  $('#setupScreen').hidden = true;
+  $('#mainApp').hidden = true;
+  document.body.classList.remove('app-mode');
+}
+function showLanding(){
+  hideAllScreens();
+  $('#landingScreen').hidden = false;
+  window.scrollTo({top:0});
+}
+function showSetup(){
+  hideAllScreens();
+  $('#setupScreen').hidden = false;
+  window.scrollTo({top:0});
+}
+function showApp(){
+  hideAllScreens();
+  $('#mainApp').hidden = false;
+  document.body.classList.add('app-mode');
+  applyAgentInfo();
+  renderAll();
+  window.scrollTo({top:0});
+}
+function startApp(){
+  if(db.agent) showApp(); else showLanding();
+}
+
+/* ================= Setup ================= */
+function completeSetup(){
+  const name = $('#setupName').value.trim();
+  const phone = $('#setupPhone').value.trim();
+  if(!name){ toast('Please enter your name','error'); return; }
+
+  db.agent = { name, phone, createdAt:new Date().toISOString() };
+  db.floats.cash = parseFloat($('#setupCash').value) || 0;
+  db.floats.eMoney.MTN = parseFloat($('#setupMTN').value) || 0;
+  db.floats.eMoney.Telecel = parseFloat($('#setupTelecel').value) || 0;
+  db.floats.eMoney.AirtelTigo = parseFloat($('#setupAirtelTigo').value) || 0;
+
+  saveDB();
+  showApp();
+  toast('Welcome, ' + name.split(' ')[0] + '!', 'success');
+}
+
+function applyAgentInfo(){
+  if(!db.agent) return;
+  $('#headerName').textContent = db.agent.name;
+  $('#headerPhone').textContent = db.agent.phone || '';
+  $('#headerAvatar').textContent = (db.agent.name[0]||'A').toUpperCase();
+}
+
+/* ================= Tabs ================= */
+function switchTab(tab){
+  $$('.tab').forEach(t => t.hidden = true);
+  const el = $('#tab-' + tab);
+  if(el) el.hidden = false;
+  $$('nav.app-nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+
+  if(tab === 'dashboard') renderDashboard();
+  if(tab === 'customers') renderCustomers();
+  if(tab === 'history') renderHistory();
+  if(tab === 'settings') renderSettings();
+  if(tab === 'new') prepareNewForm();
+  window.scrollTo({top:0});
+}
+
+/* ================= Toggles for new transaction ================= */
+let selectedNetwork = 'MTN';
+let selectedType = 'deposit';
+
+function initToggles(){
+  $$('#networkToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      $$('#networkToggle button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selectedNetwork = b.dataset.net;
+      suggestFeeAndCommission();
+    });
+  });
+  $$('#typeToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      $$('#typeToggle button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selectedType = b.dataset.type;
+      suggestFeeAndCommission();
+    });
+  });
+}
+
+function quickAction(type){
+  selectedType = type;
+  switchTab('new');
+  setTimeout(() => {
+    $$('#typeToggle button').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+    suggestFeeAndCommission();
+    $('#txDate').focus();
+  }, 50);
+}
+
+// Look up the configured rates for the selected network + type
+function suggestFeeAndCommission(){
+  const rate = getRate(selectedNetwork, selectedType);
+  const amount = parseFloat($('#txAmount').value) || 0;
+  const fee = amount * (rate.fee || 0) / 100;
+  const comm = amount * (rate.commission || 0) / 100;
+
+  $('#txFee').value = fee ? fee.toFixed(2) : '0';
+  $('#txCommission').value = comm ? comm.toFixed(2) : '0';
+
+  const hint = $('#rateHint');
+  if(hint){
+    hint.textContent = 'Using your ' + selectedNetwork + ' ' + (selectedType) + ' rate: '
+      + rate.fee + '% fee · ' + rate.commission + '% commission';
+  }
+}
+
+function prepareNewForm(){
+  $('#txForm').reset();
+  selectedNetwork = 'MTN';
+  selectedType = 'deposit';
+  $$('#networkToggle button').forEach(b => b.classList.toggle('active', b.dataset.net === 'MTN'));
+  $$('#typeToggle button').forEach(b => b.classList.toggle('active', b.dataset.type === 'deposit'));
+  $('#txFee').value = '0';
+  $('#txCommission').value = '0';
+
+  $('#txDate').value = nowDateStr();
+  $('#txTime').value = nowTimeStr();
+  updateDateChip();
+  suggestFeeAndCommission();
+}
+
+function updateDateChip(){
+  const chip = $('#dateChip');
+  const txt = $('#dateChipText');
+  if(!chip || !txt) return;
+  const ymd = $('#txDate').value;
+  if(!ymd){ txt.textContent = 'No date selected'; return; }
+
+  if(ymd === todayKey()){
+    chip.style.background = 'var(--primary-light)';
+    chip.style.color = 'var(--primary-dark)';
+    txt.textContent = 'Today (' + ymd + ')';
+  } else {
+    chip.style.background = '#fef3c7';
+    chip.style.color = '#92400e';
+    txt.textContent = relativeDayLabel(ymd);
+  }
+}
+
+document.addEventListener('change', (e) => {
+  if(e.target && e.target.id === 'txDate') updateDateChip();
+});
+
+document.addEventListener('input', (e) => {
+  if(e.target && e.target.id === 'txPhone'){
+    const phone = e.target.value.trim();
+    const found = db.customers.find(c => c.phone === phone);
+    if(found && !$('#txName').value) $('#txName').value = found.name;
+  }
+});
+
+/* ================= Transactions ================= */
+function saveTransaction(ev){
+  ev.preventDefault();
+  const amount = parseFloat($('#txAmount').value);
+  const fee = parseFloat($('#txFee').value) || 0;
+  const commission = parseFloat($('#txCommission').value) || 0;
+  const phone = $('#txPhone').value.trim();
+  const name = $('#txName').value.trim() || 'Unknown';
+  const note = $('#txNote').value.trim();
+
+  const dateVal = $('#txDate').value;
+  const timeVal = $('#txTime').value;
+
+  if(!phone){ toast('Customer phone is required','error'); return; }
+  if(!amount || amount <= 0){ toast('Enter a valid amount','error'); return; }
+  if(!dateVal){ toast('Please pick a date','error'); return; }
+  if(!timeVal){ toast('Please pick a time','error'); return; }
+
+  const localDate = new Date(dateVal + 'T' + timeVal + ':00');
+  if(isNaN(localDate.getTime())){ toast('Invalid date/time','error'); return; }
+
+  if(selectedType === 'deposit'){
+    if(db.floats.eMoney[selectedNetwork] < amount){
+      toast('Not enough ' + selectedNetwork + ' e-money', 'error'); return;
+    }
+  }
+  if(selectedType === 'withdrawal'){
+    if(db.floats.cash < amount){
+      toast('Not enough cash at hand', 'error'); return;
+    }
+  }
+
+  let customer = db.customers.find(c => c.phone === phone);
+  if(!customer){
+    customer = { id:uid(), name, phone, createdAt:new Date().toISOString() };
+    db.customers.push(customer);
+  } else if(name && name !== 'Unknown' && customer.name !== name){
+    customer.name = name;
+  }
+
+  if(selectedType === 'deposit' || selectedType === 'airtime' || selectedType === 'bill'){
+    db.floats.cash += amount;
+    db.floats.eMoney[selectedNetwork] -= amount;
+  } else if(selectedType === 'withdrawal'){
+    db.floats.cash -= amount;
+    db.floats.eMoney[selectedNetwork] += amount;
+  }
+
+  const tx = {
+    id: uid(),
+    customerId: customer.id,
+    customerName: customer.name,
+    customerPhone: customer.phone,
+    network: selectedNetwork,
+    type: selectedType,
+    amount, fee, commission, note,
+    timestamp: localDate.toISOString(),
+    date: dateVal,
+    time: timeVal
   };
+  db.transactions.push(tx);
+  saveDB();
 
-  return (
-    <div className="page">
-      <div style={{fontSize:"20px",fontWeight:"800",marginBottom:"20px"}}>My Profile</div>
-      <div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:"24px"}}>
-        <label className="avatar-upload" style={{marginBottom:"14px"}}>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatar} />
-          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:meta.color+"20",border:`3px solid ${meta.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"42px",overflow:"hidden",position:"relative"}}>
-            {avatar
-              ? <img src={avatar} style={{width:"100%",height:"100%",objectFit:"cover"}} />
-              : <span>{meta.emoji}</span>}
-            <div className="avatar-upload-overlay">📷</div>
-          </div>
-        </label>
-        <div style={{fontSize:"11px",color:"var(--text3)",marginBottom:"4px",fontFamily:"var(--mono)"}}>TAP PHOTO TO CHANGE</div>
+  const wasBackdated = dateVal !== todayKey();
+  toast(wasBackdated ? 'Backdated transaction saved' : 'Transaction saved', 'success');
+  prepareNewForm();
+  switchTab('dashboard');
+}
 
-        {editMode ? (
-          <input className="inp" style={{maxWidth:"240px",textAlign:"center",fontSize:"18px",fontWeight:"800"}}
-            value={displayName} onChange={e=>setDisplayName(e.target.value)} />
-        ) : (
-          <div style={{fontSize:"22px",fontWeight:"800"}}>{displayName}</div>
-        )}
+/* ================= Render: Dashboard ================= */
+function renderDashboard(){
+  const today = db.transactions.filter(t => isToday(t.timestamp));
+  const count = today.length;
+  const commission = today.reduce((s,t) => s + (t.commission||0), 0);
+  const cashIn = today.filter(t => t.type==='deposit').reduce((s,t) => s + t.amount, 0);
+  const cashOut = today.filter(t => t.type==='withdrawal').reduce((s,t) => s + t.amount, 0);
 
-        <div style={{display:"flex",alignItems:"center",gap:"6px",marginTop:"6px"}}>
-          <span style={{fontSize:"14px"}}>{meta.emoji}</span>
-          <span style={{fontSize:"13px",color:meta.color,fontWeight:"700"}}>{meta.label}</span>
+  $('#dashCommission').textContent = money(commission);
+  $('#dashCount').textContent = count;
+  $('#dashIn').textContent = money(cashIn);
+  $('#dashOut').textContent = money(cashOut);
+
+  $('#floatCash').textContent = money(db.floats.cash);
+  $('#floatMTN').textContent = money(db.floats.eMoney.MTN);
+  $('#floatTelecel').textContent = money(db.floats.eMoney.Telecel);
+  $('#floatAirtelTigo').textContent = money(db.floats.eMoney.AirtelTigo);
+
+  const recent = db.transactions.slice().sort((a,b) =>
+    new Date(b.timestamp) - new Date(a.timestamp)
+  ).slice(0, 5);
+
+  const box = $('#dashRecent');
+  if(!recent.length){
+    box.innerHTML = '<div class="empty">No transactions yet. Tap "New" to record one.</div>';
+  } else {
+    box.innerHTML = recent.map(txRow).join('');
+  }
+}
+
+function txRow(t){
+  const sign = (t.type === 'deposit' || t.type === 'airtime' || t.type === 'bill') ? '+' : '-';
+  const cls = sign === '+' ? 'pos' : 'neg';
+  const label = {
+    deposit:'Deposit', withdrawal:'Withdrawal', airtime:'Airtime', bill:'Bill'
+  }[t.type] || t.type;
+
+  const isBackdated = t.date && t.date !== todayKey();
+  const dateTag = isBackdated
+    ? `<span class="tag past-tag">📅 ${escapeHtml(relativeDayLabel(t.date))}</span>`
+    : '';
+
+  return `
+    <div class="list-item">
+      <div class="main">
+        <div class="title">${escapeHtml(t.customerName)}</div>
+        <div class="meta">
+          ${dateTag}<span class="tag">${escapeHtml(t.network)}</span>
+          ${label} • ${formatTime(t.timestamp)}
         </div>
       </div>
-
-      <div className="card" style={{padding:"16px",marginBottom:"12px"}}>
-        <div style={{marginBottom:"14px"}}>
-          <span className="lbl">Bio / Note</span>
-          {editMode
-            ? <textarea className="inp" rows={3} style={{resize:"none"}} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Add a short note about yourself…" />
-            : <div style={{fontSize:"14px",color:bio?"var(--text)":"var(--text3)",lineHeight:"1.6"}}>{bio||"No bio yet. Tap Edit to add one."}</div>
-          }
-        </div>
-        <div>
-          <span className="lbl">Family Room</span>
-          <div style={{fontFamily:"var(--mono)",fontSize:"14px",color:"var(--accent)",fontWeight:"700"}}>📡 {session.room}</div>
-        </div>
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px",marginBottom:"20px"}}>
-        {[
-          ["ROLE", meta.label, meta.color],
-          ["MEMBER SINCE", myData?.createdAt ? new Date(myData.createdAt).toLocaleDateString() : "—", "var(--text2)"],
-        ].map(([l,v,c])=>(
-          <div key={l} className="card-sm">
-            <div style={{fontSize:"9px",color:"var(--text3)",fontFamily:"var(--mono)",fontWeight:"700",letterSpacing:"1px"}}>{l}</div>
-            <div style={{fontSize:"13px",color:c,fontWeight:"700",marginTop:"4px"}}>{v}</div>
-          </div>
-        ))}
-      </div>
-
-      {editMode ? (
-        <div style={{display:"flex",gap:"10px"}}>
-          <button className="btn-ghost" style={{flex:1,padding:"12px"}} onClick={()=>setEditMode(false)}>Cancel</button>
-          <button className="btn-primary" style={{flex:2}} onClick={save} disabled={saving}>{saving?"Saving…":"Save Changes"}</button>
-        </div>
-      ) : (
-        <button className="btn-primary" style={{marginBottom:"12px"}} onClick={()=>setEditMode(true)}>✏️ Edit Profile</button>
-      )}
-
-      <button onClick={onLogout} style={{width:"100%",padding:"13px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:"11px",color:"#f87171",fontWeight:"800",fontSize:"14px",fontFamily:"var(--font)"}}>
-        Log Out
-      </button>
+      <div class="amt ${cls}">${sign}${money(t.amount).replace(db.settings.currency+' ','')}</div>
     </div>
+  `;
+}
+
+/* ================= Render: Customers ================= */
+function renderCustomers(){
+  const q = ($('#custSearch').value || '').toLowerCase().trim();
+  let list = db.customers.slice().sort((a,b) => a.name.localeCompare(b.name));
+  if(q){
+    list = list.filter(c =>
+      c.name.toLowerCase().includes(q) || c.phone.includes(q)
+    );
+  }
+  const box = $('#customerList');
+  if(!list.length){
+    box.innerHTML = '<div class="empty">No customers yet.</div>';
+    return;
+  }
+  box.innerHTML = list.map(c => {
+    const txs = db.transactions.filter(t => t.customerId === c.id);
+    const total = txs.reduce((s,t) => s + t.amount, 0);
+    const last = txs.slice().sort((a,b) =>
+      new Date(b.timestamp) - new Date(a.timestamp)
+    )[0];
+    const lastLine = last ? ` • last ${formatDate(last.timestamp)}` : '';
+    return `
+      <div class="list-item">
+        <div class="main">
+          <div class="title">${escapeHtml(c.name)}</div>
+          <div class="meta">${escapeHtml(c.phone)} • ${txs.length} transaction${txs.length===1?'':'s'}${lastLine}</div>
+        </div>
+        <div class="amt">${money(total)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ================= Render: History ================= */
+function renderHistory(){
+  const filter = $('#histFilter').value;
+  let txs = db.transactions.slice().sort((a,b) =>
+    new Date(b.timestamp) - new Date(a.timestamp)
   );
+
+  if(filter === 'today') txs = txs.filter(t => isToday(t.timestamp));
+  else if(filter === 'week'){
+    const cut = Date.now() - 7*24*60*60*1000;
+    txs = txs.filter(t => new Date(t.timestamp).getTime() >= cut);
+  } else if(filter === 'month'){
+    const cut = Date.now() - 30*24*60*60*1000;
+    txs = txs.filter(t => new Date(t.timestamp).getTime() >= cut);
+  }
+
+  const box = $('#historyList');
+  if(!txs.length){
+    box.innerHTML = '<div class="empty">No transactions in this period.</div>';
+    return;
+  }
+
+  const groups = {};
+  txs.forEach(t => {
+    const key = t.date || dateKeyFromDate(new Date(t.timestamp));
+    (groups[key] = groups[key] || []).push(t);
+  });
+
+  const sortedKeys = Object.keys(groups).sort((a,b) => b.localeCompare(a));
+
+  box.innerHTML = sortedKeys.map(dayKey => {
+    const items = groups[dayKey];
+    const total = items.reduce((s,t) => s + t.amount, 0);
+    const comm = items.reduce((s,t) => s + (t.commission||0), 0);
+    const label = relativeDayLabel(dayKey);
+    return `
+      <div class="day-header">
+        ${label} — ${money(total)} • comm ${money(comm)}
+      </div>
+      ${items.map(txRow).join('')}
+    `;
+  }).join('');
 }
 
-function App() {
-  const [sess, setSess] = useState(() => LS.get("sess"));
-  const login = (s) => setSess(s);
-  const logout = () => { LS.del("sess"); setSess(null); };
-  if (!sess) return <AuthScreen onAuth={login} />;
-  return <MainApp session={sess} onLogout={logout} />;
+/* ================= Rates editor ================= */
+let editingRateNetwork = 'MTN';
+
+function initRateToggle(){
+  const wrap = $('#rateNetworkToggle');
+  if(!wrap) return;
+  $$('#rateNetworkToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      $$('#rateNetworkToggle button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      editingRateNetwork = b.dataset.net;
+      renderRateEditor();
+    });
+  });
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+function renderRateEditor(){
+  const box = $('#rateEditor');
+  if(!box) return;
+  const net = editingRateNetwork;
+  const rates = db.rates[net] || {};
+
+  box.innerHTML = TX_TYPES.map(t => {
+    const r = rates[t.key] || { fee:0, commission:0 };
+    return `
+      <div class="rate-row">
+        <div class="rate-label">${escapeHtml(t.label)}</div>
+        <div class="rate-input-wrap">
+          <input type="number" step="0.01" min="0"
+            data-net="${net}" data-type="${t.key}" data-field="fee"
+            value="${r.fee}" oninput="onRateInput()" />
+        </div>
+        <div class="rate-input-wrap">
+          <input type="number" step="0.01" min="0"
+            data-net="${net}" data-type="${t.key}" data-field="commission"
+            value="${r.commission}" oninput="onRateInput()" />
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateRateLive();
+}
+
+function onRateInput(){
+  // Live preview using withdrawal as the sample
+  updateRateLive();
+}
+
+function readRatesFromInputs(){
+  // Returns { MTN: { deposit: {fee,commission}, ... }, ... } merged into current db.rates
+  const updated = mergeRates(defaultRates(), db.rates);
+  const inputs = $$('#rateEditor input[data-net]');
+  inputs.forEach(inp => {
+    const net = inp.dataset.net;
+    const type = inp.dataset.type;
+    const field = inp.dataset.field;
+    const v = parseFloat(inp.value);
+    updated[net][type][field] = isNaN(v) ? 0 : v;
+  });
+  return updated;
+}
+
+function updateRateLive(){
+  const preview = readRatesFromInputs();
+  const r = preview[editingRateNetwork].withdrawal;
+  const sample = 100;
+  const fee = sample * (r.fee||0) / 100;
+  const comm = sample * (r.commission||0) / 100;
+  const el = $('#rateLive');
+  if(el){
+    el.innerHTML = 'On a <b>' + money(sample) + '</b> withdrawal on '
+      + editingRateNetwork + ', you\'d charge <b>' + money(fee)
+      + '</b> and earn <b>' + money(comm) + '</b>.';
+  }
+}
+
+function saveRates(){
+  db.rates = readRatesFromInputs();
+  saveDB();
+  // Recompute the preview on the new-transaction form for the currently selected network/type
+  if($('#txAmount')) suggestFeeAndCommission();
+  toast('Rates saved', 'success');
+}
+
+/* ================= Render: Settings ================= */
+function renderSettings(){
+  if(!db.agent) return;
+  $('#setName').value = db.agent.name;
+  $('#setPhone').value = db.agent.phone || '';
+  $('#setCurrency').value = db.settings.currency || 'GHS';
+  $('#setCash').value = db.floats.cash;
+  $('#setMTN').value = db.floats.eMoney.MTN;
+  $('#setTelecel').value = db.floats.eMoney.Telecel;
+  $('#setAirtelTigo').value = db.floats.eMoney.AirtelTigo;
+
+  // Sync the rate toggle button state with our remembered network
+  $$('#rateNetworkToggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.net === editingRateNetwork);
+  });
+  renderRateEditor();
+}
+
+function saveSettings(){
+  if(!db.agent) return;
+  db.agent.name = $('#setName').value.trim() || db.agent.name;
+  db.agent.phone = $('#setPhone').value.trim();
+  db.settings.currency = $('#setCurrency').value.trim() || 'GHS';
+  db.floats.cash = parseFloat($('#setCash').value) || 0;
+  db.floats.eMoney.MTN = parseFloat($('#setMTN').value) || 0;
+  db.floats.eMoney.Telecel = parseFloat($('#setTelecel').value) || 0;
+  db.floats.eMoney.AirtelTigo = parseFloat($('#setAirtelTigo').value) || 0;
+  saveDB();
+  applyAgentInfo();
+  toast('Settings saved', 'success');
+}
+
+/* ================= Export / Reset ================= */
+function exportCSV(){
+  if(!db.transactions.length){ toast('No transactions to export','error'); return; }
+  const head = ['Date','Time','Customer','Phone','Network','Type','Amount','Fee','Commission','Note'];
+  const rows = db.transactions
+    .slice()
+    .sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp))
+    .map(t => [
+      t.date || new Date(t.timestamp).toLocaleDateString(),
+      t.time || new Date(t.timestamp).toLocaleTimeString(),
+      t.customerName, t.customerPhone, t.network, t.type,
+      t.amount, t.fee||0, t.commission||0, t.note||''
+    ]);
+  const csv = [head, ...rows].map(r => r.map(v => {
+    const s = String(v ?? '');
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'momo-ledger-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function resetAll(){
+  if(!confirm('This will delete ALL data on this device. Continue?')) return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
+  localStorage.removeItem(STORE_KEY);
+  location.reload();
+}
+
+/* ================= Render all ================= */
+function renderAll(){
+  renderDashboard();
+  renderCustomers();
+  renderHistory();
+  renderSettings();
+}
+
+/* ================= PWA ================= */
+let deferredPrompt = null;
+let swRegistration = null;
+let refreshing = false;
+
+function installApp(){
+  if(!deferredPrompt){
+    toast('Use your browser menu → "Add to Home screen"', 'info');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choice) => {
+    if(choice.outcome === 'accepted'){
+      const b = document.getElementById('installBanner');
+      if(b) b.hidden = true;
+    }
+    deferredPrompt = null;
+  });
+}
+
+function dismissInstall(){
+  const b = document.getElementById('installBanner');
+  if(b) b.hidden = true;
+  localStorage.setItem('installDismissed', '1');
+}
+
+function showUpdateBanner(){
+  const ub = document.getElementById('updateBanner');
+  if(ub) ub.hidden = false;
+}
+function hideUpdateBanner(){
+  const ub = document.getElementById('updateBanner');
+  if(ub) ub.hidden = true;
+}
+
+function applyUpdate(){
+  hideUpdateBanner();
+
+  if(swRegistration && swRegistration.waiting){
+    swRegistration.waiting.postMessage({ type:'SKIP_WAITING' });
+    setTimeout(() => { window.location.reload(); }, 1500);
+    return;
+  }
+  if(swRegistration && swRegistration.installing){
+    swRegistration.installing.postMessage({ type:'SKIP_WAITING' });
+    setTimeout(() => { window.location.reload(); }, 1500);
+    return;
+  }
+  window.location.reload();
+}
+
+function checkForUpdates(showFeedback){
+  if(!('serviceWorker' in navigator) || !swRegistration){
+    if(showFeedback) toast('Updates not supported in this browser', 'error');
+    return;
+  }
+  swRegistration.update().then(() => {
+    if(swRegistration.waiting || swRegistration.installing){
+      showUpdateBanner();
+      if(showFeedback) toast('Update found — tap Reload', 'success');
+    } else {
+      if(showFeedback) toast('You are on the latest version', 'success');
+    }
+  }).catch(() => {
+    if(showFeedback) toast('Could not check for updates', 'error');
+  });
+}
+
+function initPWA(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        swRegistration = reg;
+
+        if(reg.waiting) showUpdateBanner();
+
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if(!nw) return;
+          nw.addEventListener('statechange', () => {
+            if(nw.state === 'installed' && navigator.serviceWorker.controller){
+              showUpdateBanner();
+            }
+          });
+        });
+
+        setInterval(() => { reg.update().catch(() => {}); }, 60 * 60 * 1000);
+      }).catch(err => console.warn('SW failed:', err));
+
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if(refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if(!localStorage.getItem('installDismissed')){
+      const b = document.getElementById('installBanner');
+      if(b && !$('#mainApp').hidden) b.hidden = false;
+    }
+  });
+
+  window.addEventListener('appinstalled', () => {
+    const b = document.getElementById('installBanner');
+    if(b) b.hidden = true;
+    toast('App installed!', 'success');
+  });
+}
+
+/* ================= Init ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  loadDB();
+  initToggles();
+  initRateToggle();
+  startApp();
+  initPWA();
+
+  $$('nav.app-nav button').forEach(b => {
+    b.addEventListener('click', () => switchTab(b.dataset.tab));
+  });
+
+  $('#txAmount').addEventListener('input', suggestFeeAndCommission);
+
+  const params = new URLSearchParams(location.search);
+  const shortcutTab = params.get('tab');
+  if(shortcutTab && db.agent && document.getElementById('tab-' + shortcutTab)){
+    setTimeout(() => switchTab(shortcutTab), 100);
+  }
+});
 </script>
 </body>
 </html>
