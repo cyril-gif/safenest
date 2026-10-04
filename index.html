@@ -137,7 +137,6 @@ function LiveMap({ members }) {
       center: [9.0, -2.5], zoom: 6, zoomControl: true, attributionControl: false,
     });
 
-    // High-resolution hybrid tiles with deep zoom support
     L.tileLayer(CONFIG.MAP_TILE_URL, { 
       maxZoom: 22, 
       maxNativeZoom: 21,
@@ -322,8 +321,6 @@ function MainApp({ session, onLogout }) {
   const [pending, setPending] = useState(false);
 
   const watchRef = useRef(null);
-  const simRef = useRef(null);
-  const simCoordsRef = useRef(null);
   const activeRef = useRef(false);
 
   const meta = ROLE_META[session.role];
@@ -361,7 +358,7 @@ function MainApp({ session, onLogout }) {
       setMembers(list);
     };
     poll();
-    const t = setInterval(poll, 3000);
+    const t = setInterval(poll, 6000); // Slowed down for performance
     return () => clearInterval(t);
   }, [session]);
 
@@ -376,7 +373,6 @@ function MainApp({ session, onLogout }) {
   const stopSharing = useCallback(() => {
     activeRef.current = false;
     if (watchRef.current != null) { navigator.geolocation?.clearWatch(watchRef.current); watchRef.current = null; }
-    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
     const off = { online:false, name:session.name, t:Date.now() };
     const locs = LS.get(`${session.room}_locs`) || {};
     locs[session.role] = off;
@@ -386,39 +382,31 @@ function MainApp({ session, onLogout }) {
     setSharing(false); setPending(false);
   }, [session]);
 
-  const startSim = useCallback(() => {
-    const base = { lat: 9.0 + (Math.random()-.5)*.5, lng: -2.5 + (Math.random()-.5)*.5, accuracy:35 };
-    simCoordsRef.current = {...base};
-    pushLoc(base);
-    setSharing(true); setPending(false); activeRef.current = true;
-    LS.set("is_sharing", true);
-    simRef.current = setInterval(() => {
-      if (!activeRef.current) return;
-      simCoordsRef.current.lat += (Math.random()-.48)*.001;
-      simCoordsRef.current.lng += (Math.random()-.48)*.001;
-      pushLoc({...simCoordsRef.current});
-    }, 5000);
-  }, [pushLoc]);
-
   const startSharing = useCallback(() => {
     if (watchRef.current != null) return;
     setPending(true);
-    if (!navigator.geolocation) { startSim(); return; }
-
-    const fallback = setTimeout(() => { if (!activeRef.current) startSim(); }, 8000);
+    
+    if (!navigator.geolocation) {
+      alert("GPS is not supported on this device.");
+      setPending(false);
+      return;
+    }
 
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
-        clearTimeout(fallback);
         if (watchRef.current == null) return;
         const loc = { lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:Math.round(pos.coords.accuracy) };
         pushLoc(loc);
         if (!activeRef.current) { activeRef.current=true; setSharing(true); setPending(false); LS.set("is_sharing", true); }
       },
-      () => { clearTimeout(fallback); startSim(); },
+      (err) => {
+        console.error(err);
+        alert("Could not get your location. Please check your phone's GPS settings and allow location access for this site.");
+        setPending(false);
+      },
       { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
     );
-  }, [startSim, pushLoc]);
+  }, [pushLoc]);
 
   const toggleSharing = useCallback(() => {
     if (sharing || pending) { stopSharing(); return; }
@@ -433,7 +421,6 @@ function MainApp({ session, onLogout }) {
 
   useEffect(() => () => {
     if (watchRef.current != null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; }
-    if (simRef.current) { clearInterval(simRef.current); simRef.current = null; }
   }, []);
 
   const onlineCount = members.filter(m=>m.online).length;
