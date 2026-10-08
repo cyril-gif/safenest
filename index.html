@@ -104,7 +104,6 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 const CONFIG = {
   FIREBASE_URL: "https://lantam-cyril-default-rtdb.firebaseio.com",
-  // Using Google Maps hybrid tiles (unofficial but free, gives high-res satellite + street labels)
   MAP_TILE_URL: "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" 
 };
 
@@ -358,7 +357,7 @@ function MainApp({ session, onLogout }) {
       setMembers(list);
     };
     poll();
-    const t = setInterval(poll, 6000); // Slowed down for performance
+    const t = setInterval(poll, 6000);
     return () => clearInterval(t);
   }, [session]);
 
